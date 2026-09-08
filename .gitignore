@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+venv/
+.venv/
+.python-version
+
+# Node (plugins are dependency-free; tests may not need this at all)
+node_modules/
+
+# Runtime state (lives in %USERPROFILE%\.opencode-deck by default,
+# but keep stray local runs out of the repo)
+.opencode-deck/
+discovery.json
+broker.lock
+broker.log*
+hardware-check.json
+animation-preview.gif
+!docs/animation-preview.gif
+
+# Test artifacts
+.pytest_cache/
+.npm/
+*.log
+
+# Editor / OS noise
+.vscode/
+.idea/
+*.swp
+*.suo
+Thumbs.db
+Desktop.ini
+.DS_Store
