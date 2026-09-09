@@ -30,11 +30,20 @@ When you run several agents at once, the terminal becomes a black box: *is it st
 
 Slots are stable: closing an instance frees its key without shuffling the others. A seventh instance waits off-deck and takes the first vacancy in registration order.
 
-## Today: OpenCode. Tomorrow: your harness.
+## OpenCode and additional harness adapters
 
-Today the adapter layer speaks **OpenCode** natively — it loads as a global OpenCode plugin and needs no other setup. But the core (broker, USB/HID adapter, artwork, window focus) is harness-agnostic: it only ever sees normalized `{status, pending}` snapshots and process identity.
+OpenCode has its existing global plugin. This testing branch adds native hook
+adapters for **Claude Code, GitHub Copilot CLI, GitHub Copilot in VS Code, Gemini
+CLI, and Cursor CLI**, all sharing the same six keys. The core broker, device,
+artwork and focus protocol are unchanged.
 
-That split is on purpose. We want **Claude Code, Codex CLI, Gemini CLI, Aider, and any other agentic harness** to light up the same six keys — and the plugin layer is exactly where new harnesses plug in. See [CONTRIBUTING.md](CONTRIBUTING.md): if you can turn your harness's activity into "busy / idle / waiting-on-me", we want your pull request.
+Start with [docs/HARNESSES.md](docs/HARNESSES.md) for installation, Windows BAT
+launchers, capability differences and a live test checklist. These new adapters
+are implemented and fixture-tested; live harness loading and Windows hardware
+remain unverified. Approval visibility varies by harness, and VS Code uses an
+isolated test profile. Existing OpenCode installation instructions below still apply.
+
+New integrations belong in the adapter layer; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Requirements
 
@@ -43,7 +52,7 @@ That split is on purpose. We want **Claude Code, Codex CLI, Gemini CLI, Aider, a
 | OS | Windows 10 or 11 | Native Windows user session (not WSL, not a service account) |
 | Terminal | Windows Terminal | `winget install -e --id Microsoft.WindowsTerminal` |
 | Python | 3.11+ (64-bit) | `python --version` to check; `winget install -e --id Python.Python.3.13` to install |
-| Agent harness | **OpenCode** (installed and on PATH) | Verify with `opencode --version`. Other harnesses: PRs welcome |
+| Agent harness | **OpenCode** (installed and on PATH) | Verify with `opencode --version`. Additional harnesses: see `docs/HARNESSES.md` |
 | Hardware | **Elgato Stream Deck Mini (6 keys)** | Must be the Mini — the whole design is six stable slots. `ocdeck devices` lists what is detected |
 | Elgato app | **7.1+ (7.2+ recommended)** | 7.1 introduced the per-device "Enabled" toggle you'll use below |
 | Internet | Once | For `pip` dependencies during install |
@@ -199,7 +208,7 @@ Full detail in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and the API in [`d
 
 ## Scope and boundaries
 
-Global **for one native Windows user and one harness config home**, across any project directory. Not yet: WSL/containers/SSH (relay designed in `docs/REMOTE-AND-WSL.md`, not implemented), multiple tabs/panes in one window, macOS/Linux, and — until you build it — your favorite harness. The broker stays on `127.0.0.1` — it is a trusted local protocol, not a LAN service.
+Global **for one native Windows user and one harness config home**, across any project directory. Not yet: WSL/containers/SSH (relay designed in `docs/REMOTE-AND-WSL.md`, not implemented), multiple tabs/panes in one window, macOS/Linux, and harnesses outside the implemented adapter list. New hook integrations require the managed launchers described in `docs/HARNESSES.md`. The broker stays on `127.0.0.1` — it is a trusted local protocol, not a LAN service.
 
 ## Uninstall
 

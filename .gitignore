@@ -35,3 +35,8 @@ animation-preview.gif
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Per-machine harness installation receipts and backups
+.agentdeck/
+*.agentdeck-backup-*
+*.agentdeck-tmp
