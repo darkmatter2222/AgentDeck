@@ -8,6 +8,10 @@ Six physical keys. Up to six agent terminal instances. One glance tells you whic
 
 > The preview places all states on six keys simultaneously so you can see the artwork. In real use, READY appears on key 1 only when zero instances are running.
 
+## Demo video
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/NTWLbLbJiO0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 ![The deck on the desk](images/root.png)
 
 | Condition | Key appearance |
@@ -44,12 +48,16 @@ That split is on purpose. We want **Claude Code, Codex CLI, Gemini CLI, Aider, a
 | Terminal | Windows Terminal | `winget install -e --id Microsoft.WindowsTerminal` |
 | Python | 3.11+ (64-bit) | `python --version` to check; `winget install -e --id Python.Python.3.13` to install |
 | Agent harness | **OpenCode** (installed and on PATH) | Verify with `opencode --version`. Other harnesses: PRs welcome |
-| Hardware | **Elgato Stream Deck Mini (6 keys)** | Must be the Mini — the whole design is six stable slots. `ocdeck devices` lists what is detected |
+| Hardware | **Elgato Stream Deck Mini (6 keys)** | Must be the Mini — the whole design is six stable slots. `ocdeck devices` lists what is detected. **~$55** — see below |
 | Elgato app | **7.1+ (7.2+ recommended)** | 7.1 introduced the per-device "Enabled" toggle you'll use below |
 | Internet | Once | For `pip` dependencies during install |
 | Node | 20+ | Only for the JavaScript test suite; OpenCode runs the plugin itself |
 
 No GPU, no model, no new provider or permission config. Nothing about your existing setup is replaced.
+
+### The hardware is cheap on purpose
+
+You don't need to spend **$200–$300** on a full-size dedicated keypad. This is built for the **6-key Stream Deck Mini**, which goes for about **$55** at your local Best Buy or online — the author's unit came from a Best Buy shelf. Six stable slots, one glance, one press: the whole design fits in that footprint and that price.
 
 ## Getting started
 
