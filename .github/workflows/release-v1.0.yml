@@ -1,0 +1,54 @@
+name: Publish AgentDeck v1.0
+
+on:
+  push:
+    branches: [main]
+    paths: [docs/releases/v1.0.md]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: agentdeck-release-v1.0
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.repository == 'darkmatter2222/AgentDeck' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RELEASE_COMMIT: ${{ github.sha }}
+    steps:
+      - name: Check out exact release source and build ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --no-checkout "https://github.com/${GH_REPO}.git" source
+          git -C source checkout --detach "$RELEASE_COMMIT"
+          (cd source && sha256sum --check SHA256SUMS.txt)
+          git -C source archive --format=zip --prefix=AgentDeck-v1.0/ \
+            --output="$RUNNER_TEMP/AgentDeck-v1.0.zip" HEAD
+          (cd "$RUNNER_TEMP" && sha256sum AgentDeck-v1.0.zip > AgentDeck-v1.0.zip.sha256)
+      - name: Publish release with notes and downloads
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view v1.0 --json isDraft --jq '.isDraft' > "$RUNNER_TEMP/release-draft"; then
+            if [ "$(cat "$RUNNER_TEMP/release-draft")" = false ]; then
+              echo 'v1.0 is already published; leaving it unchanged.'
+              exit 0
+            fi
+            gh release upload v1.0 "$RUNNER_TEMP/AgentDeck-v1.0.zip" \
+              "$RUNNER_TEMP/AgentDeck-v1.0.zip.sha256" --clobber
+          else
+            gh release create v1.0 "$RUNNER_TEMP/AgentDeck-v1.0.zip" \
+              "$RUNNER_TEMP/AgentDeck-v1.0.zip.sha256" \
+              --target "$RELEASE_COMMIT" --title 'AgentDeck v1.0 — Six keys for your coding agents' \
+              --notes-file source/docs/releases/v1.0.md --draft
+          fi
+          gh release edit v1.0 --draft=false --latest
+          gh release view v1.0 --json url --jq '.url'
