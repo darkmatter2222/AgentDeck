@@ -1,16 +1,21 @@
-# Deployment goal prompt for Qwen 3.8 27B
+# Local deployment and validation handoff (any coding agent)
 
 You are working locally on the owner's Windows PC. Install and finish validating this source bundle, preserving existing Home AI / HomeAILab work and OpenCode configuration. The owner authorizes this integration and will disable the Mini in Elgato Preferences > Devices. Do not assume that this bundle has been verified with their physical hardware or their installed OpenCode version.
 
+Choose the setup path and desired profiles from TUTORIALS.md and HARNESSES.md.
+The existing OpenCode procedure below applies when OpenCode is used. A machine
+without OpenCode uses the documented foreground broker path, with no automatic
+Task Scheduler installation. Do not install OpenCode merely to enable another CLI.
+
 ## Required outcome
 
-One per-user broker owns a six-key Stream Deck Mini directly through USB HID. With no live OpenCode instances, key 1 shows animated cyan READY and the others are black. Each independent interactive OpenCode instance occupies one stable key: green animated running/retry, amber idle, red pulsing pending permission or structured question. Pending input takes precedence over running. Pressing a key focuses exactly its terminal window without answering permissions, typing, changing session state, or cycling sessions. Closing the runtime removes its key; other instances do not shift. All six slots are available to instances. A seventh waits for a vacancy. Stale telemetry is explicitly unknown, not confidently idle.
+One per-user broker owns a six-key Stream Deck Mini directly through USB HID. The state coverage below describes OpenCode; use HARNESSES.md for each added adapter's actual coverage. With no registered agent launches, key 1 shows animated cyan READY and the others are black. Each independent interactive OpenCode instance occupies one stable key: green animated running/retry, amber idle, red pulsing pending permission or structured question. Pending input takes precedence over running. Pressing a key focuses exactly its terminal window without answering permissions, typing, changing session state, or cycling sessions. Closing the runtime removes its key; other instances do not shift. All six slots are available to instances. A seventh waits for a vacancy. Stale telemetry is explicitly unknown, not confidently idle.
 
-The service starts through the root Task Scheduler task `\OpenCode Deck` at this user's logon, in the interactive session. Use logon rather than a SYSTEM pre-login service because focusing desktop windows requires the user's session. Bind loopback with port 0 and use the atomic discovery file; never hard-code a common port. Keep Elgato disabled for this physical device so profiles cannot repaint it. Do not install an Elgato plugin or use MCP for this direct-HID design.
+For the original OpenCode installer path, the service starts through the root Task Scheduler task `\OpenCode Deck` at this user's logon, in the interactive session. Use logon rather than a SYSTEM pre-login service because focusing desktop windows requires the user's session. Bind loopback with port 0 and use the atomic discovery file; never hard-code a common port. Keep Elgato disabled for this physical device so profiles cannot repaint it. Do not install an Elgato plugin or use MCP for this direct-HID design.
 
 ## Read before changing code
 
-Read README.md, FIRST-RUN.md, ARCHITECTURE.md, API.md, TEST-RESULTS.md and REMOTE-AND-WSL.md. Inspect the existing Home AI repo, its applicable AGENTS.md, `git status`, uncommitted diffs, and any previous deck implementation. Do not discard or commit unrelated work. This bundle is standalone because the remote author's environment did not contain the user's uncommitted implementation. Reconcile actual local requirements before moving files into the repo.
+Read README.md and docs/{README,TUTORIALS,HARNESSES,FIRST-RUN,ARCHITECTURE,API,TEST-RESULTS,REMOTE-AND-WSL,TROUBLESHOOTING}.md. Inspect the existing Home AI repo, its applicable AGENTS.md, `git status`, uncommitted diffs, and any previous deck implementation. Do not discard or commit unrelated work. This bundle is standalone because the remote author's environment did not contain the user's uncommitted implementation. Reconcile actual local requirements before moving files into the repo.
 
 Record Windows version, terminal version, Python executable/version/architecture, original OpenCode command and version, config home (including overrides), plugin API support, Mini model/serial, Elgato version and device-disabled setting. Do not print provider keys or broker token. The installer records the original OpenCode executable; never point it to its own wrapper.
 
@@ -51,3 +56,24 @@ Win32 focus is best effort under Windows foreground restrictions, especially acr
 ## Completion criteria
 
 Software tests pass; the real OpenCode plugin emits all three requested states; physical keys focus the exact six windows; closed processes disappear; pending state survives broker restart; USB reconnect and reboot/logon recover; empty slots are black; READY yields its slot; existing OpenCode configuration remains intact. Until these observations are recorded, describe the integration as implemented but still undergoing local validation.
+
+
+## Additional harness work
+
+Use the existing-integration tutorial for an installed broker, or the foreground
+setup without OpenCode. Install hooks for every requested profile in each actual
+software project, launch with its BAT file from that project, and check the native
+hook loader/diagnostics. Run the mixed-harness checks in FIRST-RUN.md and per-profile
+checks in HARNESSES.md. Check `node` resolution inside the managed environment.
+
+Preserve the capability distinctions: Claude has identified question tracking,
+while permission notifications without paired IDs can be unknown; Copilot/Cursor
+activity does not imply complete approval visibility. Verify text-only turn
+completion and blocked/cancelled tools. Never turn a synthetic ID or heuristic
+into a claim of reliable approval state. VS Code uses a fresh isolated user-data
+directory, so guide the owner through normal sign-in/trust/extension setup and
+validate title-based focus. Do not alter their ordinary editor settings.
+
+Deliver the installed profile/project list, observed native versions, actual
+software/hardware results, and the exact removal commands. Keep the receipt files
+until removal; do not commit machine paths, launch descriptors or secrets.

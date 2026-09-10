@@ -4,6 +4,10 @@ The supplied installer is global **for one native Windows user and OpenCode conf
 
 The implemented and tested broker protocol uses native local process IDs plus process creation times. That identity has meaning only on the broker's operating system. The device and focus worker must run on the Windows PC with the Mini and the user's desktop. Loopback in WSL, a container, or a remote host does not automatically mean the same loopback endpoint.
 
+The added hook adapters instead install **per software project** and require
+their managed launcher. Their local Node relay lives on the same host; it is not
+the cross-environment relay proposed below.
+
 ## Supported design boundaries
 
 | Launch type | This bundle |
@@ -12,6 +16,8 @@ The implemented and tested broker protocol uses native local process IDs plus pr
 | Native OpenCode launched without wrapper | Global state plugin can register; exact terminal focus is not guaranteed |
 | Multiple tabs/panes in a shared terminal window | Exact tab/pane selection not implemented |
 | Multiple clients attached to one OpenCode server | Not supported by default process-wide adapter |
+| Native Windows Claude/Copilot CLI/Gemini/Cursor CLI | Project hooks + managed launcher; native acceptance unverified |
+| Copilot VS Code | Isolated editor profile; all chats share one key; focus acceptance unverified |
 | WSL / Docker / SSH runtime | Cross-environment host relay not implemented |
 | macOS / Linux desktop | Windows installer/focus not implemented |
 

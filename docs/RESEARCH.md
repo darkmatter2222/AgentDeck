@@ -1,3 +1,6 @@
+> Historical OpenCode design research. Current supported profiles and limitations
+> are documented in [HARNESSES.md](HARNESSES.md); this file is not a current support matrix.
+
 # Stream Deck Mini + OpenCode: feasibility and implementation research
 
 Prepared September 7, 2026 for Ryan. This is a researched design and implementation handoff foundation, not a tested implementation or a diagnosis of uncommitted code.

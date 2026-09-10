@@ -1,0 +1,28 @@
+✔ pending requests survive idle and clear independently (3.196348ms)
+✔ child idle cannot hide parent activity (0.625278ms)
+✔ duplicate requests do not increase count (0.624849ms)
+✔ session error does not invent human input (0.557947ms)
+✔ deleted sessions remove request state (0.64638ms)
+✔ claude: native lifecycle, error, session aggregation, reset (4.277109ms)
+✔ claude: configuration + metadata only (3.60252ms)
+✔ copilot-cli: native lifecycle, error, session aggregation, reset (0.697976ms)
+✔ copilot-cli: configuration + metadata only (0.882445ms)
+✔ copilot-vscode: native lifecycle, error, session aggregation, reset (0.514018ms)
+✔ copilot-vscode: configuration + metadata only (0.625461ms)
+✔ gemini: native lifecycle, error, session aggregation, reset (0.493514ms)
+✔ gemini: configuration + metadata only (1.048948ms)
+✔ cursor: native lifecycle, error, session aggregation, reset (0.607444ms)
+✔ cursor: configuration + metadata only (0.967412ms)
+✔ question IDs survive duplicates, concurrent results, cancel and completion (0.811915ms)
+✔ normalization accepts native identity spellings without guessing (0.509084ms)
+✔ merge preserves unrelated settings/hooks, idempotent upgrade and removal (5.423965ms)
+✔ installer backups, dry run, uninstall and malformed settings preservation (58.09559ms)
+✔ real hook processes -> authenticated relay; concurrent events; silent failure (1826.995819ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2282.900903

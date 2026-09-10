@@ -37,3 +37,41 @@ An OpenCode 1.18.29 package was downloaded and its `--version` checked. A live-r
 After installation, run `scripts/Test.ps1` (Node 20+ needed for JavaScript). Follow FIRST-RUN.md for real hardware, state, focus and reboot acceptance. `ocdeck hardware-check` requires the broker stopped and records actual key-down events. Its display-confirmation field remains false because a program cannot verify visible pixels merely by submitting images.
 
 Record local outcomes here, including OpenCode and terminal versions, adapter mode, serial/model, exact failed step, relevant redacted logs, and eventual fix. Do not replace an unverified gate with “passed” based on code inspection or a simulated test.
+
+
+## Harness adapter branch verification — 2026-09-09
+
+Linux authoring environment, Python 3.12 and Node 24.19.0. No native agent logins,
+Windows desktop or physical device were available.
+
+- 25 Python tests passed (23 existing + 2 new integrations).
+- 20 Node tests passed (5 existing + 15 new harness/installer/relay tests).
+- A real hook subprocess sends events through the authenticated Node relay,
+  existing Bridge, real HTTP server and Python registry. The test fully stops and
+  recreates the broker and verifies pending state returns without duplicate keys.
+- A real Python supervisor launches a fixture child that sends hooks, observes
+  broker states, validates literal arguments and exits 7; exit status propagates
+  and launch files/registration are removed.
+- Concurrent hook processes, duplicate question IDs, independent resolutions,
+  malformed payloads, profile isolation, no prompt forwarding, silent hook output,
+  Origin/auth rejection, config merge/idempotence/backup/uninstall were exercised.
+- The existing broker, registry, transport core and OpenCode plugin tests pass.
+
+These are protocol and fixture tests, not successful runs of Claude, Copilot,
+Gemini or Cursor themselves. Native hooks, BAT/PowerShell, VS Code isolated-profile
+sign-in/title matching and physical focus/USB remain unverified. Follow
+[HARNESSES.md](HARNESSES.md) for live acceptance and known coverage limitations.
+
+
+## Main merge verification — 2026-09-10
+
+The adapter code and documentation were integrated with main's newer demo-video
+change. In the Linux authoring environment, after installing the declared Python
+dependencies, 25 Python tests and 20 Node tests passed. CLI help was checked against
+the documented harness-install/harness-launch examples. Relative Markdown links
+and section anchors were checked with no missing targets; merge markers and diff
+whitespace checks were clean (Windows BAT CRLF endings retained intentionally).
+
+Exact outputs: [Python merge tests](merge-python-test-output.txt) and
+[Node merge tests](merge-javascript-test-output.txt). No native harness, Windows
+script, hardware or foreground-focus gate became verified merely by this merge.

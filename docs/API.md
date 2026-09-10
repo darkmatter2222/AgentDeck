@@ -32,3 +32,22 @@ Status accepts idle, busy, retry, unknown. Pending is a nonnegative count of unr
 Focus payload is the assignment returned in `slots`, including `slot` (zero-based), `id`, and `generation`. CLI `ocdeck focus 1` uses user-facing one-based numbering and sends that exact tuple. It marks results `synthetic: true`. Physical callback requests are marked false. This distinction is retained in diagnostics.
 
 HTTP 401 means missing credentials; 403 means a browser Origin was provided; 400 indicates invalid payload/process identity; 404 means unknown route/instance and clients should register again; 413 means excessive body size. State transitions come from snapshots only, not from the focus endpoint.
+
+
+## Producers and hook relay boundary
+
+OpenCode's plugin and the additional managed hook adapters publish the same
+registration/snapshot schema above. For a hook-managed launch, `process` identifies
+the long-lived Python supervisor, and one Node Bridge maintains `producer`/`seq`.
+Do not register each short-lived hook invocation or allocate a producer per event.
+Only known unresolved request IDs may contribute to `pending`; adapters without
+paired IDs must document their limited coverage rather than fabricate counts.
+
+The hook receiver is a separate, per-launch service, not a new broker endpoint.
+It binds loopback on a random port, has a separate token, accepts only authenticated
+`POST /event` requests, rejects Origin, and caps messages at 8 KiB. Its descriptor
+is passed through `AGENTDECK_HOOK_BINDING`; it must not be committed or shared.
+Normalization strips prompts/tool arguments/results before delivery. Its payload
+and native profiles are internal implementation details in
+`plugins/harnesses/profiles.mjs`; extension authors should use the stable snapshot
+contract above. See [architecture](ARCHITECTURE.md) for lifetime and failure handling.

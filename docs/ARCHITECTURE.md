@@ -16,7 +16,7 @@ flowchart TD
 
 `launcher.py` records a unique launch JSON, opens a Windows Terminal window with a unique fixed title and suppresses application title changes. Its worker runs the original OpenCode via a PowerShell script that reads arguments from JSON. It publishes its own verified process identity, watches the foreground command end, and unregisters. The plugin reads the worker binding. First runtime claims that binding to avoid nested inherited launches impersonating the parent.
 
-The conventional server plugin aggregates sessions in the independently owned runtime. It keeps unresolved permission/question ID sets, treats busy and retry as running, and gives pending requests priority over idle. It periodically reconciles through SDK snapshot methods when exposed. Each producer sends a complete state snapshot every two seconds and on relevant events. Registration is idempotent. A broker restart is recovered by re-registering and sending the full snapshot, including pending requests retained in the plugin.
+The conventional OpenCode server plugin aggregates sessions in the independently owned runtime. It keeps unresolved permission/question ID sets, treats busy and retry as running, and gives pending requests priority over idle. It periodically reconciles through SDK snapshot methods when exposed. Each producer sends a complete state snapshot every two seconds and on relevant events. Registration is idempotent. A broker restart is recovered by re-registering and sending the full snapshot, including pending requests retained in the plugin.
 
 The optional TUI plugin reads the current route and synced runtime state. Its source is based on the inspected newer API; installation is explicit through `-PluginMode tui`, updates `tui.json`, and removes the owned conventional server-plugin entry. It does not rewrite JSONC. Do not run both adapters at once. Current compatibility with your installed runtime must be verified; the default adapter is conventional server mode.
 
@@ -33,3 +33,49 @@ The focus adapter uses exact managed-window title matching, restores minimized w
 **Known boundaries:** conventional server mode assumes one independent OpenCode runtime per managed terminal; it cannot identify several attached TUIs sharing one server. Pending snapshot method availability varies by SDK, so hot reload during an already pending request needs particular verification. The app is a native Windows desktop installation, not a Docker service. Raw SSH/WSL/container sessions need the explicit host relay described in REMOTE-AND-WSL.md before they are supported.
 
 Snapshot RPC errors or timeouts mark the conventional adapter unknown until a successful reconciliation. Optional snapshot methods absent from an SDK fall back to live event tracking; full hot-reload recovery of preexisting pending requests is then unverified. See the Qwen handoff for version-specific validation.
+
+
+## Native hook adapters
+
+Claude Code, Copilot CLI, Copilot in VS Code, Gemini CLI and Cursor CLI use a second
+producer path without changing the broker contract:
+
+```mermaid
+flowchart TD
+    S["Python supervisor"] --> A["Harness process"]
+    S --> R["Persistent Node relay"]
+    A --> H["Short-lived hook commands"]
+    H -->|"Filtered metadata"| R
+    R --> C["Shared Bridge"]
+    C --> B["Existing broker"]
+```
+
+`ocdeck/harness.py` registers the supervisor's exact identity through the Node
+Bridge, inherits a per-launch connection path into the harness, and watches child
+exit. The hook PID is never registered as an agent. Descendant sessions inheriting
+that binding aggregate into one slot. This differs from the OpenCode runtime's
+first-claim binding rule; both preserve a single owner for each managed launch.
+
+`plugins/harnesses/profiles.mjs` owns native event mappings and metadata filtering.
+The observer `hook.mjs` sends a small authenticated loopback request to `bridge.mjs`.
+The relay keeps the state machine and reuses `Bridge` from `core.mjs` for the broker's
+discovery, bearer authentication, complete snapshots and sequence/producer epochs.
+It has no authoritative SDK reconciliation: undetected missing hooks can leave the
+last observed state. Detected delivery loss latches unknown until the launch restarts.
+
+The supervisor waits for relay readiness before starting the harness. Its stdin
+pipe remains open to the relay; EOF terminates the relay after parent exit. Normal
+cleanup removes connection state and registration. Abrupt supervisor death is
+handled by the broker's existing process sweep. Broker restart alone retains the
+relay's in-memory state and producer identity.
+
+VS Code starts with a new user-data directory per launch to avoid reusing a process
+with an old environment. Its isolated user settings specify the exact focus title;
+the launcher terminal gets a distinct suffix. Workspace title overrides can defeat
+this mapping, so Windows acceptance remains necessary. No existing editor settings
+or provider configuration is changed by the launcher.
+
+The project-hook installer merges entries and saves timestamped backups plus a
+receipt of installed entries. Uninstall removes only matching entries; it does
+not restore a whole backup over later changes. Profile config locations, transport
+limits and lifecycle caveats are documented in [HARNESSES.md](HARNESSES.md).

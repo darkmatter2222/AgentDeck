@@ -8,7 +8,7 @@ If you keep that true, your change fits. If it blurs the line, it doesn't.
 
 ## The architecture in one paragraph
 
-The Python broker (`ocdeck/`) never talks to any agent harness. It owns six slots, an authenticated loopback API, the USB/HID connection, artwork, and window focus. It only understands one vocabulary, delivered by whatever harness adapter is running:
+The broker service (`ocdeck/broker.py`) never talks to any agent harness. It owns six slots, an authenticated loopback API, the USB/HID connection, artwork, and window focus. It only understands one vocabulary, delivered by whatever harness adapter is running:
 
 ```json
 {"producer": "<adapter uuid>", "seq": 42, "status": "busy", "pending": 1, "detail": ""}
@@ -44,7 +44,7 @@ If your change *does* have to touch the core, that's allowed — but the PR shou
 - [ ] One runtime per managed window assumption stated honestly in the module header (or handled, if your harness allows it).
 - [ ] `node --check` passes on every plugin file.
 - [ ] `scripts\Test.ps1` passes (Python suite + Node suite).
-- [ ] README's "Today: OpenCode. Tomorrow: your harness." section updated with your harness in the supported list.
+- [ ] README's "Choose your harness" table updated with your harness in the supported list.
 - [ ] `docs/TEST-RESULTS.md` updated with what you verified and what you couldn't — no gate gets marked "passed" from code inspection alone.
 
 ## Ground rules
@@ -58,3 +58,25 @@ If your change *does* have to touch the core, that's allowed — but the PR shou
 ## Where to start reading
 
 `docs/ARCHITECTURE.md` → `docs/API.md` → `tests/test_system.py` (the registry spec) → `plugins/server.mjs` (the reference adapter) → `tests/facts.test.mjs` + `tests/bridge-integration.mjs` (what "correct" looks like end to end).
+
+
+## Hook adapter contribution path
+
+For a harness with native command hooks, start with
+`plugins/harnesses/profiles.mjs` and its configuration formats in `install.mjs`.
+The persistent relay already imports the shared Bridge; a profile need not create
+another transport. Document exact event names, native config location, paired-ID
+availability, managed process scope and missing-event behavior. Do not promise
+pending approval coverage where the upstream payload cannot support it.
+
+Add fixtures to `tests/harnesses.test.mjs` for the profile; use
+`tests/test_harness.py` for subprocess/broker integration. Preserve config merging,
+backup/uninstall behavior, profile isolation and metadata-only forwarding. Update
+README, HARNESSES, tutorials, environment boundaries and the verification record.
+Run both suites via `scripts/Test.ps1`, or the two commands in README on a portable
+test host. Recalculate SHA256SUMS.txt from tracked file bytes after final edits,
+excluding the checksum file itself. CRLF BAT files intentionally retain Windows
+line endings; do not mistake CR at end-of-line for content errors.
+
+New hook adapters on main remain implemented/fixture-tested until live acceptance
+is recorded. Merging code does not change a hardware/runtime gate to passed.

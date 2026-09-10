@@ -1,249 +1,209 @@
-# OpenCode Deck
+# AgentDeck
 
-**Your Stream Deck Mini, turned into a live mission control for your coding agents.**
+**Six Stream Deck Mini keys for your coding agents: see activity, then press a key to focus the right window.**
 
-Six physical keys. Up to six agent terminal instances. One glance tells you which agent is working, which is idle, and which one needs *you* — then a single press brings that exact terminal to the foreground. No clicking, no hunting through windows, no MCP, no Elgato plugin: just direct USB HID and a tiny authenticated local broker.
+AgentDeck connects OpenCode, Claude Code, GitHub Copilot CLI, Copilot in VS Code,
+Gemini CLI and Cursor CLI to one local controller. Each managed launch gets a stable
+key. A seventh launch waits for a vacancy; closing one does not shuffle the others.
+The controller uses direct USB HID, with no Elgato plugin or MCP server.
 
-![Animation preview — every state at once](docs/animation-preview.gif)
+![Animation preview — all states at once](docs/animation-preview.gif)
 
-> The preview places all states on six keys simultaneously so you can see the artwork. In real use, READY appears on key 1 only when zero instances are running.
+The preview shows every state together. In normal use, READY appears only when no
+agents are registered. Windows hardware and native harness acceptance gates are
+tracked in [the verification record](docs/TEST-RESULTS.md).
 
 ## Demo video
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/NTWLbLbJiO0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![Watch the AgentDeck demo](https://img.youtube.com/vi/NTWLbLbJiO0/hqdefault.jpg)](https://www.youtube.com/watch?v=NTWLbLbJiO0)
+
+[Watch on YouTube](https://www.youtube.com/watch?v=NTWLbLbJiO0). The original demo
+shows the OpenCode workflow; additional adapters have the coverage described below.
 
 ![The deck on the desk](images/root.png)
 
+## Choose your harness
+
+| Harness | Integration / launch | Pending-input coverage |
+|---|---|---|
+| OpenCode | Global server plugin; `opencode` shim or `oc` | Permission and structured-question IDs; SDK reconciliation when available |
+| Claude Code | Project hooks; `Launch-Claude.bat` | Identified `AskUserQuestion` calls; permission hooks show unknown instead of an invented count |
+| GitHub Copilot CLI | Project hooks; `Launch-Copilot.bat` | Activity only; approvals may still appear running |
+| Copilot in VS Code | Project hooks; `Launch-Copilot-VSCode.bat` | Activity only; isolated editor profile, preview integration |
+| Gemini CLI | Project hooks; `Launch-Gemini.bat` | Activity; recognized permission notifications show unknown |
+| Cursor CLI (`agent`) | Project hooks; `Launch-Cursor.bat` | Activity only; Cursor desktop integration is not included |
+
+All five added hook adapters are implemented and fixture-tested. Live loading in
+each native harness, Windows scripts, editor focus and physical hardware still
+need local validation. A non-red key does **not** prove that no approval is waiting.
+See [adapter details](docs/HARNESSES.md) for lifecycle and missed-event limitations.
+Codex CLI, Aider and cloud/remote agents are not implemented in this release.
+
 | Condition | Key appearance |
 |---|---|
-| Device online, no instances | Cyan animated **READY** on key 1; five black keys |
-| Running or retrying | Green moving ring |
-| Idle | Amber breathing glow |
-| Permission or structured question pending | Red pulsing attention icon |
-| Telemetry unavailable / stale (>10 s) | Amber **LINK ?** |
-| Empty slot | Black; press does nothing |
+| Device initialized, no registered launches | Cyan **READY** on key 1; five black keys |
+| Reported busy or retry | Green moving ring |
+| Reported idle | Amber breathing glow |
+| Identified unresolved input request | Red pulsing attention icon |
+| Unknown or snapshots stale for more than 10 seconds | Amber **LINK ?** |
+| Empty slot | Black; pressing it does nothing |
 
-## Why it exists
-
-When you run several agents at once, the terminal becomes a black box: *is it still working? Did it stop? Is it waiting for my approval?* OpenCode Deck projects each instance onto a physical key:
-
-- **Green** = the agent is working (busy *or* auto-retrying).
-- **Red** = it is blocked on a human: a permission prompt or a structured question. Nothing is ever auto-approved.
-- **Amber** = idle, waiting for your next prompt.
-- **Press the key** = the matching terminal window is focused, verified against the actual foreground window. No keystrokes, no state changes, no guessing.
-
-Slots are stable: closing an instance frees its key without shuffling the others. A seventh instance waits off-deck and takes the first vacancy in registration order.
-
-## Today: OpenCode. Tomorrow: your harness.
-
-Today the adapter layer speaks **OpenCode** natively — it loads as a global OpenCode plugin and needs no other setup. But the core (broker, USB/HID adapter, artwork, window focus) is harness-agnostic: it only ever sees normalized `{status, pending}` snapshots and process identity.
-
-That split is on purpose. We want **Claude Code, Codex CLI, Gemini CLI, Aider, and any other agentic harness** to light up the same six keys — and the plugin layer is exactly where new harnesses plug in. See [CONTRIBUTING.md](CONTRIBUTING.md): if you can turn your harness's activity into "busy / idle / waiting-on-me", we want your pull request.
+A key press requests focus only. It never types, approves a tool, answers a question,
+or changes an agent's state. Windows can deny foreground activation; inspect
+`lastFocus` in `ocdeck status` and verify physical behavior on your desktop.
 
 ## Requirements
 
-| Thing | Minimum | Notes |
-|---|---|---|
-| OS | Windows 10 or 11 | Native Windows user session (not WSL, not a service account) |
-| Terminal | Windows Terminal | `winget install -e --id Microsoft.WindowsTerminal` |
-| Python | 3.11+ (64-bit) | `python --version` to check; `winget install -e --id Python.Python.3.13` to install |
-| Agent harness | **OpenCode** (installed and on PATH) | Verify with `opencode --version`. Other harnesses: PRs welcome |
-| Hardware | **Elgato Stream Deck Mini (6 keys)** | Must be the Mini — the whole design is six stable slots. `ocdeck devices` lists what is detected. **~$55** — see below |
-| Elgato app | **7.1+ (7.2+ recommended)** | 7.1 introduced the per-device "Enabled" toggle you'll use below |
-| Internet | Once | For `pip` dependencies during install |
-| Node | 20+ | Only for the JavaScript test suite; OpenCode runs the plugin itself |
+| Component | Requirement |
+|---|---|
+| Desktop / hardware | Windows 10 or 11, interactive user session, six-key Stream Deck Mini |
+| Terminal | Windows Terminal (`wt.exe`) for dedicated managed windows |
+| Python | 3.11+; 64-bit recommended |
+| Node.js | 20+ on PATH for every new hook adapter and for JavaScript tests |
+| Harness | The desired CLI/editor installed; its native hooks enabled and supported |
+| Elgato | Release the Mini using its per-device Enabled toggle; close other Mini controllers |
+| Installation | Network access for Python dependencies; permanent source directory |
 
-No GPU, no model, no new provider or permission config. Nothing about your existing setup is replaced.
+The original `scripts/Install.ps1` requires OpenCode and installs its global plugin,
+command shims and per-user logon task. Other adapters do not require OpenCode:
+use the [foreground broker tutorial](docs/TUTORIALS.md#fresh-install-without-opencode).
+Linux/macOS can run mock/status tests; Windows desktop focus is not implemented there.
 
-### The hardware is cheap on purpose
+The project targets the compact six-key Mini. Full-size Stream Deck models are not
+supported by the current device selection and six-slot layout.
 
-You don't need to spend **$200–$300** on a full-size dedicated keypad. This is built for the **6-key Stream Deck Mini**, which goes for about **$55** at your local Best Buy or online — the author's unit came from a Best Buy shelf. Six stable slots, one glance, one press: the whole design fits in that footprint and that price.
+## Get started
 
-## Getting started
+**Release the Mini first:** in Elgato's device preferences, turn off Enabled for
+this Mini. Leave other devices enabled if desired. Close any old controller scripts.
+Two applications writing to the same device cause flicker and unreliable input.
 
-Two paths. **Path A** is the fun one: hand the repo to your agent. **Path B** is the same thing, done by hand, step by step. Either way, there are exactly two things *you* must personally do:
+Choose the path that matches your setup:
 
-> **1. Disable the Mini in the Elgato app** (details below — this is the #1 setup failure).
-> **2. Restart your agent harness** after install, so the new plugin loads.
+- [Existing AgentDeck installation: add a harness](docs/TUTORIALS.md#existing-install-add-a-harness)
+- [Fresh install with OpenCode and automatic logon startup](docs/TUTORIALS.md#fresh-install-with-opencode)
+- [Fresh install without OpenCode: foreground broker](docs/TUTORIALS.md#fresh-install-without-opencode)
+- [Copilot in VS Code: isolated editor setup](docs/HARNESSES.md#copilot-in-vs-code-preview)
+- [Physical first-run acceptance](docs/FIRST-RUN.md)
 
-### The one setup step that matters: take the Mini out of Elgato's hands
+For an existing install, keep this checkout at `C:\Tools\AgentDeck` (or substitute
+your actual permanent location). In PowerShell:
 
-This app talks to the Mini **directly over USB HID**. If Elgato's own software still "owns" the device, the two will fight — images flicker, keys go blank, presses get lost.
+```powershell
+C:\Tools\AgentDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp
+C:\Tools\AgentDeck\scripts\Install-Harness.ps1 -Profile copilot-cli -Project C:\Projects\MyApp
+cd C:\Projects\MyApp
+C:\Tools\AgentDeck\scripts\Launch-Claude.bat
+C:\Tools\AgentDeck\scripts\Launch-Copilot.bat
+```
 
-1. Open the **Elgato** desktop app (Elgato Hub / Elgato Stream Deck).
-2. Go to **Devices**.
-3. Find your **Stream Deck Mini** in the device list.
-4. Turn its **Enabled** toggle **OFF** (this per-device toggle was added in Elgato 7.1 — that's why 7.2+ is recommended).
-5. That's it. Elgato can stay installed and running; it just must not own *this* device. Close any other scripts or apps that also write to the Mini.
+Hooks are installed once **per software project**. The BAT launchers use the current
+working directory; invoking them from the AgentDeck checkout would target that
+checkout. Installation preserves unrelated settings, makes backups before changes,
+and supports `-DryRun` and `-Remove`. Plain `claude` or `copilot` launches do not
+attach to AgentDeck; use its managed launchers.
 
-The Mini keeps working normally — *this* app simply becomes its driver. Re-enable it in Elgato only if you're uninstalling.
-
-### Path A — let your AI agent install it (recommended)
-
-Open your agent — today that means **OpenCode** — and give it this prompt:
+For AI-assisted setup, give your coding agent this instruction:
 
 ```text
-Clone https://github.com/darkmatter2222/AgentDeck to a permanent directory (not a temp
-folder — the install is editable and stays in place). Read docs/QWEN-HANDOFF.md and
-docs/FIRST-RUN.md first, then install OpenCode Deck on this machine.
-
-Before running scripts\Install.ps1, ask me to confirm that I have disabled my
-Stream Deck Mini in Elgato > Devices (per-device "Enabled" toggle OFF), and that
-Elgato 7.1+ is installed.
-
-Then: run scripts\Install.ps1; open a FRESH terminal and verify Get-Command opencode
-points to .opencode-deck\bin\opencode.cmd and ocdeck status shows device.online true
-and device.mock false; run scripts\Test.ps1; then walk me through the physical
-acceptance checks in docs/FIRST-RUN.md one by one. Finally, tell me to restart my
-OpenCode sessions so the global plugin loads, and record what you verified in
-docs/TEST-RESULTS.md.
+Install AgentDeck from https://github.com/darkmatter2222/AgentDeck in a permanent
+source directory. Read docs/QWEN-HANDOFF.md and docs/TUTORIALS.md. Use the setup path
+for the harnesses I actually use, preserve my existing configuration, and verify
+that the Mini has been released by Elgato before opening it. Run the automated
+checks, then guide me through docs/FIRST-RUN.md and the harness-specific acceptance
+steps. Record observed results separately from unverified hardware/runtime gates.
 ```
 
-That's the whole install for you: **one prompt, two personal actions** (disable the Mini above, restart your sessions when asked). The agent handles clone, Python/venv, PATH, scheduled task, plugin, and verification.
-
-### Path B — by hand, step by step
-
-Work through these in order. Each step tells you exactly what "done" looks like.
-
-**Step 1 — Check your prerequisites (2 minutes).** Open PowerShell and run these four checks:
-
-```powershell
-python --version     # need 3.11 or newer
-wt --version         # Windows Terminal; if missing: winget install -e --id Microsoft.WindowsTerminal
-opencode --version   # your harness; if missing, install OpenCode from https://opencode.ai
-Get-Command elgato -ErrorAction SilentlyContinue   # just orienting yourself; the app is installed normally
-```
-
-Any check that fails? Install that one thing (links in the Requirements table), then re-run it. Don't move on until all three versions print.
-
-**Step 2 — Disable the Mini in Elgato.** See the section above. Toggle OFF, verify it's off, move on.
-
-**Step 3 — Get the code somewhere permanent.**
-
-```powershell
-git clone https://github.com/darkmatter2222/AgentDeck
-cd AgentDeck
-```
-
-*(No git? Download the ZIP from the repo's "Code → Download ZIP" and extract it somewhere you won't delete it.)* The install is **editable** and the plugin imports source files from this folder — so don't move, rename, or delete it later. `C:\Tools\AgentDeck` or a repos folder are both fine.
-
-**Step 4 — Run the installer.**
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Install.ps1
-```
-
-What it does, in one breath: creates a private venv under `%USERPROFILE%\.opencode-deck`, pip-installs the four pinned dependencies, records your original `opencode` executable, installs the global plugin into your OpenCode config, drops a few small `.cmd` shims on your user PATH, and registers the `\OpenCode Deck` Task Scheduler task (starts hidden at your logon, auto-restarts on failure). **No admin required.** If Task Scheduler complains about access rights, re-run PowerShell elevated **as the same user** — not as another admin or SYSTEM.
-
-**Step 5 — Open a FRESH terminal** (PATH changes only apply to new shells). Then verify:
-
-```powershell
-Get-Command opencode    # must show ...\.opencode-deck\bin\opencode.cmd
-ocdeck status           # must show "device": { "online": true, "mock": false }
-```
-
-If `Get-Command opencode` shows something else, a shell alias or machine PATH entry is outranking the shim — use `oc` / `ocdeck launch` for managed windows, or fix the shadowing entry.
-
-**Step 6 — The first real moment.** Run `opencode` from a project directory. A dedicated terminal window opens, and **key 1's READY turns amber**. Send a prompt — the key goes **green**. Ask it to use a tool that needs approval — it goes **red**. Press that physical key from any other app — the right window comes to the front. That's the whole product.
-
-**Step 7 — Prove it to yourself.** Run `scripts\Verify-Windows.ps1`, then work through the physical checklist in [docs/FIRST-RUN.md](docs/FIRST-RUN.md) (six slots, seventh overflow, minimize + focus, reboot → logon → READY).
-
-**Troubleshooting in 30 seconds:** key is black but the app is running → check that Elgato doesn't own the Mini (Step 2) and that `ocdeck status` shows `online: true`. `LINK ?` on a key → telemetry stale; the deck deliberately shows *unknown* instead of a confidently wrong idle — check `ocdeck status` and OpenCode's own logs. Everything is in `.opencode-deck\broker.log`.
-
-## How it works (the short version)
+## How it works
 
 ```mermaid
 flowchart TD
-    L["Global launcher shim"] -->|"UUID + window title"| W["Dedicated terminal window"]
-    W --> O["Agent harness with global plugin"]
-    O -->|"Authenticated snapshots (2 s + on events)"| B["Python broker (loopback, bearer token)"]
-    L -->|"Process presence heartbeat"| B
-    B <-->|"Images down / key events up"| D["Stream Deck Mini (USB HID)"]
-    B -->|"Validate identity, then focus"| W
+    L["Managed launcher"] --> W["Agent window"]
+    W --> O["OpenCode plugin"]
+    W --> H["Native harness hooks"]
+    H --> R["Per-launch relay"]
+    O --> B["Local broker"]
+    R --> B
+    B <--> D["Stream Deck Mini"]
+    B -->|"Validate identity and focus"| W
 ```
 
-- **Broker** (`ocdeck/`): one process owns the Mini, a registry of six slots, and an authenticated `127.0.0.1` API on an OS-assigned port published via an atomic `discovery.json`.
-- **Plugin** (`plugins/`): a dependency-free harness plugin reduces runtime events to `{status, pending}` and heartbeats complete snapshots, so a broker restart self-heals with one re-register.
-- **Launcher** (`ocdeck/launcher.py`): each managed launch gets a dedicated Windows Terminal window with a unique title token, giving focus an unambiguous target.
-- **Identity**: PIDs are paired with exact process creation timestamps — a reused PID can never steal a key.
+The Python broker owns device access and six assignments. Both adapter paths use
+`plugins/core.mjs` for authenticated snapshots, discovery, sequence numbers and
+reconnection. Short-lived hook commands report metadata to a persistent relay,
+which keeps one producer per launch and sends a full snapshot every two seconds.
+Supervisor PIDs are paired with exact creation timestamps. A broker restart
+restores reported state; confirmed process death releases a slot.
 
-Full detail in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and the API in [`docs/API.md`](docs/API.md).
+[Architecture](docs/ARCHITECTURE.md) · [Broker API](docs/API.md) · [Environment boundaries](docs/REMOTE-AND-WSL.md)
 
-## CLI reference
+## Commands and configuration
 
-| Command | What it does |
+| Command | Purpose |
 |---|---|
-| `opencode …` | Global shim: interactive launches become managed windows; `run`, `serve`, `web`, `--version`, etc. pass through untouched |
-| `oc …` / `ocdeck launch …` | Explicitly launch a managed instance (use these if a shell alias or machine PATH outranks the shim) |
-| `ocdeck status` | Broker health, device state, all six slots, overflow, last focus result |
-| `ocdeck stop` | Graceful broker shutdown |
-| `ocdeck focus 1..6` | Synthetic focus request for a slot (one-based); marks the result `synthetic: true` |
-| `ocdeck devices` | List detected Stream Deck Minis (serial, product ID) |
-| `ocdeck hardware-check` | Standalone six-key physical diagnostic (stop the broker first) |
-| `ocdeck broker [--mock]` | Run the broker in the foreground (or with a mock device) |
-| `ocdeck preview` | Render the animation preview GIF |
+| `opencode …` / `oc …` | Managed OpenCode launch after global installation; OpenCode utilities pass through the shim |
+| `python -m ocdeck harness-install claude --project C:\Projects\MyApp` | Merge project hooks; add `--dry-run` or `--remove` as needed |
+| `python -m ocdeck harness-launch --profile claude -- --resume` | Managed launch, forwarding arguments after `--` |
+| `python -m ocdeck harness-launch --profile copilot-cli --executable C:\Tools\copilot.exe` | Select an executable explicitly |
+| `ocdeck status` | Device health, six slots, overflow and last focus result |
+| `ocdeck stop` | Stop the broker |
+| `ocdeck focus 1` | Synthetic focus check for key 1; keys are numbered 1–6 |
+| `ocdeck devices` | Detect supported Minis |
+| `ocdeck hardware-check` | Physical diagnostic; stop the broker first |
+| `ocdeck broker --mock` | Foreground broker with a mock device |
+| `ocdeck preview` | Render the animation preview |
 
-## Recommended patterns
+Use `python -m ocdeck` instead of `ocdeck` if no command shim is installed, with the
+Python environment containing this checkout. `--current-window` on `harness-launch`
+is useful for status tests; it does not promise exact terminal focus.
 
-1. **Use the managed launcher for anything you want on the deck.** `opencode` (or `oc`) from a project directory is the primary path. Plain unmanaged launches still register via the global plugin, but exact window focus is only *guaranteed* for managed windows.
-2. **One instance = one dedicated terminal window.** The deck assumes one independent agent runtime per managed terminal. Several TUI tabs sharing one server window can't be separated by design.
-3. **Keep Elgato disabled for the Mini.** Two USB owners is the #1 breakage mode. Any other scripts writing to the Mini too.
-4. **Trust the red key, not your memory.** Red means an unresolved request ID exists — the monitor doesn't interpret prose questions.
-5. **Watch for LINK ?.** It means telemetry is stale or the harness snapshot failed — the deck deliberately shows *unknown* instead of a confidently wrong idle.
-6. **Restart the broker task after editing `config.json`** (fps, brightness, animations, ready, serial).
-7. **Restart your agent sessions after installing** so the global plugin loads in new processes.
-8. **Uninstall with `scripts/Uninstall.ps1`** — it removes only what the installer owns (task, plugin entry, PATH) and keeps logs/config/venv. Then re-enable the Mini in Elgato if you want it back.
-9. **Don't move the source folder after installing** — the plugin entry imports `.mjs` files by absolute path from it.
-
-### Configuration
-
-`.opencode-deck\config.json`:
+Broker settings live in `%USERPROFILE%\.opencode-deck\config.json` (or `OCDECK_HOME`):
 
 ```json
 {"fps": 10, "brightness": 45, "animations": true, "ready": true, "serial": null}
 ```
 
-`fps` is capped at 15. Set `animations: false` for static images, lower `fps` to reduce USB load, `ready: false` for six black keys when empty, and `serial` (from `ocdeck devices`) when multiple Minis are present.
+Restart the broker after edits. FPS is capped at 15. Disable animations for static
+images, disable ready for an empty black deck, or select a serial when multiple
+Minis are connected. Compatibility names remain `ocdeck`, `.opencode-deck` and the
+`OpenCode Deck` scheduled task; renaming the project does not rename installed state.
 
-## Scope and boundaries
+## Maintenance and troubleshooting
 
-Global **for one native Windows user and one harness config home**, across any project directory. Not yet: WSL/containers/SSH (relay designed in `docs/REMOTE-AND-WSL.md`, not implemented), multiple tabs/panes in one window, macOS/Linux, and — until you build it — your favorite harness. The broker stays on `127.0.0.1` — it is a trusted local protocol, not a LAN service.
+See [tutorials](docs/TUTORIALS.md) for upgrade and removal, and
+[troubleshooting](docs/TROUBLESHOOTING.md) for LINK ?, missing keys, configuration,
+permissions, focus, Node, broker restart and editor setup problems.
 
-## Uninstall
+Remove project hooks **before** deleting their source files. `scripts/Uninstall.ps1`
+only handles the original OpenCode task/server-plugin/PATH installation; it does
+not find or remove project hooks. Retain `.agentdeck` receipts until each project
+integration has been removed. Source paths are absolute: do not move the checkout
+without reinstalling its integrations.
 
-```powershell
-.\scripts\Uninstall.ps1
+## Tests and contributor documentation
+
+On Windows, run `scripts\Test.ps1`. On a configured development environment:
+
+```text
+python -m unittest discover -s tests -v
+node --test tests/facts.test.mjs tests/harnesses.test.mjs
 ```
 
-Removes the scheduled task and the managed plugin entry, and takes the launcher directory out of your user PATH. Logs, config, and the venv are retained. If you opted into TUI mode, also remove its URI from `tui.json` as the uninstaller prints. Re-enable the Mini in Elgato Preferences > Devices if you want Elgato back.
+The tests use real subprocesses and loopback HTTP with fixture harness events and
+mock hardware. They do not prove that a native agent loads hooks or that Windows
+can focus a physical window. [TEST-RESULTS.md](docs/TEST-RESULTS.md) records evidence.
 
-## For AI agents
+| Location | Contents |
+|---|---|
+| `ocdeck/` | Broker, device, focus, artwork, CLI and both launcher paths |
+| `plugins/` | Shared transport and OpenCode server/TUI plugins |
+| `plugins/harnesses/` | Hook profiles, normalization, relay, observer and installer |
+| `scripts/` | Original installer, project-hook installer, BAT launchers and checks |
+| `tests/` | Python/Node tests and optional live OpenCode fixture |
+| `docs/` | [Documentation index](docs/README.md), tutorials, architecture and verification |
 
-If an agent is taking this on, the single best entry point is **[`docs/QWEN-HANDOFF.md`](docs/QWEN-HANDOFF.md)** — a step-by-step deployment and verification plan with explicit completion criteria and known investigation areas. Supporting docs:
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before adding an adapter. Report issues with
+harness/runtime versions, redacted `ocdeck status`, and the failed acceptance step.
+Never include model credentials, broker tokens or hook connection descriptors.
 
-- `docs/FIRST-RUN.md` — physical acceptance tests on the owner's PC
-- `docs/ARCHITECTURE.md` / `docs/API.md` — implementation and broker protocol
-- `docs/REMOTE-AND-WSL.md` — design boundaries + extension plan for WSL/SSH/containers
-- `docs/RESEARCH.md` — prior art and rejected alternatives
-- `CONTRIBUTING.md` — where new harness adapters belong (and what not to touch)
-
-Run the suite with `scripts\Test.ps1` (Python unittest + Node 20 `node --test`). The optional live-runtime end-to-end fixture is `tests\live_opencode.py` (set `OPENCODE_TEST_BIN`); it uses a local deterministic model — no cloud provider or hardware needed.
-
-## Layout
-
-```
-ocdeck/       Python broker, HID adapter, focus, launcher, artwork, CLI
-plugins/      Harness adapters: core.mjs (shared), server.mjs (OpenCode default), tui.mjs (OpenCode opt-in)
-scripts/      Install.ps1, Uninstall.ps1, Test.ps1, Verify-Windows.ps1, Run-OpenCode.ps1
-tests/        Python + Node test suites and the optional live OpenCode fixture
-docs/         architecture, API, first-run, research, verification, handoff
-images/       README media
-```
-
----
-
-## Made for the desktop-first agent crowd
-
-If you've ever stared at six terminals wondering which one needs you — this is the one. **A star would mean a lot** and helps others find it. Built a new harness adapter? [Open a PR](https://github.com/darkmatter2222/AgentDeck/pulls) — that's the whole roadmap. If it's wrong for your setup, [open an issue](https://github.com/darkmatter2222/AgentDeck/issues) with the output of `ocdeck status` and the failed step from `docs/TEST-RESULTS.md`.
-
-<sub>Apache-2.0 · Python 3.11+ · Windows 10/11 · No build step, no MCP, no cloud</sub>
+Apache-2.0 · Python 3.11+ · Windows desktop · Local controller

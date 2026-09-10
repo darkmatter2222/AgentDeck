@@ -16,6 +16,14 @@ def main():
     worker = sub.add_parser('worker'); worker.add_argument('spec')
     ident = sub.add_parser('identity'); ident.add_argument('pid', type=int)
     plug = sub.add_parser('install-plugin'); plug.add_argument('--mode', choices=['server', 'tui'], default='server'); plug.add_argument('--config-dir')
+    from .harness import PROFILES
+    hp = sub.add_parser('harness-install')
+    hp.add_argument('profile', choices=PROFILES); hp.add_argument('--project', default='.')
+    hp.add_argument('--remove', action='store_true'); hp.add_argument('--dry-run', action='store_true')
+    hl = sub.add_parser('harness-launch')
+    hl.add_argument('--profile', required=True, choices=PROFILES); hl.add_argument('--executable')
+    hl.add_argument('--current-window', action='store_true'); hl.add_argument('args', nargs=argparse.REMAINDER)
+    hw = sub.add_parser('harness-worker'); hw.add_argument('spec')
     preview = sub.add_parser('preview'); preview.add_argument('--output', default='animation-preview.gif')
     focus = sub.add_parser('focus'); focus.add_argument('slot', type=int)
     args = parser.parse_args()
@@ -38,6 +46,16 @@ def main():
         elif args.command == 'install-plugin':
             from .launcher import install_plugin
             install_plugin(args.mode, args.config_dir)
+        elif args.command == 'harness-install':
+            from .harness import install
+            return install(args.profile, args.project, args.remove, args.dry_run)
+        elif args.command == 'harness-launch':
+            from .harness import launch
+            return launch(args.profile, args.args[1:] if args.args[:1] == ['--'] else args.args,
+                          args.executable, args.current_window)
+        elif args.command == 'harness-worker':
+            from .harness import worker
+            return worker(args.spec)
         elif args.command == 'devices':
             from .device import enumerate_minis
             print(json.dumps([{k: (v.decode(errors='replace') if isinstance(v, bytes) else v)

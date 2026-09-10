@@ -1,6 +1,13 @@
-# Install and verify on Ryan's PC
+# Install and verify on your Windows PC
 
-1. Extract the ZIP to a permanent directory, for example `C:\Users\ryans\source\repos\opencode-deck`. Keep the whole folder: the installed Python package is editable and the global plugin entry imports these sources.
+Choose your setup path in [TUTORIALS.md](TUTORIALS.md). The installation steps below
+use the original OpenCode installer and scheduled task. For a foreground-only
+broker, follow that tutorial first and run the physical checks here with the
+installed interpreter (`python -m ocdeck`) instead of relying on command shims.
+
+## Original OpenCode installation
+
+1. Extract the ZIP to a permanent directory, for example `C:\Tools\AgentDeck`. Keep the whole folder: the installed Python package is editable and the global plugin entry imports these sources.
 2. Disable only the Mini under Elgato Preferences > Devices > Enabled. Elgato 7.1 introduced that control, so 7.2 should have it. Close any old scripts that also write to the Mini. Leave Elgato running if you want; it must not own this device.
 3. Confirm Python and OpenCode run. Use `Get-Command opencode` to record the original path before installing. Use Python 3.11 or later; the installer's `-Python` option accepts a full executable path.
 4. Run the installer as the Windows account that will use the device. The default server plugin is the broad-compatibility path. Do not opt into TUI mode until the installed OpenCode API has been checked.
@@ -41,3 +48,31 @@ The diagnostic takes the same process lock, draws six numbers, and asks you to p
 **Troubleshooting:** inspect `.opencode-deck\broker.log` and OpenCode's own logs. LINK ? indicates missing/failing/stale telemetry. A red key requires unresolved request data; the monitor does not interpret ordinary prose questions. A window-mapping error means the direct launch was not a dedicated managed window, its title changed, or a different terminal hosted it. A foreground-denied error is distinct from an absent target. A task with a long-running status is expected while the broker is active.
 
 Before login or device initialization, firmware may display a logo or old image briefly. The application guarantees its initialized state, not a pre-firmware black screen.
+
+
+## Additional harness and mixed-session acceptance
+
+After the broker works, install project hooks and launch the desired harnesses
+using [HARNESSES.md](HARNESSES.md). Record the installed native version and confirm
+that its hooks load before treating a key as accurate.
+
+1. Start Claude and Copilot CLI in the same project using their BAT launchers;
+   optionally keep an OpenCode window open. Expect one stable key per managed launch.
+2. Submit a coding task and a separate text-only prompt in each. Verify running
+   during work and idle at completion. A missing completion hook is a real failure.
+3. For Claude, exercise `AskUserQuestion`, including answer/cancel. Other adapters
+   do not promise red for approvals. Verify the exact capability table instead of
+   expecting OpenCode's pending coverage from every harness.
+4. From another application, physically press each key, repeat while minimized,
+   then test six simultaneous launches and a seventh overflow launch. Confirm
+   keyboard focus as well as a successful API response.
+5. Restart the broker while agents remain open; inspect rediscovery and state
+   restoration. Close each agent, then try forced termination. The key must release.
+6. For Copilot VS Code, use its isolated launcher and verify the editor's exact
+   title, account sign-in, hook enablement and foreground activation separately.
+7. Remove one profile's hooks using `Install-Harness.ps1 -Remove`, confirm other
+   settings/hooks remain, and reinstall if continuing to use it.
+
+The local relay does not extend support to WSL, SSH or containers. Record actual
+outcomes in [TEST-RESULTS.md](TEST-RESULTS.md); automated fixture tests and synthetic
+focus requests do not replace these physical/native-runtime observations.
