@@ -109,3 +109,9 @@ A 96-step time-based cycle replaces the old 24-step cycle. Late frames are skipp
 naturally; no queue of stale animation frames builds up. Actual FPS depends on USB
 throughput and the number of active keys. Try 15 FPS if six active keys saturate
 an older Mini. Hardware throughput and Windows appearance still need live testing.
+
+
+## 2.1 additions
+
+See [the 2.1 feature guide](NEXT.md) for larger decks, Codex, alerts, doctor/report,
+appearance import/export, dry-run and complete integration uninstall.

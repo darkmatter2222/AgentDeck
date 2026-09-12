@@ -36,3 +36,14 @@ Fetched 2026-09-12. Exact source URLs, source SHA-256 hashes, and bundled PNG ha
 are recorded in [sources.json](ocdeck/assets/logos/sources.json). Runtime assets are
 local PNGs included in wheel/sdist packages; rendering needs no network access or
 SVG library. The original Copilot SVG is retained alongside its PNG for provenance.
+
+
+## 2.1 dependencies and diagnostic policy
+
+`packaging` (Apache-2.0 / BSD-2-Clause) compares release versions. Development tools
+are Ruff, Pyright, pre-commit and build. Release SBOM generation uses cyclonedx-bom.
+The wheel bundles the project's own Node/PowerShell source as runtime data.
+Codex uses a text identifier and procedural status symbol; no new trademark image
+is bundled. Never collect prompts, transcripts, tool input/output or provider
+configuration in reports. Redact credential fields and bearer tokens at the log
+and report output boundaries. See [NEXT.md](docs/NEXT.md) for coverage limits.

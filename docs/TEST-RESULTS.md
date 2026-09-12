@@ -123,3 +123,25 @@ Linux/Python 3.11+ checkout verification:
 - Documentation links and BAT CRLF line endings verified.
 - Physical Stream Deck presses, native Windows focus, and executing HomeAILab
   BATs against live local/cloud backends remain unverified on this Linux host.
+
+## 2.1 feature branch — 2026-09-12
+
+Local Linux verification (Python 3.12): 61 unittest cases and 25 Node tests passed.
+Ruff 0.12.12 lint/format gates and Pyright 1.1.405 basic gate cover `ocdeck/`.
+Wheel and sdist built; a fresh venv outside the checkout resolved the bundled Node
+adapter/PowerShell scripts, printed `ocdeck --version`, and generated Codex hooks
+in dry-run without writing a project file. The actual renderer's high-contrast
+example was visually inspected.
+
+New assertions cover 6/15/32 capacity/overflow, stale key presses and mock render
+loops, product driver selection, request hashes/counts, alert transition/dedup/
+muting/rate limits, randomized credential redaction at snapshot/log/pixel outputs,
+redacted reports, bounded log rotation/correlation, malformed configuration,
+unknown appearance fields, dry-run zero writes, offline/disabled/update-once
+behavior, receipt discovery and uninstall preservation/backups. Codex fixtures
+cover state mapping and hook generation without emitting approval decisions.
+
+Not executed here: physical USB acceptance, Windows toast/Focus Assist behavior,
+Windows focus/task cleanup, and a provider-backed Codex session with native hooks
+trusted. See [live acceptance](NEXT.md#live-acceptance-checklist). PyPI publishing
+requires project ownership and trusted-publisher setup and was not executed.

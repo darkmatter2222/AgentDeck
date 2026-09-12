@@ -208,3 +208,9 @@ Event/config mappings were checked against these official references on 2026-09-
 - [VS Code agent hooks](https://code.visualstudio.com/docs/agent-customization/hooks)
 - [Gemini CLI hooks](https://geminicli.com/docs/hooks/reference/)
 - [Cursor hooks](https://cursor.com/docs/hooks)
+
+
+## 2.1 additions
+
+See [the 2.1 feature guide](NEXT.md) for larger decks, Codex, alerts, doctor/report,
+appearance import/export, dry-run and complete integration uninstall.

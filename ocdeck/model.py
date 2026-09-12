@@ -1,18 +1,37 @@
 """Serialized registry. Color is a projection; button presses never mutate it."""
+
 import copy
 import threading
 import time
 import uuid
+from .security import scrub_text
 
 
 class Registry:
-    def __init__(self, probe, clock=time.monotonic, stale_after=10):
+    def __init__(self, probe, clock=time.monotonic, stale_after=10, slots=6, secrets=()):
         self.probe, self.clock, self.stale_after = probe, clock, stale_after
+        self.secrets = secrets
+        if slots not in (6, 15, 32):
+            raise ValueError("slots must be 6, 15 or 32")
         self.lock = threading.RLock()
         self.records = {}
-        self.slots = [None] * 6
-        self.generations = [0] * 6
+        self.slots: list[str | None] = [None] * slots
+        self.generations = [0] * slots
         self.epoch = str(uuid.uuid4())
+
+    def resize(self, count):
+        if count not in (6, 15, 32):
+            raise ValueError("slots must be 6, 15 or 32")
+        with self.lock:
+            if count == len(self.slots):
+                return
+            old_generations = self.generations
+            self.slots = [None] * count
+            self.generations = [(old_generations[i] if i < len(old_generations) else 0) + 1 for i in range(count)]
+            for i, record in enumerate(self.records.values()):
+                record["slot"] = i if i < count else None
+                if i < count:
+                    self.slots[i] = record["id"]
 
     def upsert(self, data):
         key = data.get("id", "")
@@ -28,13 +47,22 @@ class Registry:
                 if slot is not None:
                     self.generations[slot] += 1
                     self.slots[slot] = key
-                record = {"id": key, "process": process, "slot": slot,
-                          "label": str(data.get("label", "OpenCode"))[:100],
-                          "harness": str(data.get("harness", ""))[:40],
-                          "windowToken": str(data.get("windowToken", ""))[:128],
-                          "seq": -1, "producer": None, "retired": [],
-                          "status": "unknown", "pending": 0,
-                          "lastState": 0, "lastSeen": self.clock(), "detail": "Connecting"}
+                record = {
+                    "id": key,
+                    "process": process,
+                    "slot": slot,
+                    "label": scrub_text(str(data.get("label", "OpenCode")), self.secrets)[:100],
+                    "harness": scrub_text(str(data.get("harness", "")), self.secrets)[:40],
+                    "windowToken": str(data.get("windowToken", ""))[:128],
+                    "seq": -1,
+                    "producer": None,
+                    "retired": [],
+                    "status": "unknown",
+                    "pending": 0,
+                    "lastState": 0,
+                    "lastSeen": self.clock(),
+                    "detail": "Connecting",
+                }
                 self.records[key] = record
             elif data.get("process") != record["process"]:
                 raise ValueError("instance process identity cannot change")
@@ -51,6 +79,19 @@ class Registry:
         pending = data.get("pending", 0)
         if type(pending) is not int or not 0 <= pending <= 10000:
             raise ValueError("invalid pending count")
+        requests = data.get("requestIds", [])
+        if (
+            not isinstance(requests, list)
+            or len(requests) > 10000
+            or any(
+                not isinstance(x, str) or len(x) != 64 or any(c not in "0123456789abcdef" for c in x) for x in requests
+            )
+        ):
+            raise ValueError("requestIds must contain SHA256 metadata identities")
+        waiting = data.get("inputNeeded", False)
+        known = data.get("pendingKnown", True)
+        if type(waiting) is not bool or type(known) is not bool:
+            raise ValueError("inputNeeded/pendingKnown must be boolean")
         with self.lock:
             r = self.records[key]
             if producer in r["retired"]:
@@ -61,9 +102,17 @@ class Registry:
                 r["producer"], r["seq"] = producer, -1
             if seq <= r["seq"]:
                 return False
-            r.update(seq=seq, status=status, pending=pending,
-                     detail=str(data.get("detail", ""))[:200],
-                     lastState=self.clock(), lastSeen=self.clock())
+            r.update(
+                seq=seq,
+                status=status,
+                pending=pending,
+                inputNeeded=waiting,
+                pendingKnown=known,
+                requestIds=list(set(requests)),
+                detail=scrub_text(str(data.get("detail", "")), self.secrets)[:200],
+                lastState=self.clock(),
+                lastSeen=self.clock(),
+            )
             return True
 
     def remove(self, key):
@@ -95,21 +144,30 @@ class Registry:
                 if r:
                     if self.clock() - r["lastState"] > self.stale_after or r["status"] == "unknown":
                         state = "unknown"
-                    elif r["pending"]:
+                    elif r["pending"] or r.get("inputNeeded"):
                         state = "input"
                     elif r["status"] in ("busy", "retry"):
                         state = "running"
                     else:
                         state = "idle"
-                result.append({"slot": slot, "generation": self.generations[slot],
-                               "id": key, "state": state, "label": r["label"] if r else "",
-                               "detail": r["detail"] if r else "",
-                               "harness": r["harness"] if r else ""})
+                result.append(
+                    {
+                        "slot": slot,
+                        "generation": self.generations[slot],
+                        "id": key,
+                        "state": state,
+                        "label": r["label"] if r else "",
+                        "detail": r["detail"] if r else "",
+                        "harness": r["harness"] if r else "",
+                        "pending": r["pending"] if r and r.get("pendingKnown", True) else None,
+                        "requestIds": r.get("requestIds", []) if r else [],
+                    }
+                )
             return result
 
     def resolve(self, slot, generation, key):
         with self.lock:
-            if type(slot) is not int or not 0 <= slot < 6:
+            if type(slot) is not int or not 0 <= slot < len(self.slots):
                 return None
             if self.slots[slot] != key or self.generations[slot] != generation:
                 return None

@@ -80,3 +80,19 @@ line endings; do not mistake CR at end-of-line for content errors.
 
 New hook adapters on main remain implemented/fixture-tested until live acceptance
 is recorded. Merging code does not change a hardware/runtime gate to passed.
+
+## Automated gates
+
+Install `python -m pip install -e ".[dev]"`, then `pre-commit install`.
+Run `ruff check ocdeck tests`, `ruff format --check ocdeck tests`, `pyright`,
+`python -m unittest discover -s tests -v`, and
+`node --test tests/facts.test.mjs tests/harnesses.test.mjs tests/next.test.mjs`.
+Python and Node gates run for every PR on Ubuntu and Windows. Pyright basic covers
+all of `ocdeck/`; add concrete types as modules evolve. Formatter changes are
+mechanical. No provider account or hardware is required for CI. Live native tests
+are explicit scripts/checklists, never silently counted as passing fixture tests.
+
+Build with `python -m build`; verify the installed wheel outside the checkout.
+`setup.py` copies runtime assets during the build, so edit their original files
+under `plugins/` and `scripts/`, never a generated build directory. Configure the
+PyPI project and GitHub `pypi` environment before dispatching the signed workflow.

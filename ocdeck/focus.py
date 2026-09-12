@@ -1,4 +1,5 @@
 """Focus existing Windows top-level windows; never launch from a press."""
+
 import ctypes
 from ctypes import wintypes
 import os
@@ -44,7 +45,8 @@ def activate(record):
 
     @callback_type
     def collect(hwnd, _):
-        if not u.IsWindowVisible(hwnd): return True
+        if not u.IsWindowVisible(hwnd):
+            return True
         text = ctypes.create_unicode_buffer(u.GetWindowTextLengthW(hwnd) + 1)
         u.GetWindowTextW(hwnd, text, len(text))
         pid = wintypes.DWORD()
@@ -55,18 +57,28 @@ def activate(record):
 
     u.EnumWindows(collect, 0)
     if len(candidates) != 1:
-        return {"ok": False, "reason": "Window mapping ambiguous or absent; use ocdeck launch for a dedicated window", "matches": len(candidates)}
+        return {
+            "ok": False,
+            "reason": "Window mapping ambiguous or absent; use ocdeck launch for a dedicated window",
+            "matches": len(candidates),
+        }
     kernel = ctypes.WinDLL("kernel32", use_last_error=True)
     kernel.GetCurrentThreadId.restype = wintypes.DWORD
     return focus_window(u, kernel.GetCurrentThreadId(), candidates[0])
 
 
 class GUIThreadInfo(ctypes.Structure):
-    _fields_ = [("cbSize", wintypes.DWORD), ("flags", wintypes.DWORD),
-                ("hwndActive", wintypes.HWND), ("hwndFocus", wintypes.HWND),
-                ("hwndCapture", wintypes.HWND), ("hwndMenuOwner", wintypes.HWND),
-                ("hwndMoveSize", wintypes.HWND), ("hwndCaret", wintypes.HWND),
-                ("rcCaret", wintypes.RECT)]
+    _fields_ = [
+        ("cbSize", wintypes.DWORD),
+        ("flags", wintypes.DWORD),
+        ("hwndActive", wintypes.HWND),
+        ("hwndFocus", wintypes.HWND),
+        ("hwndCapture", wintypes.HWND),
+        ("hwndMenuOwner", wintypes.HWND),
+        ("hwndMoveSize", wintypes.HWND),
+        ("hwndCaret", wintypes.HWND),
+        ("rcCaret", wintypes.RECT),
+    ]
 
 
 def focus_window(u, current, hwnd, sleep=time.sleep):
@@ -92,12 +104,13 @@ def focus_window(u, current, hwnd, sleep=time.sleep):
     # Remember the editor/terminal input child before activation, rather than
     # unconditionally moving keyboard focus to its top-level frame.
     child = focused_child()
-    if u.IsIconic(hwnd): u.ShowWindowAsync(hwnd, 9)  # SW_RESTORE
+    if u.IsIconic(hwnd):
+        u.ShowWindowAsync(hwnd, 9)  # SW_RESTORE
     accepted = bool(u.SetForegroundWindow(hwnd))
     for _ in range(5):
         if confirmed():
             return {"ok": True, "hwnd": int(hwnd), "method": "SetForegroundWindow", "keyboardFocus": True}
-        sleep(.04)
+        sleep(0.04)
 
     # A broker worker is not a GUI thread. Explicitly create its message queue
     # before attaching, and attach BOTH the foreground and destination threads.
@@ -108,9 +121,12 @@ def focus_window(u, current, hwnd, sleep=time.sleep):
     attached, failed = [], []
     try:
         for thread in dict.fromkeys((other, target)):
-            if not thread or thread == current: continue
-            if u.AttachThreadInput(current, thread, True): attached.append(thread)
-            else: failed.append(thread)
+            if not thread or thread == current:
+                continue
+            if u.AttachThreadInput(current, thread, True):
+                attached.append(thread)
+            else:
+                failed.append(thread)
         if u.IsWindow(hwnd):
             u.BringWindowToTop(hwnd)
             u.SetForegroundWindow(hwnd)
@@ -119,14 +135,22 @@ def focus_window(u, current, hwnd, sleep=time.sleep):
                 # Prefer the application's current focus after activation, then
                 # its previously focused child if it still belongs to this frame.
                 focus = focused_child()
-                if not focus and child and u.IsWindow(child) and u.IsChild(hwnd, child): focus = child
+                if not focus and child and u.IsWindow(child) and u.IsChild(hwnd, child):
+                    focus = child
                 u.SetFocus(focus or hwnd)
     finally:
-        for thread in reversed(attached): u.AttachThreadInput(current, thread, False)
+        for thread in reversed(attached):
+            u.AttachThreadInput(current, thread, False)
     for _ in range(5):
         if confirmed():
             return {"ok": True, "hwnd": int(hwnd), "method": "AttachThreadInput", "keyboardFocus": True}
-        sleep(.04)
-    return {"ok": False, "reason": "Windows denied foreground or keyboard focus", "hwnd": int(hwnd),
-            "apiAccepted": accepted, "foreground": int(u.GetForegroundWindow() or 0),
-            "keyboardFocus": bool(focused_child()), "attachmentFailures": failed}
+        sleep(0.04)
+    return {
+        "ok": False,
+        "reason": "Windows denied foreground or keyboard focus",
+        "hwnd": int(hwnd),
+        "apiAccepted": accepted,
+        "foreground": int(u.GetForegroundWindow() or 0),
+        "keyboardFocus": bool(focused_child()),
+        "attachmentFailures": failed,
+    }

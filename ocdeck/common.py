@@ -29,7 +29,17 @@ def read_json(path, default=None):
         return default
 
 
-def request(method, path, data=None, root=None, timeout=2):
+def load_config(root=None):
+    path = Path(root or home()) / "config.json"
+    if not path.exists():
+        return {}
+    value = json.loads(path.read_text(encoding="utf-8-sig"))
+    if not isinstance(value, dict):
+        raise ValueError("config.json must contain an object")
+    return value
+
+
+def request(method, path, data=None, root=None, timeout: float = 2):
     root = Path(root or home())
     discovery = read_json(root / "discovery.json")
     if not discovery:
@@ -39,25 +49,33 @@ def request(method, path, data=None, root=None, timeout=2):
     if not 1 <= port <= 65535:
         raise ValueError("Invalid broker port")
     token = (root / "token").read_text(encoding="ascii").strip()
-    req = urllib.request.Request(f"http://127.0.0.1:{port}{path}",
+    req = urllib.request.Request(
+        f"http://127.0.0.1:{port}{path}",
         data=json.dumps(data).encode() if data is not None else None,
-        method=method, headers={"Authorization": "Bearer " + token,
-                               "Content-Type": "application/json"})
+        method=method,
+        headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"},
+    )
     with urllib.request.urlopen(req, timeout=timeout) as response:
         return json.load(response)
 
 
 def identity(pid=None):
     import psutil
+
     p = psutil.Process(pid or os.getpid())
     return {"pid": p.pid, "created": p.create_time()}
 
 
 def alive(process):
     import psutil
+
     try:
         p = psutil.Process(int(process["pid"]))
-        return abs(p.create_time() - float(process["created"])) < 0.01 and p.is_running() and p.status() != psutil.STATUS_ZOMBIE
+        return (
+            abs(p.create_time() - float(process["created"])) < 0.01
+            and p.is_running()
+            and p.status() != psutil.STATUS_ZOMBIE
+        )
     except psutil.AccessDenied:
         return None
     except (psutil.NoSuchProcess, KeyError, ValueError, TypeError):

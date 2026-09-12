@@ -6,6 +6,6 @@ Push-Location $source
 try {
     & $runtime -m unittest discover -s tests -v
     if ($LASTEXITCODE -ne 0) { throw 'Python/integration tests failed' }
-    & node --test tests/facts.test.mjs tests/harnesses.test.mjs
+    & node --test tests/facts.test.mjs tests/harnesses.test.mjs tests/next.test.mjs
     if ($LASTEXITCODE -ne 0) { throw 'JavaScript tests failed' }
 } finally { Pop-Location }

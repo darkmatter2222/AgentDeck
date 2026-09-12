@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory=$true)]
-    [ValidateSet('claude','copilot-cli','copilot-vscode','gemini','cursor')][string]$Profile,
+    [ValidateSet('claude','copilot-cli','copilot-vscode','gemini','cursor','codex')][string]$Profile,
     [string]$Project = (Get-Location).Path,
     [switch]$Remove,
     [switch]$DryRun

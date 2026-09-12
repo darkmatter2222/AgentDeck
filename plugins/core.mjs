@@ -32,7 +32,13 @@ export class Facts {
       if (s.status === 'unknown') status = 'unknown';
       else if (status !== 'unknown' && ['busy', 'retry'].includes(s.status)) status = 'busy';
     }
-    return {status: this.trusted ? status : 'unknown', pending, detail: this.detail};
+    const requestIds = [];
+    for (const [session, s] of this.sessions) {
+      for (const kind of ['permissions','questions']) for (const id of s[kind]) {
+        if (typeof id === 'string') requestIds.push(crypto.createHash('sha256').update(JSON.stringify([session,kind,id])).digest('hex'));
+      }
+    }
+    return {status: this.trusted ? status : 'unknown', pending, detail: this.detail, pendingKnown:true, requestIds};
   }
 }
 
