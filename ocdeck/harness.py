@@ -41,7 +41,7 @@ def launch(profile, args, executable=None, current_window=False):
     try:
         terminal_title = spec['windowToken'] + (' launcher' if profile == 'copilot-vscode' else '')
         subprocess.Popen([wt, '-w', key, 'new-tab', '--title', terminal_title,
-                          '--suppressApplicationTitle', sys.executable, '-m', 'ocdeck', 'harness-worker', str(file)])
+                          '--suppressApplicationTitle', '--inheritEnvironment', sys.executable, '-m', 'ocdeck', 'harness-worker', str(file)])
     except Exception:
         file.unlink(missing_ok=True)
         raise

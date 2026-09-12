@@ -108,6 +108,37 @@ checks, then guide me through docs/FIRST-RUN.md and the harness-specific accepta
 steps. Record observed results separately from unverified hardware/runtime gates.
 ```
 
+### Using HomeAILab or another local-model launcher?
+
+**Start it through AgentDeck to make button focus work.** A directly launched CLI
+can report status without a usable window mapping, because Windows Terminal owns
+the window. The wrapper creates a dedicated window and keeps your existing model
+configuration inside it.
+
+```powershell
+cd C:\Projects\MyApp
+C:\Tools\AgentDeck\scripts\Launch-Agent.bat --profile opencode --launcher "C:\Tools\HomeAILab\harness\opencode\opencode-5090.bat" --
+C:\Tools\AgentDeck\scripts\Launch-Agent.bat --profile claude --launcher "C:\Tools\HomeAILab\harness\claude\claude-5090.bat" --
+```
+
+Complete the OpenCode installation or the corresponding project hook setup above
+first. After updating, **restart the broker and relaunch your old sessions through
+these wrappers**. Existing unmanaged windows cannot be retroactively mapped.
+
+| Ready-to-use example in `scripts/examples/` | Purpose |
+|---|---|
+| `HomeAILab-OpenCode-5090.bat` / `HomeAILab-OpenCode-Spark.bat` | Wrap your existing local OpenCode scripts |
+| `HomeAILab-Claude-5090.bat` / `HomeAILab-Claude-Cluster.bat` | Wrap your existing direct/router Claude scripts |
+| `Claude-Local.bat` | Small local Anthropic-compatible endpoint example |
+| `Claude-Cloud.bat` | Normal Anthropic login/API-key route |
+| `OpenCode-Cloud.bat` | Normal OpenCode provider configuration |
+
+HomeAILab examples use `HOMEAILAB_ROOT`; local Claude uses `AGENTDECK_LOCAL_URL`
+and `AGENTDECK_LOCAL_MODEL`. No model credentials are bundled. The original
+HomeAILab scripts retain their own tuning and permission flags.
+
+[Full launcher setup, local/cloud examples, and focus troubleshooting](docs/LAUNCHERS.md).
+
 ## Make every key your own
 
 ![AgentDeck animated harness icons with Aurora colors](docs/appearance-preview.gif)

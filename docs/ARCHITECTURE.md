@@ -103,3 +103,15 @@ layers so scrolling and shimmer cannot overwrite icons or neighboring lines.
 Presets expand to ordinary validated appearance fields in the CLI; the same fields
 and renderer drive previews and device images. `steady` and disabled animations
 freeze the shared phase for both artwork and text. All caches remain bounded.
+
+
+### Managed external launchers and foreground activation
+
+`ocdeck start` dispatches to the existing OpenCode or hook supervisor. An optional
+external executable/BAT lives in the launch specification; the worker runs it
+under the same binding and unique title. The OpenCode shim preserves an existing
+binding when resolving nested CLI calls. No HomeAILab backend logic enters the broker.
+Focus still resolves exact titles / process identity. Activation temporarily joins
+both destination and foreground GUI input threads after creating a message queue,
+preserves a valid focused child, and verifies both foreground and input focus after
+detaching. Window mapping and activation failure remain distinct diagnostics.

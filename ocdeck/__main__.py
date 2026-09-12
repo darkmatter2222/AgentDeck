@@ -24,6 +24,10 @@ def main():
     hl.add_argument('--profile', required=True, choices=PROFILES); hl.add_argument('--executable')
     hl.add_argument('--current-window', action='store_true'); hl.add_argument('args', nargs=argparse.REMAINDER)
     hw = sub.add_parser('harness-worker'); hw.add_argument('spec')
+    start = sub.add_parser('start', help='Managed local/cloud CLI or existing BAT launcher')
+    start.add_argument('--profile', required=True, choices=['opencode', *PROFILES])
+    start.add_argument('--launcher', help='Path to existing BAT/CMD/EXE; defaults to the installed CLI')
+    start.add_argument('args', nargs=argparse.REMAINDER)
     preview = sub.add_parser('preview'); preview.add_argument('--output', default='animation-preview.gif')
     from .appearance import THEMES, PRESETS
     customize = sub.add_parser('appearance', help='Save button appearance; restart broker to apply')
@@ -77,6 +81,14 @@ def main():
             from .harness import launch
             return launch(args.profile, args.args[1:] if args.args[:1] == ['--'] else args.args,
                           args.executable, args.current_window)
+        elif args.command == 'start':
+            forwarded = args.args[1:] if args.args[:1] == ['--'] else args.args
+            if args.profile == 'opencode':
+                from .launcher import launch
+                launch(forwarded, executable=args.launcher)
+            else:
+                from .harness import launch
+                return launch(args.profile, forwarded, executable=args.launcher)
         elif args.command == 'harness-worker':
             from .harness import worker
             return worker(args.spec)

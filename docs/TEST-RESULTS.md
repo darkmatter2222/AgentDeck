@@ -106,3 +106,20 @@ Linux/Python 3.11+ checkout verification:
 - Verified local documentation links and decoded every gallery animation frame.
 - Physical Stream Deck throughput, readability on-device, and Windows acceptance
   remain unverified; this update does not claim to pass those hardware gates.
+
+## Focus fix and HomeAILab wrappers — 2026-09-12
+
+- 42 Python tests passed; 20 JavaScript tests passed. The first full run lacked
+  psutil/streamdeck in the refreshed test runtime; after installing the declared
+  dependencies, the full Python suite passed in 17.450 seconds.
+- Six mocked Win32 regression tests cover both-thread attachment, minimized
+  restore, input-child preservation, missing keyboard focus, denied attachment,
+  cleanup after exceptions, and already-focused targets.
+- Two launcher tests cover external BAT path/argument retention and nested
+  OpenCode shim routing without creating another managed window.
+- Inspected HomeAILab harness sources: they directly invoke their real CLI and
+  leave backend selection in their own scripts. New AgentDeck wrappers preserve
+  that behavior inside a managed window; HomeAILab itself was not modified.
+- Documentation links and BAT CRLF line endings verified.
+- Physical Stream Deck presses, native Windows focus, and executing HomeAILab
+  BATs against live local/cloud backends remain unverified on this Linux host.

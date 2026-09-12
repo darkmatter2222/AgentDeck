@@ -59,3 +59,9 @@ returned in each `/v1/status` slot. This is display metadata only; no sequence,
 state-priority, process identity, or focus-generation invariant changes. Older
 clients can omit it; the renderer recognizes legacy harness-prefixed labels.
 Appearance preferences are local file settings, with no new HTTP endpoints.
+
+Focus results now verify keyboard focus as well as the foreground window.
+Successful activation includes `keyboardFocus: true`. A failed activation may
+include `foreground` (observed HWND), `keyboardFocus`, and `attachmentFailures`
+(GUI thread IDs). Exact window-token matching and registry identity checks remain
+unchanged. Local wrappers do not add broker endpoints; see [launchers](LAUNCHERS.md).

@@ -15,6 +15,9 @@ def route(args):
                 'mcp', 'session', 'export', 'import', 'github', 'pr', 'stats', 'debug',
                 'agent', 'completion', 'db', 'plugin'}
     passthrough = any(a in ('--help', '-h', '--version', '-v') for a in args) or (args and args[0] in commands)
+    # A HomeAILab BAT may resolve the global shim again inside our worker.
+    # Keep its existing managed identity instead of spawning a second window.
+    passthrough = passthrough or bool(os.environ.get('OCDECK_BINDING'))
     if not passthrough:
         launch(args)
         return 0
@@ -30,21 +33,24 @@ def route(args):
         spec.unlink(missing_ok=True)
 
 
-def launch(args, cwd=None):
+def launch(args, cwd=None, executable=None):
     if os.name != 'nt':
         raise RuntimeError('Managed launcher requires Windows; see docs/REMOTE-AND-WSL.md')
     root = home()
     install = read_json(root / 'install.json')
     if not install:
         raise RuntimeError('Run scripts/Install.ps1 first')
+    executable = shutil.which(executable) if executable else install['opencode']
+    if not executable:
+        raise RuntimeError('Launcher executable not found')
     wt = shutil.which('wt.exe')
     if not wt:
         raise RuntimeError('Windows Terminal (wt.exe) is required for managed windows')
     key = str(uuid.uuid4())
     spec = root / 'launches' / (key + '.json')
     token = 'OpenCode [' + key + ']'
-    atomic_json(spec, {'id': key, 'args': args, 'cwd': cwd or os.getcwd(), 'windowToken': token})
-    subprocess.Popen([wt, '-w', key, 'new-tab', '--title', token, '--suppressApplicationTitle',
+    atomic_json(spec, {'id': key, 'args': args, 'cwd': cwd or os.getcwd(), 'windowToken': token, 'executable': executable})
+    subprocess.Popen([wt, '-w', key, 'new-tab', '--title', token, '--suppressApplicationTitle', '--inheritEnvironment',
                       sys.executable, '-m', 'ocdeck', 'worker', str(spec)],
                      close_fds=True)
 
@@ -60,7 +66,7 @@ def worker(spec_path):
     atomic_json(binding_path, reg)
     env = dict(os.environ, OCDECK_HOME=str(root), OCDECK_BINDING=str(binding_path))
     # Arguments are read from JSON by PowerShell, never interpolated into script text.
-    spec['executable'] = install['opencode']
+    spec.setdefault('executable', install['opencode'])
     atomic_json(spec_path, spec)
     process = subprocess.Popen(['powershell.exe', '-NoLogo', '-NoProfile', '-ExecutionPolicy', 'Bypass',
                                 '-File', str(Path(install['source']) / 'scripts' / 'Run-OpenCode.ps1'),

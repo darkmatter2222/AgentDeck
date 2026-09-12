@@ -48,3 +48,13 @@ Include the profile, native harness version, setup path, failed acceptance step,
 redacted status, hook diagnostic errors, and whether a mock or physical broker was
 used. Note any WSL/SSH/container boundary: the included per-launch relay is local
 and does not add cross-environment support. See [REMOTE-AND-WSL.md](REMOTE-AND-WSL.md).
+
+
+## HomeAILab keys show state but do not focus
+
+Use the [managed HomeAILab wrapper](LAUNCHERS.md), then relaunch the old sessions.
+Direct launches lack the dedicated window token. Do not use the headless `serve`
+launcher when you want to focus an interactive agent. In Windows Terminal, retain
+`showTerminalTitleInTitlebar: true` and the managed tab title.
+The updated fallback attaches both GUI threads and checks keyboard focus as well
+as foreground ownership. Restart the broker after updating its source code.
