@@ -48,7 +48,7 @@ class Broker:
     def __init__(self, root=None, mock=False, probe=alive, focus=activate):
         self.root = Path(root or home())
         self.root.mkdir(parents=True, exist_ok=True)
-        self.config = {"fps": 10, "brightness": 45, "animations": True, "ready": True,
+        self.config = {"fps": 24, "brightness": 45, "animations": True, "ready": True,
                        **(read_json(self.root / "config.json", {}) or {})}
         if not (self.root / "token").exists():
             fd = os.open(self.root / "token", os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)

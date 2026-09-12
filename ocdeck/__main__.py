@@ -25,6 +25,21 @@ def main():
     hl.add_argument('--current-window', action='store_true'); hl.add_argument('args', nargs=argparse.REMAINDER)
     hw = sub.add_parser('harness-worker'); hw.add_argument('spec')
     preview = sub.add_parser('preview'); preview.add_argument('--output', default='animation-preview.gif')
+    from .appearance import THEMES
+    customize = sub.add_parser('appearance', help='Save button appearance; restart broker to apply')
+    customize.add_argument('--slot', type=int, choices=range(1,7))
+    for target in (customize, preview):
+        target.add_argument('--layout', choices=['classic','harness','minimal'])
+        target.add_argument('--theme', choices=list(THEMES))
+        target.add_argument('--effect', choices=['breathe','glow','steady'])
+        for name in ('primary','secondary'):
+            target.add_argument('--' + name, choices=['status','project','harness','detail','custom','none'])
+        target.add_argument('--custom-text')
+        target.add_argument('--show-slot', action=argparse.BooleanOptionalAction, default=None)
+        target.add_argument('--speed', type=float)
+        target.add_argument('--intensity', type=float)
+        target.add_argument('--brightness', type=float, help='Per-button image brightness, 0.15..1')
+    customize.add_argument('--fps', type=int, choices=range(1,31))
     focus = sub.add_parser('focus'); focus.add_argument('slot', type=int)
     args = parser.parse_args()
     try:
@@ -67,19 +82,43 @@ def main():
             if not 1 <= args.slot <= 6: raise ValueError('Slot must be 1..6')
             view = request('GET', '/v1/status')['slots'][args.slot - 1]
             print(json.dumps(request('POST', '/v1/focus', view), indent=2))
+        elif args.command == 'appearance':
+            from .appearance import Appearance, appearance
+            from dataclasses import fields
+            from .common import read_json, atomic_json
+            config = read_json(home() / 'config.json') if (home() / 'config.json').exists() else {}
+            if not isinstance(config, dict): raise ValueError('config.json must contain an object')
+            changes = {f.name: getattr(args, f.name) for f in fields(Appearance) if getattr(args, f.name) is not None}
+            if changes:
+                target = config.setdefault('appearance', {}) if args.slot is None else config.setdefault('buttons', {}).setdefault(str(args.slot), {})
+                target.update(changes)
+            if args.fps is not None: config['fps'] = args.fps
+            for slot in range(6): appearance(config, slot)
+            if changes or args.fps is not None:
+                atomic_json(home() / 'config.json', config)
+                print('Appearance saved. Restart the AgentDeck broker to apply.')
+            print(json.dumps(config, indent=2))
         elif args.command == 'preview':
             from .art import frame
             from PIL import Image, ImageDraw
+            from .appearance import Appearance, appearance
+            from .common import read_json
+            from dataclasses import fields
+            config = read_json(home() / 'config.json') if (home() / 'config.json').exists() else {} or {}
+            changes = {f.name: getattr(args, f.name) for f in fields(Appearance) if getattr(args, f.name) is not None}
+            config['appearance'] = {**config.get('appearance', {}), **changes}
+            # Explicit preview flags override saved per-button preferences.
+            styles = [appearance({'appearance': {**config.get('appearance', {}), **config.get('buttons', {}).get(str(k+1), {}), **changes}}, k) for k in range(6)]
             images = []
-            states = ['running', 'idle', 'input', 'ready', 'unknown', 'off']
-            for phase in range(24):
+            states = ['running', 'idle', 'input', 'running', 'unknown', 'ready']
+            for phase in range(48):
                 im = Image.new('RGB', (532, 370), '#10141d')
                 d = ImageDraw.Draw(im)
-                d.text((22, 12), 'OPENCODE / STREAM DECK MINI', fill='white')
+                d.text((22, 12), 'AGENTDECK / APPEARANCE PREVIEW', fill='white')
                 for k, state in enumerate(states):
-                    im.paste(frame(state, 'HomeAILab', k, phase, 150), (22 + (k % 3)*170, 40 + (k // 3)*160))
+                    im.paste(frame(state, 'HomeAILab', k, int(phase*2*styles[k].speed)%96 if styles[k].effect != 'steady' and config.get('animations',True) else 24, 150, styles[k], ['opencode','claude','copilot','gemini','cursor','opencode'][k], 'Review changes'), (22 + (k % 3)*170, 40 + (k // 3)*160))
                 images.append(im)
-            images[0].save(args.output, save_all=True, append_images=images[1:], duration=83, loop=0)
+            images[0].save(args.output, save_all=True, append_images=images[1:], duration=[40,40,40,40,40,50]*8, loop=0)
             print(str(Path(args.output).resolve()))
     except Exception as error:
         print(f'ocdeck: {error}', file=sys.stderr)

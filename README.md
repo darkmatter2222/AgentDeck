@@ -207,3 +207,9 @@ harness/runtime versions, redacted `ocdeck status`, and the failed acceptance st
 Never include model credentials, broker tokens or hook connection descriptors.
 
 Apache-2.0 · Python 3.11+ · Windows desktop · Local controller
+
+## Button appearance and smoother animation
+
+Choose Classic, Harness, or Minimal artwork, five palettes, two configurable text
+lines, and per-button glow, pulse speed, and brightness. New installations target
+24 FPS with 96-step animation cycles. [Customization guide and animated preview](docs/APPEARANCE.md).

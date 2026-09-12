@@ -4,6 +4,8 @@ import queue
 import threading
 import time
 from .art import frame
+from .appearance import appearance, animation_phase, harness_id
+from collections import OrderedDict
 
 LOG = logging.getLogger(__name__)
 MINI_PIDS = {0x0063, 0x0090, 0x00B3, 0x00B8}
@@ -110,9 +112,10 @@ class DeviceLoop:
                     self.deck.set_key_callback(lambda deck, key, state: self.press(key, state))
                     self.status.update(serial=devices[0].get("serial_number"), productId=devices[0]["product_id"])
                 self.status.update(online=True, error="")
-                last, native = {}, {}
+                last, native = {}, OrderedDict()
+                styles = [appearance(self.config, k) for k in range(6)]
                 next_probe = time.monotonic() + 2
-                fps = max(1, min(15, int(self.config.get("fps", 10))))
+                fps = max(1, min(30, int(self.config.get("fps", 24))))
                 while not self.stop.is_set():
                     start = time.monotonic()
                     if not self.mock and start >= next_probe:
@@ -121,15 +124,22 @@ class DeviceLoop:
                     views = self.registry.view()
                     if not any(v["id"] for v in views) and self.config.get("ready", True):
                         views[0] = {**views[0], "state": "ready"}
-                    phase = int(start * 12) % 24 if self.config.get("animations", True) else 6
                     for k, v in enumerate(views):
-                        key = (v["state"], v["label"], k, phase if v["state"] != "off" else 0)
+                        style = styles[k]
+                        phase = animation_phase(start, style, self.config.get("animations", True))
+                        key = (v["state"], v["label"], k, phase if v["state"] != "off" else 0,
+                               80, style, harness_id(v["label"], v.get("harness", "")),
+                               v.get("detail", "") if 'detail' in (style.primary, style.secondary) else '')
+                        # Assignment identity must refresh even when the pixels are identical.
                         if last.get(k) == key:
+                            with self.presented_lock:
+                                self.presented[k] = dict(v)
                             continue
                         if not self.mock:
                             if key not in native:
-                                if len(native) > 1024: native.clear()
+                                if len(native) >= 768: native.popitem(last=False)
                                 native[key] = PILHelper.to_native_key_format(self.deck, frame(*key))
+                            native.move_to_end(key)
                             self.deck.set_key_image(k, native[key])
                         with self.presented_lock:
                             self.presented[k] = dict(v)

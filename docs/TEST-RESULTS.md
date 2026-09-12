@@ -75,3 +75,18 @@ whitespace checks were clean (Windows BAT CRLF endings retained intentionally).
 Exact outputs: [Python merge tests](merge-python-test-output.txt) and
 [Node merge tests](merge-javascript-test-output.txt). No native harness, Windows
 script, hardware or foreground-focus gate became verified merely by this merge.
+
+## Customizable smooth buttons — 2026-09-12
+
+Linux/Python 3.11+ checkout verification:
+
+- Python suite: 29 passed (including 4 new appearance/regression tests).
+- JavaScript suite: 20 passed.
+- Appearance matrix covers all five themes, three layouts, six harness values,
+  and six states; blank keys stay black. Final text-fitting optimization:
+  four appearance tests passed again in 1.469 seconds.
+- CLI checks: global settings + per-slot override persisted; unrelated serial
+  and device brightness preserved; invalid NaN speed rejected without writing.
+- Harness/Aurora/glow GIF generated and a frame visually inspected.
+- Real Stream Deck Mini USB throughput, six-key sustained 24/30 FPS, and Windows
+  display/focus acceptance: **not verified on hardware**.

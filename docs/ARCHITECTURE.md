@@ -79,3 +79,14 @@ The project-hook installer merges entries and saves timestamped backups plus a
 receipt of installed entries. Uninstall removes only matching entries; it does
 not restore a whole backup over later changes. Profile config locations, transport
 limits and lifecycle caveats are documented in [HARNESSES.md](HARNESSES.md).
+
+## Button rendering
+
+`appearance.py` validates global and per-slot display preferences shared by the
+CLI preview and device renderer. Immutable styles participate in bounded frame
+and native-image caches. Motion uses 96 phases derived from monotonic time; the
+loop targets 24 FPS by default (1–30 configurable), dropping missed time rather
+than accumulating frames. Unchanged pixels skip USB writes but still refresh
+the presented assignment, preserving focus correctness when a slot is reused.
+Harness metadata is decorative; the registry state and identity rules remain
+unchanged. See [appearance](APPEARANCE.md) for hardware limits and settings.
