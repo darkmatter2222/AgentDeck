@@ -7,7 +7,7 @@ installed interpreter (`python -m ocdeck`) instead of relying on command shims.
 
 ## Original OpenCode installation
 
-1. Extract the ZIP to a permanent directory, for example `C:\Tools\AgentDeck`. Keep the whole folder: the installed Python package is editable and the global plugin entry imports these sources.
+1. Extract the ZIP to a permanent directory, for example `C:\Tools\AgentStreamDeck`. Keep the whole folder: the installed Python package is editable and the global plugin entry imports these sources.
 2. Disable only the Mini under Elgato Preferences > Devices > Enabled. Elgato 7.1 introduced that control, so 7.2 should have it. Close any old scripts that also write to the Mini. Leave Elgato running if you want; it must not own this device.
 3. Confirm Python and OpenCode run. Use `Get-Command opencode` to record the original path before installing. Use Python 3.11 or later; the installer's `-Python` option accepts a full executable path.
 4. Run the installer as the Windows account that will use the device. The default server plugin is the broad-compatibility path. Do not opt into TUI mode until the installed OpenCode API has been checked.

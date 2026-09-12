@@ -17,6 +17,8 @@
 | Add or change an adapter | [Contributing](../CONTRIBUTING.md) |
 | Read original OpenCode design research | [Historical research](RESEARCH.md) |
 
-Examples use `C:\Tools\AgentDeck` for the permanent controller checkout and
+Examples use `C:\Tools\AgentStreamDeck` for the permanent controller checkout and
 `C:\Projects\MyApp` for the software project being edited. Substitute real paths.
 Installed compatibility names remain `ocdeck`, `.opencode-deck` and `OpenCode Deck`.
+
+- [Rename and upgrade to AgentStreamDeck](RENAMING.md)

@@ -29,7 +29,7 @@ jobs:
             sbom.json
             SHA256SUMS.txt
   publish:
-    if: github.ref == 'refs/heads/main' && github.repository == 'darkmatter2222/AgentDeck'
+    if: github.ref == 'refs/heads/main' && github.repository == 'darkmatter2222/AgentStreamDeck'
     needs: build
     runs-on: ubuntu-latest
     environment: pypi

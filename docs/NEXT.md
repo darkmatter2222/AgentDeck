@@ -1,4 +1,4 @@
-# AgentDeck 2.1 feature guide
+# AgentStreamDeck 2.1 feature guide
 
 This branch adds the 20 requested improvements. Run the Python and Node suites
 before use. Physical USB, foreground focus, native Codex hook trust and Windows
@@ -35,7 +35,7 @@ restart resets in-memory notification history. Muted slots suppress both channel
 
 Delivery uses Windows' ordinary notification system, default priority, silent
 toast audio and the shell interruption-state check. It never uses an alarm or
-priority bypass. Enable **AgentDeck** in Windows notification settings. The first
+priority bypass. Enable **AgentStreamDeck** in Windows notification settings. The first
 opted-in toast creates a per-user notification identity. Focus Assist/Do Not
 Disturb and fullscreen/presentation modes may suppress alerts. Linux mock mode
 validates transitions but does not emit desktop notifications. Delivery failures

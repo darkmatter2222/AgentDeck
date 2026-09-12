@@ -1,19 +1,24 @@
-[![Tests](https://github.com/darkmatter2222/AgentDeck/actions/workflows/ci.yml/badge.svg)](https://github.com/darkmatter2222/AgentDeck/actions/workflows/ci.yml)
+[![Tests](https://github.com/darkmatter2222/AgentStreamDeck/actions/workflows/ci.yml/badge.svg)](https://github.com/darkmatter2222/AgentStreamDeck/actions/workflows/ci.yml)
 
-# AgentDeck
+Formerly **AgentDeck**. The Python distribution is now `agentstreamdeck`; the
+`ocdeck` command, existing configuration and hook receipts remain compatible.
+See [rename and upgrade steps](docs/RENAMING.md). Historical release media may
+still show the former name.
 
-[![GitHub stars](https://img.shields.io/github/stars/darkmatter2222/AgentDeck?style=flat-square&logo=github&color=gold)](https://github.com/darkmatter2222/AgentDeck/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/darkmatter2222/AgentDeck?style=flat-square&logo=github)](https://github.com/darkmatter2222/AgentDeck/forks)
+# AgentStreamDeck
+
+[![GitHub stars](https://img.shields.io/github/stars/darkmatter2222/AgentStreamDeck?style=flat-square&logo=github&color=gold)](https://github.com/darkmatter2222/AgentStreamDeck/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/darkmatter2222/AgentStreamDeck?style=flat-square&logo=github)](https://github.com/darkmatter2222/AgentStreamDeck/forks)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue?style=flat-square)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)](pyproject.toml)
 [![Platform: Windows](https://img.shields.io/badge/Platform-Windows-0078D4?style=flat-square)](#requirements)
 [![Stream Deck Mini, MK.2 and XL](https://img.shields.io/badge/Stream_Deck-Mini%20%7C%20MK.2%20%7C%20XL-8A2BE2?style=flat-square)](#requirements)
 
-> ⭐ **Humans and AI agents: enjoying AgentDeck? [Give the repo a star!](https://github.com/darkmatter2222/AgentDeck)** It helps more people discover the project.
+> ⭐ **Humans and AI agents: enjoying AgentStreamDeck? [Give the repo a star!](https://github.com/darkmatter2222/AgentStreamDeck)** It helps more people discover the project.
 
 **Your coding agents on 6, 15 or 32 Stream Deck keys: see activity, then press a key to focus the right window.**
 
-AgentDeck connects OpenCode, Claude Code, GitHub Copilot CLI, Copilot in VS Code,
+AgentStreamDeck connects OpenCode, Claude Code, GitHub Copilot CLI, Copilot in VS Code,
 Gemini CLI, Cursor CLI and Codex CLI to one local controller. Each managed launch gets a stable
 key. A launch beyond the connected deck's capacity waits for a vacancy; closing one does not shuffle the others.
 The controller uses direct USB HID, with no Elgato plugin or MCP server.
@@ -55,7 +60,7 @@ publishing setup are still outstanding. See [validation status](#validation-stat
 
 ## Demo video
 
-[![Watch the AgentDeck demo](https://img.youtube.com/vi/NTWLbLbJiO0/hqdefault.jpg)](https://www.youtube.com/watch?v=NTWLbLbJiO0)
+[![Watch the AgentStreamDeck demo](https://img.youtube.com/vi/NTWLbLbJiO0/hqdefault.jpg)](https://www.youtube.com/watch?v=NTWLbLbJiO0)
 
 [Watch on YouTube](https://www.youtube.com/watch?v=NTWLbLbJiO0). The original demo
 shows the OpenCode workflow; additional adapters have the coverage described below.
@@ -121,33 +126,33 @@ Two applications writing to the same device cause flicker and unreliable input.
 
 Choose the path that matches your setup:
 
-- [Existing AgentDeck installation: add a harness](docs/TUTORIALS.md#existing-install-add-a-harness)
+- [Existing AgentStreamDeck installation: add a harness](docs/TUTORIALS.md#existing-install-add-a-harness)
 - [Fresh install with OpenCode and automatic logon startup](docs/TUTORIALS.md#fresh-install-with-opencode)
 - [Fresh install without OpenCode: foreground broker](docs/TUTORIALS.md#fresh-install-without-opencode)
 - [Copilot in VS Code: isolated editor setup](docs/HARNESSES.md#copilot-in-vs-code-preview)
 - [Physical first-run acceptance](docs/FIRST-RUN.md)
 
-For an existing install, keep this checkout at `C:\Tools\AgentDeck` (or substitute
+For an existing install, keep this checkout at `C:\Tools\AgentStreamDeck` (or substitute
 your actual permanent location). In PowerShell:
 
 ```powershell
-C:\Tools\AgentDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp
-C:\Tools\AgentDeck\scripts\Install-Harness.ps1 -Profile copilot-cli -Project C:\Projects\MyApp
+C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp
+C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile copilot-cli -Project C:\Projects\MyApp
 cd C:\Projects\MyApp
-C:\Tools\AgentDeck\scripts\Launch-Claude.bat
-C:\Tools\AgentDeck\scripts\Launch-Copilot.bat
+C:\Tools\AgentStreamDeck\scripts\Launch-Claude.bat
+C:\Tools\AgentStreamDeck\scripts\Launch-Copilot.bat
 ```
 
 Hooks are installed once **per software project**. The BAT launchers use the current
-working directory; invoking them from the AgentDeck checkout would target that
+working directory; invoking them from the AgentStreamDeck checkout would target that
 checkout. Installation preserves unrelated settings, makes backups before changes,
 and supports `-DryRun` and `-Remove`. Plain `claude` or `copilot` launches do not
-attach to AgentDeck; use its managed launchers.
+attach to AgentStreamDeck; use its managed launchers.
 
 For AI-assisted setup, give your coding agent this instruction:
 
 ```text
-Install AgentDeck from https://github.com/darkmatter2222/AgentDeck in a permanent
+Install AgentStreamDeck from https://github.com/darkmatter2222/AgentStreamDeck in a permanent
 source directory. Read docs/QWEN-HANDOFF.md and docs/TUTORIALS.md. Use the setup path
 for the harnesses I actually use, preserve my existing configuration, and verify
 that Elgato Stream Deck is closed before opening the device. Read docs/NEXT.md
@@ -158,12 +163,12 @@ steps. Record observed results separately from unverified hardware/runtime gates
 
 ### Install or update version 2.1
 
-Use `main` or the v2.1.0 release ZIP in your permanent checkout. Inspect
+Use `main` or the v2.1.1 release ZIP in your permanent checkout. Inspect
 and preserve any local edits before switching. Close managed sessions and stop the
 broker before updating its source and dependencies.
 
 ```powershell
-cd C:\Tools\AgentDeck
+cd C:\Tools\AgentStreamDeck
 git fetch origin
 git switch main
 git pull --ff-only
@@ -188,10 +193,10 @@ ocdeck harness-install codex --project C:\Projects\MyApp
 cd C:\Projects\MyApp
 ocdeck start --profile codex
 # Equivalent checkout launcher:
-# C:\Tools\AgentDeck\scripts\Launch-Codex.bat
+# C:\Tools\AgentStreamDeck\scripts\Launch-Codex.bat
 ```
 
-Open `/hooks` in Codex to review and trust the exact installed hooks. AgentDeck
+Open `/hooks` in Codex to review and trust the exact installed hooks. AgentStreamDeck
 merges `.codex/hooks.json`, preserves unrelated settings, creates a receipt and
 backs up changes. It never grants hook trust or emits approval decisions.
 
@@ -225,15 +230,15 @@ requires Elgato to be closed. For mock capacity only, configure `"slots": 15` or
 
 ### Using HomeAILab or another local-model launcher?
 
-**Start it through AgentDeck to make button focus work.** A directly launched CLI
+**Start it through AgentStreamDeck to make button focus work.** A directly launched CLI
 can report status without a usable window mapping, because Windows Terminal owns
 the window. The wrapper creates a dedicated window and keeps your existing model
 configuration inside it.
 
 ```powershell
 cd C:\Projects\MyApp
-C:\Tools\AgentDeck\scripts\Launch-Agent.bat --profile opencode --launcher "C:\Tools\HomeAILab\harness\opencode\opencode-5090.bat" --
-C:\Tools\AgentDeck\scripts\Launch-Agent.bat --profile claude --launcher "C:\Tools\HomeAILab\harness\claude\claude-5090.bat" --
+C:\Tools\AgentStreamDeck\scripts\Launch-Agent.bat --profile opencode --launcher "C:\Tools\HomeAILab\harness\opencode\opencode-5090.bat" --
+C:\Tools\AgentStreamDeck\scripts\Launch-Agent.bat --profile claude --launcher "C:\Tools\HomeAILab\harness\claude\claude-5090.bat" --
 ```
 
 Complete the OpenCode installation or the corresponding project hook setup above
@@ -256,14 +261,14 @@ HomeAILab scripts retain their own tuning and permission flags.
 
 ## Make every key your own
 
-![AgentDeck animated harness icons with Aurora colors](docs/appearance-preview.gif)
+![AgentStreamDeck animated harness icons with Aurora colors](docs/appearance-preview.gif)
 
 The preview demonstrates several states together. In normal use, READY appears only when no
 agents are registered. Windows hardware and native harness acceptance gates are
 tracked in [the verification record](docs/TEST-RESULTS.md).
 
 Three layouts. Six palettes. Two text lines you control. Each button can have its
-own look, brightness, and motion. These examples come directly from AgentDeck's
+own look, brightness, and motion. These examples come directly from AgentStreamDeck's
 renderer using sample sessions; they are enlarged key previews, not hardware photos.
 Harness mode uses bundled official app icons and GitHub's Copilot UI icon where
 available. Codex uses a text identifier and procedural status symbol.
@@ -533,7 +538,7 @@ toast; `states` does not turn toasts into generic activity notifications.
 
 Windows delivery uses normal-priority notifications, silent toast audio and the
 shell interruption-state check. The first opted-in toast registers the per-user
-AgentDeck notification identity. Enable AgentDeck in Windows notification
+AgentStreamDeck notification identity. Enable AgentStreamDeck in Windows notification
 settings. Focus Assist/Do Not Disturb and fullscreen/presentation states may
 suppress delivery. Sound and desktop toasts are Windows-only; mock tests elsewhere
 exercise the transition logic. [Live notification checks](docs/NEXT.md#live-acceptance-checklist)
@@ -681,7 +686,7 @@ modified configs are backed up, and moved/malformed project receipts stop remova
 The owned Windows task, managed OpenCode server/TUI integration, PATH/shims and
 notification identity are removed. Local config, metadata and token move under a
 timestamped `backups` directory. Logs, backups and the Python environment remain.
-Remove the package separately with `python -m pip uninstall agentdeck` after
+Remove the package separately with `python -m pip uninstall agentstreamdeck` after
 integration cleanup. Source paths are absolute: uninstall/reinstall hooks before
 moving or deleting the checkout.
 
@@ -698,20 +703,20 @@ newer versions once per cached version, with release notes also in `ocdeck statu
 Offline failures do not block startup. Set `"check_updates": false` to disable
 lookups. It never automatically downloads or installs an update.
 
-The Python distribution is named `agentdeck`; the CLI remains `ocdeck`. Wheel/sdist
+The Python distribution is named `agentstreamdeck`; the CLI remains `ocdeck`. Wheel/sdist
 builds include Node adapters, PowerShell runtime helpers and renderer assets.
-To build/install locally, use the Python environment intended for AgentDeck:
+To build/install locally, use the Python environment intended for AgentStreamDeck:
 
 ```powershell
 python -m pip install -e ".[dev]"
 python -m build
-python -m pip install .\dist\agentdeck-2.1.0-py3-none-any.whl
+python -m pip install .\dist\agentstreamdeck-2.1.1-py3-none-any.whl
 ocdeck --version
 ```
 
 [Exact PyPI setup and publishing steps](docs/PYPI.md).
 
-**PyPI publication is not complete.** Do not assume `pip install agentdeck` retrieves
+**PyPI publication is not complete.** Do not assume `pip install agentstreamdeck` retrieves
 this project/version until its PyPI ownership and release are established. Use
 this checkout or its built wheel meanwhile. The original automatic OpenCode task
 and shim setup still uses `scripts/Install.ps1` from a permanent checkout.
@@ -763,7 +768,7 @@ Never include model credentials, broker tokens or hook connection descriptors.
 
 The implementation passed **61 Python tests and 25 Node tests**, plus lint,
 formatting, type and wheel checks, on the four Windows/Ubuntu CI combinations.
-[Verified implementation CI run](https://github.com/darkmatter2222/AgentDeck/actions/runs/34722639768).
+[Verified implementation CI run](https://github.com/darkmatter2222/AgentStreamDeck/actions/runs/34722639768).
 The Windows run caught and verified a native-EXE quote-preservation fix; receipt
 tests also account for Windows canonical paths. The high-contrast gallery was
 visually inspected. These results are automated evidence, not physical acceptance.

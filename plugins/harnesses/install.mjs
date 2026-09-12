@@ -9,7 +9,7 @@ export function configuration(profile, script = fileURLToPath(new URL('./hook.mj
   // Double quotes work in Bash, cmd and PowerShell for these paths. Refuse shell metacharacters
   // that could expand even inside quotes; never interpolate user prompts into commands.
   script = script.replaceAll('\\', '/');
-  if (/["$`%!\r\n]/.test(script)) throw Error('Move AgentDeck to a path without quotes, $, backticks, %, or !');
+  if (/["$`%!\r\n]/.test(script)) throw Error('Move AgentStreamDeck to a path without quotes, $, backticks, %, or !');
   const hooks = {};
   for (const event of Object.keys(p.events)) {
     const command = `node "${script}" ${profile} ${event}`;
@@ -65,7 +65,7 @@ export async function install(profile, project, {remove=false, dryRun=false} = {
   const generated = remove ? {hooks:{}} : configuration(profile);
   const merged = mergeConfig(existing, generated, prior?.configuration);
   if (dryRun) return {target, configuration:merged};
-  if (remove && !prior) throw Error('No AgentDeck installation manifest; nothing removed');
+  if (remove && !prior) throw Error('No AgentStreamDeck installation manifest; nothing removed');
   if (!same(existing,merged)) {
     try { await fs.copyFile(target, target + `.agentdeck-backup-${Date.now()}`, 1); }
     catch (e) { if (e.code !== 'ENOENT') throw e; }

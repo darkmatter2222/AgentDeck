@@ -4,7 +4,7 @@
 
 Use the installed `ocdeck` command (or `python -m ocdeck` from the checkout).
 Preferences are saved to `%USERPROFILE%\.opencode-deck\config.json` (or
-`OCDECK_HOME`). Restart the AgentDeck broker after changing them. Existing
+`OCDECK_HOME`). Restart the AgentStreamDeck broker after changing them. Existing
 configuration, including an explicitly selected FPS, is preserved.
 
 ```powershell

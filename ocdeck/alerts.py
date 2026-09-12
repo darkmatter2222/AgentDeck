@@ -46,8 +46,8 @@ def deliver(event, config):
         import winreg
 
         with winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\Classes\AppUserModelId\AgentDeck") as key:
-            winreg.SetValueEx(key, "DisplayName", 0, winreg.REG_SZ, "AgentDeck")
-        text = f"AgentDeck slot {event['slot'] + 1} needs input"
+            winreg.SetValueEx(key, "DisplayName", 0, winreg.REG_SZ, "AgentStreamDeck")
+        text = f"AgentStreamDeck slot {event['slot'] + 1} needs input"
         script = """$ErrorActionPreference='Stop'
 [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType=WindowsRuntime] > $null
 [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType=WindowsRuntime] > $null
