@@ -5,9 +5,16 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "agentdeck"
 version = "2.1.0"
-description = "Local AI coding-agent presence and customizable Stream Deck Mini controller"
+description = "Local AI coding-agent status, alerts and focus for Stream Deck Mini, MK.2 and XL"
+readme = "README.md"
+license = {file = "LICENSE"}
 requires-python = ">=3.11"
 dependencies = ["packaging>=24,<27", "Pillow>=10.4,<13", "psutil==7.2.2", "streamdeck==0.10.0", "hidapi==0.15.0"]
+
+[project.urls]
+Homepage = "https://github.com/darkmatter2222/AgentDeck"
+Documentation = "https://github.com/darkmatter2222/AgentDeck#readme"
+Issues = "https://github.com/darkmatter2222/AgentDeck/issues"
 
 [project.scripts]
 ocdeck = "ocdeck.__main__:main"

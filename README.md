@@ -20,7 +20,7 @@ The controller uses direct USB HID, with no Elgato plugin or MCP server.
 
 ## What's new in 2.1
 
-This feature branch adds the following 20 enhancements. The implementation is
+Version 2.1 adds the following 20 enhancements. The implementation is
 available for testing; physical-device/native-harness acceptance and PyPI
 publishing setup are still outstanding. See [validation status](#validation-status).
 
@@ -156,16 +156,16 @@ checks, then guide me through docs/FIRST-RUN.md and the harness-specific accepta
 steps. Record observed results separately from unverified hardware/runtime gates.
 ```
 
-### Install or update this feature branch
+### Install or update version 2.1
 
-To try 2.1 before it is merged, use this branch in your permanent checkout. Inspect
+Use `main` or the v2.1.0 release ZIP in your permanent checkout. Inspect
 and preserve any local edits before switching. Close managed sessions and stop the
 broker before updating its source and dependencies.
 
 ```powershell
 cd C:\Tools\AgentDeck
 git fetch origin
-git switch feature/agentdeck-next-20
+git switch main
 git pull --ff-only
 ```
 
@@ -708,6 +708,8 @@ python -m build
 python -m pip install .\dist\agentdeck-2.1.0-py3-none-any.whl
 ocdeck --version
 ```
+
+[Exact PyPI setup and publishing steps](docs/PYPI.md).
 
 **PyPI publication is not complete.** Do not assume `pip install agentdeck` retrieves
 this project/version until its PyPI ownership and release are established. Use

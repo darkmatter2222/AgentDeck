@@ -13,6 +13,7 @@
 | Implement a snapshot producer | [Broker API](API.md) |
 | Understand WSL, SSH, containers and OS limits | [Environment boundaries](REMOTE-AND-WSL.md) |
 | Inspect what was actually tested | [Verification record](TEST-RESULTS.md) |
+| Set up and run PyPI trusted publishing | [Exact PyPI steps](PYPI.md) |
 | Add or change an adapter | [Contributing](../CONTRIBUTING.md) |
 | Read original OpenCode design research | [Historical research](RESEARCH.md) |
 
