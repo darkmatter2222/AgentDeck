@@ -10,7 +10,7 @@ THEMES = {
     'mono': ('ffffff', 'bbbbbb', 'ffffff', 'dddddd', '999999'),
 }
 HARNESS_NAMES = {'opencode': 'OpenCode', 'claude': 'Claude', 'copilot': 'Copilot',
-                 'copilot-vscode': 'Copilot', 'gemini': 'Gemini', 'cursor': 'Cursor'}
+                 'copilot-cli': 'Copilot', 'copilot-vscode': 'Copilot', 'gemini': 'Gemini', 'cursor': 'Cursor'}
 
 @dataclass(frozen=True)
 class Appearance:
@@ -24,6 +24,14 @@ class Appearance:
     intensity: float = .55
     speed: float = 1.0
     brightness: float = 1.0
+    alias: str = ''
+    text_effect: str = 'none'
+    text_size: str = 'normal'
+    text_align: str = 'center'
+    badge: str = 'dot'
+    border: str = 'solid'
+    background: str = 'solid'
+    logo_size: str = 'normal'
 
 
 def appearance(config, slot=0):
@@ -38,16 +46,25 @@ def appearance(config, slot=0):
     if unknown: raise ValueError('Unknown appearance setting: ' + ', '.join(sorted(unknown)))
     a = Appearance(**values)
     for name, choices in {'layout': ('classic','harness','minimal'), 'theme': THEMES,
-                          'primary': ('status','project','harness','detail','custom','none'),
-                          'secondary': ('status','project','harness','detail','custom','none'),
+                          'primary': ('status','project','harness','detail','custom','alias','none'),
+                          'secondary': ('status','project','harness','detail','custom','alias','none'),
+                          'text_effect': ('none','scroll','shimmer'),
+                          'text_size': ('small','normal','large'),
+                          'text_align': ('left','center','right'),
+                          'badge': ('dot','ring','pill'),
+                          'border': ('solid','double','corners','none'),
+                          'background': ('solid','gradient','grid'),
+                          'logo_size': ('small','normal','large'),
                           'effect': ('breathe','glow','steady')}.items():
-        if getattr(a, name) not in choices: raise ValueError(f'Invalid {name}')
+        if not isinstance(getattr(a, name), str) or getattr(a, name) not in choices: raise ValueError(f'Invalid {name}')
     for name, low, high in [('intensity',0,1),('speed',.25,3),('brightness',.15,1)]:
         value = getattr(a, name)
         if type(value) not in (int,float) or not math.isfinite(value) or not low <= value <= high:
             raise ValueError(f'{name} must be {low}..{high}')
     if type(a.show_slot) is not bool: raise ValueError('show_slot must be boolean')
-    if not isinstance(a.custom_text,str) or len(a.custom_text)>100: raise ValueError('custom_text must be at most 100 characters')
+    for name in ('custom_text','alias'):
+        if not isinstance(getattr(a,name),str) or len(getattr(a,name))>100:
+            raise ValueError(f'{name} must be at most 100 characters')
     return a
 
 
@@ -57,3 +74,12 @@ def harness_id(label, explicit=''):
 
 def animation_phase(now, a, enabled=True):
     return int(now * 48 * a.speed) % 96 if enabled and a.effect != 'steady' else 24
+
+
+PRESETS = {
+    'studio': dict(layout='harness', theme='aurora', primary='alias', secondary='status', show_slot=False, background='gradient'),
+    'neon': dict(layout='harness', theme='ocean', effect='glow', intensity=.85, border='double', background='grid', text_effect='shimmer'),
+    'focus': dict(layout='harness', theme='mono', effect='steady', primary='alias', secondary='status', border='corners', show_slot=False),
+    'readable': dict(layout='minimal', theme='accessible', text_size='large', primary='status', secondary='alias', effect='steady'),
+    'marquee': dict(layout='harness', theme='aurora', primary='alias', secondary='status', text_effect='scroll', speed=.5, show_slot=False),
+}

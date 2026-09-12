@@ -90,3 +90,16 @@ than accumulating frames. Unchanged pixels skip USB writes but still refresh
 the presented assignment, preserving focus correctness when a slot is reused.
 Harness metadata is decorative; the registry state and identity rules remain
 unchanged. See [appearance](APPEARANCE.md) for hardware limits and settings.
+
+
+### Official icons and text rendering
+
+Harness icons are packaged local PNGs, loaded once per icon/size and never fetched
+at runtime. Registration names `copilot-cli` and `copilot-vscode` share the Copilot
+asset. Unknown explicit harness identifiers receive a neutral terminal marker.
+Only display preferences use aliases; registry labels, normalized snapshots, and
+focus identity remain unchanged. Text renders into bounded 140×28 intermediate
+layers so scrolling and shimmer cannot overwrite icons or neighboring lines.
+Presets expand to ordinary validated appearance fields in the CLI; the same fields
+and renderer drive previews and device images. `steady` and disabled animations
+freeze the shared phase for both artwork and text. All caches remain bounded.

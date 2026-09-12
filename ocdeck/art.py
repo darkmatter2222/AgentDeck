@@ -1,8 +1,9 @@
-"""Original procedural artwork. No downloaded assets or image-generation dependency."""
+"""Device artwork with bundled, attributed official harness icons."""
 import math
 from functools import lru_cache
-from PIL import Image, ImageDraw, ImageFont, ImageEnhance
+from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageChops
 from .appearance import Appearance, THEMES, HARNESS_NAMES
+from pathlib import Path
 
 PALETTE = {"running": (32, 235, 117), "idle": (255, 179, 46),
            "input": (255, 55, 75), "ready": (50, 204, 255), "unknown": (255, 179, 46)}
@@ -23,10 +24,16 @@ def frame(state, label, slot, phase, size=80, style=Appearance(), harness="openc
     power = 0.45 + 0.55 * pulse if state == "input" else 0.55 + 0.25 * pulse
     power = 1 - style.intensity * (1 - power)
     c = tuple(int(x * power) for x in color)
-    d.rounded_rectangle((3, 3, 156, 156), radius=22, fill=tuple(int(x * .08) for x in c), outline=c, width=3)
+    draw_background(d, color, c, style)
     if style.layout == "harness" and state != "ready":
-        draw_harness(d, harness, color)
-        d.ellipse((128, 13, 147, 32), fill=c, outline="white", width=2)
+        logo = harness_logo(harness, {'small':42, 'normal':56, 'large':68}[style.logo_size])
+        if logo is not None:
+            im.paste(logo, (80-logo.width//2, 54-logo.height//2), logo)
+        else:
+            # Unknown integrations get a neutral terminal, never another brand.
+            d.rounded_rectangle((52,32,108,76),radius=6,outline=color,width=3)
+            d.text((80,54),'?',font=ImageFont.load_default(size=26),fill=color,anchor='mm')
+        draw_badge(d, state, c, style.badge)
     elif style.layout == "minimal" and state != "ready":
         d.ellipse((61, 34, 99, 72), fill=c)
         d.text((80, 53), {"running":">", "idle":"II", "input":"!", "unknown":"?"}.get(state,"+"),
@@ -50,46 +57,97 @@ def frame(state, label, slot, phase, size=80, style=Appearance(), harness="openc
         d.line([(64, 36), (96, 68)], fill=color, width=5)
         d.line([(96, 36), (64, 68)], fill=color, width=5)
     project = label.split(':', 1)[1] if label.split(':', 1)[0] in HARNESS_NAMES and ':' in label else label
+    project = style.alias or project
     values = {'status': LABELS[state], 'project': 'DEVICE ONLINE' if state == 'ready' else project,
+              'alias': 'DEVICE ONLINE' if state == 'ready' else project,
               'harness': HARNESS_NAMES.get(harness, harness), 'detail': detail,
               'custom': style.custom_text, 'none': ''}
     for field, y, height, fill in [(style.primary, 101, 17, color), (style.secondary, 130, 13, (210,219,228))]:
         text = values[field]
-        if style.show_slot and field == 'project' and state != 'ready': text = f'{slot+1}  {text}'
-        fit_text(d, text, y, height, fill)
+        if style.show_slot and field in ('project','alias') and state != 'ready': text = f'{slot+1}  {text}'
+        render_text(im, text, y, height, fill, style, phase)
     im = im.resize((size, size), Image.Resampling.LANCZOS)
     gain = style.brightness * (1 - style.intensity * .22 * (1 - pulse) if style.effect == 'glow' else 1)
     return ImageEnhance.Brightness(im).enhance(gain) if gain != 1 else im
 
 
-def fit_text(draw, text, y, height, fill):
-    text = text.encode('ascii', 'replace').decode()
-    font = ImageFont.load_default(size=height)
-    if draw.textlength(text, font=font) > 140:
-        lo, hi = 0, len(text)
-        while lo < hi:
-            mid = (lo + hi + 1) // 2
-            if draw.textlength(text[:mid] + '...', font=font) <= 140: lo = mid
-            else: hi = mid - 1
-        text = text[:lo] + '...'
-    draw.text((80,y), text, fill=fill, font=font, anchor='mm')
+@lru_cache(maxsize=32)
+def harness_logo(harness, size):
+    canonical = {'copilot-cli':'copilot', 'copilot-vscode':'copilot'}.get(harness,harness)
+    if canonical not in ('opencode','claude','copilot','gemini','cursor'):
+        return None
+    path = Path(__file__).parent / 'assets' / 'logos' / (canonical + '.png')
+    with Image.open(path) as source:
+        image = source.convert('RGBA')
+    image.thumbnail((size,size),Image.Resampling.LANCZOS)
+    return image
 
 
-def draw_harness(d, harness, color):
-    """Original small-screen brand-inspired glyphs, not official logo assets."""
-    if harness == 'claude':
-        for n in range(12):
-            t = n * math.pi / 6
-            d.line((80+12*math.cos(t),54+12*math.sin(t),80+30*math.cos(t+.08),54+30*math.sin(t+.08)),fill=color,width=5)
-    elif harness == 'gemini':
-        d.polygon([(80,22),(90,44),(112,54),(90,64),(80,86),(70,64),(48,54),(70,44)], fill=color)
-    elif harness.startswith('copilot'):
-        d.rounded_rectangle((47,32,113,76),radius=15,outline=color,width=4)
-        for x in (54,85): d.rounded_rectangle((x,43,x+21,63),radius=7,outline=color,width=3)
-    elif harness == 'cursor':
-        d.polygon([(57,25),(106,53),(84,61),(76,84)],fill=color)
-        d.line((58,26,84,61,105,53),fill=(15,20,30),width=3)
+def draw_background(d, color, pulse_color, style):
+    base = tuple(int(x*.08) for x in pulse_color)
+    d.rounded_rectangle((3,3,156,156),radius=22,fill=base)
+    if style.background == 'gradient':
+        for y in range(16,145):
+            gain = .03 + .13 * (1-abs(y-80)/65)
+            d.line((14,y,145,y),fill=tuple(int(x*gain) for x in color))
+    elif style.background == 'grid':
+        grid = tuple(int(x*.14) for x in color)
+        for pos in range(20,145,16):
+            d.line((pos,12,pos,147),fill=grid)
+            d.line((12,pos,147,pos),fill=grid)
+    if style.border in ('solid','double'):
+        d.rounded_rectangle((3,3,156,156),radius=22,outline=pulse_color,width=3)
+        if style.border == 'double':
+            d.rounded_rectangle((9,9,150,150),radius=17,outline=tuple(int(x*.45) for x in color),width=1)
+    elif style.border == 'corners':
+        for x,y,dx,dy in [(8,8,1,1),(151,8,-1,1),(8,151,1,-1),(151,151,-1,-1)]:
+            d.line((x+dx*24,y,x,y,x,y+dy*24),fill=pulse_color,width=3)
+
+
+def draw_badge(d,state,color,kind):
+    symbol = {'running':'>','idle':'II','input':'!','unknown':'?'}[state]
+    if kind == 'pill':
+        d.rounded_rectangle((111,10,150,30),radius=7,fill=color)
+        label = {'running':'RUN','idle':'IDLE','input':'ASK','unknown':'?'}[state]
+        d.text((131,20),label,font=ImageFont.load_default(size=10),fill='black',anchor='mm')
+    elif kind == 'ring':
+        d.ellipse((125,10,149,34),outline=color,width=3)
+        d.text((137,22),symbol,font=ImageFont.load_default(size=11),fill='white',anchor='mm')
     else:
-        d.rounded_rectangle((47,27,113,81),radius=8,outline=color,width=4)
-        d.line((59,43,70,54,59,65),fill=color,width=4)
-        d.line((79,65,98,65),fill=color,width=4)
+        d.ellipse((128,13,147,32),fill=color,outline='white',width=2)
+
+
+def render_text(image, text, y, height, fill, style, phase):
+    if not text: return
+    text = text.encode('ascii','replace').decode()
+    height += {'small':-2,'normal':0,'large':3}[style.text_size]
+    font = ImageFont.load_default(size=height)
+    layer = Image.new('RGBA',(140,28))
+    d = ImageDraw.Draw(layer)
+    width = d.textlength(text,font=font)
+    if style.text_effect == 'scroll' and width > 140:
+        # Ping-pong scroll with an endpoint pause, clipped to its own text line.
+        t = (phase % 96)/96
+        progress = max(0,min(1,(t-.1)/.3)) if t < .5 else 1-max(0,min(1,(t-.6)/.3))
+        progress = (1-math.cos(progress*math.pi))/2
+        x = -(width-140)*progress
+    else:
+        if width > 140:
+            lo,hi=0,len(text)
+            while lo<hi:
+                mid=(lo+hi+1)//2
+                if d.textlength(text[:mid]+'...',font=font)<=140: lo=mid
+                else: hi=mid-1
+            text=text[:lo]+'...'
+            width=d.textlength(text,font=font)
+        x={'left':0,'center':(140-width)/2,'right':140-width}[style.text_align]
+    d.text((x,14),text,font=font,fill=fill,anchor='lm')
+    if style.text_effect == 'shimmer':
+        shine=Image.new('RGBA',layer.size,'white')
+        mask=Image.new('L',layer.size); m=ImageDraw.Draw(mask)
+        center=-30+(phase%96)/96*200
+        for col in range(140):
+            m.line((col,0,col,27),fill=int(180*max(0,1-abs(col-center)/22)))
+        shine.putalpha(ImageChops.multiply(mask,layer.getchannel('A')))
+        layer=Image.alpha_composite(layer,shine)
+    image.paste(layer,(10,y-14),layer)

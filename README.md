@@ -18,15 +18,92 @@ tracked in [the verification record](docs/TEST-RESULTS.md).
 Three layouts. Five palettes. Two text lines you control. Each button can have its
 own look, brightness, and motion. These examples come directly from AgentDeck's
 renderer using sample sessions; they are enlarged key previews, not hardware photos.
-The harness glyphs are original brand-inspired artwork, not official logo assets.
+Harness mode uses bundled official app icons and GitHub's Copilot UI icon.
+[Asset sources and attribution](THIRD-PARTY.md#harness-icons) are included; no runtime downloads are needed.
 
 [Layouts](#three-ways-to-see-your-agents) · [Themes](#five-color-palettes) ·
 [Harness icons](#recognize-the-harness) · [Text](#choose-the-text-under-each-icon) ·
 [Motion](#breathing-glowing-or-still) · [Mixed deck](#mix-it-up-button-by-button)
 
+### Real logos, plus ten more ways to customize
+
+Use the actual OpenCode, Claude, Copilot, Gemini, and Cursor icons. Their artwork
+keeps its source colors; your palette controls the surrounding status indicators.
+
+![Official harness icons rendered on the keys](docs/visuals/harnesses.png)
+
+| New feature | What you can do | Example |
+|---|---|---|
+| 1. Custom aliases | Give a physical slot a name that replaces its project label | `--slot 2 --alias "Reviewer"` |
+| 2. Scrolling text | Read long labels with clipped, eased, back-and-forth motion | `--text-effect scroll` |
+| 3. Shimmer text | Add a moving highlight across the text | `--text-effect shimmer` |
+| 4. Text sizes | Choose small, normal, or large type | `--text-size large` |
+| 5. Text alignment | Align both lines left, center, or right | `--text-align left` |
+| 6. Status badges | Choose a dot, symbol ring, or short text pill in Harness layout | `--badge pill` |
+| 7. Borders | Solid, double, corner accents, or no border | `--border corners` |
+| 8. Backgrounds | Solid, a soft gradient, or a subtle grid | `--background grid` |
+| 9. Logo sizing | Small, normal, or large official icons in Harness layout | `--logo-size large` |
+| 10. Named presets | Apply Studio, Neon, Focus, Readable, or Marquee styling | `--preset neon` |
+
+#### Name your agents and style their text
+
+Aliases belong to slots, so “Reviewer” stays on key 2 even if a different agent
+later occupies it. An empty alias restores the real project name. Status text and
+window focus still use the real session state and identity.
+
+![Custom aliases, three text sizes, and three text alignments](docs/visuals/typography.png)
+
+```powershell
+ocdeck appearance --slot 2 --alias "Reviewer" --primary alias --secondary status
+ocdeck appearance --slot 2 --text-size large --text-align left
+```
+
+#### Watch the text move
+
+Scroll reveals a long label and pauses at both ends; shimmer moves a highlight
+across the letters. Text effects share the animation speed control. `steady` or
+`animations: false` freezes both icon and text motion. This preview uses 0.5x speed.
+
+![Normal, scrolling, and shimmering labels side by side](docs/visuals/text-effects.gif)
+
+```powershell
+ocdeck appearance --slot 2 --alias "Backend review agent" --text-effect scroll --speed 0.5
+ocdeck appearance --slot 3 --text-effect shimmer
+```
+
+#### Customize the frame around the logo
+
+Change the badge, border, background, and logo size independently. The badge stays
+separate from the brand mark. Ring badges include a state symbol; pill badges use
+RUN, IDLE, ASK, or ? so you have a cue beyond color.
+
+![Badge, border, background, and logo-size choices](docs/visuals/details.png)
+
+```powershell
+ocdeck appearance --layout harness --badge ring --border double --background gradient --logo-size large
+```
+
+#### Start with a preset, then make it yours
+
+**Studio** leads with your alias, **Neon** adds glow and shimmer, **Focus** stays
+still, **Readable** emphasizes status, and **Marquee** scrolls long labels.
+
+![Studio, Neon, Focus, Readable, and Marquee presets](docs/visuals/presets.png)
+
+```powershell
+ocdeck appearance --preset studio
+ocdeck appearance --slot 2 --preset marquee --alias "Backend review agent"
+ocdeck appearance --slot 3 --preset neon --theme ocean
+ocdeck preview --preset neon --alias "Builder" --output neon-preview.gif
+```
+
+Presets replace visual settings at the selected scope, preserve aliases and custom
+text, and allow explicit flags to override them. Per-button overrides still take
+precedence over global settings. Restart the broker after saving.
+
 ### Three ways to see your agents
 
-**Classic** puts the state front and center. **Harness** shows the agent glyph with
+**Classic** puts the state front and center. **Harness** shows the agent logo with
 an upper-right status dot. **Minimal** uses a simple state symbol. Each row below
 shows RUNNING, IDLE, INPUT, LINK ?, READY, and an empty black key in the same order.
 
@@ -51,7 +128,7 @@ ocdeck appearance --theme aurora
 ### Recognize the harness
 
 OpenCode, Claude, Copilot CLI, Copilot in VS Code, Gemini, and Cursor share the
-same status language. Both Copilot adapters use the same glyph; use a project
+same status language. Both Copilot adapters use the same icon; use a project
 name or per-button custom text when you want to distinguish them on the deck.
 
 ![All six supported adapters with harness names and running status](docs/visuals/harnesses.png)
@@ -64,7 +141,7 @@ ocdeck appearance --layout harness --primary harness --secondary status
 
 Lead with the state, project name, or harness. Show adapter-reported detail, add
 your own short label, or hide both text lines. Detail availability depends on the
-adapter. Long text is shortened to fit; text does not scroll.
+adapter. Long text is shortened by default; enable the scrolling text effect to read the full label.
 
 ![Six text configurations including state, project, harness, detail, custom text, and icon only](docs/visuals/labels.png)
 

@@ -33,7 +33,7 @@ def panel(title, rows, phase=24):
 
 
 def save(name, title, rows):
-    panel(title,rows).quantize(colors=96).save(OUT / (name+'.png'), optimize=True)
+    panel(title,rows).save(OUT / (name+'.png'), optimize=True)
 
 
 def row(style, states=STATES):
@@ -63,3 +63,32 @@ for name, title, specs in [
     frames = [im.quantize(palette=palette,dither=Image.Dither.NONE) for im in frames]
     frames[0].save(OUT/(name+'.gif'),save_all=True,append_images=frames[1:],duration=[40,40,40,40,40,50]*16,loop=0,optimize=True)
 print('\n'.join(f'{p.name}: {p.stat().st_size:,} bytes' for p in sorted(OUT.iterdir())))
+
+# Extended customization examples, also drawn by the shipped renderer.
+from ocdeck.appearance import PRESETS
+save('presets','ONE-COMMAND PRESETS / real harness marks', [('Presets', [
+    ('running',Appearance(**{**options,'alias':'My agent'}),h,'AgentDeck',name.title())
+    for (name,options),h in zip(PRESETS.items(),HARNESSES)])])
+save('details','SMALL DETAILS / make each key recognizable', [
+    ('Badges', [('input',replace(BASE,badge=b),h,'AgentDeck',b.title()) for b,h in zip(['dot','ring','pill'],HARNESSES)]),
+    ('Borders', [('running',replace(BASE,border=b),'gemini','AgentDeck',b.title()) for b in ['solid','double','corners','none']]),
+    ('Backgrounds', [('idle',replace(BASE,background=b),'claude','AgentDeck',b.title()) for b in ['solid','gradient','grid']]),
+    ('Logo size', [('running',replace(BASE,logo_size=b),'cursor','AgentDeck',b.title()) for b in ['small','normal','large']]),
+])
+save('typography','ALIASES AND TYPOGRAPHY / labels that work for you', [
+    ('Alias', [('running',replace(BASE,alias=a,primary='alias',secondary='status'),'claude','AgentDeck',caption) for a,caption in [('Reviewer','Review agent'),('Builder','Build agent'),('Docs','Writing agent')]]),
+    ('Text size', [('running',replace(BASE,text_size=b,alias='Builder'),'copilot','AgentDeck',b.title()) for b in ['small','normal','large']]),
+    ('Alignment', [('idle',replace(BASE,text_align=b,alias='Docs'),'opencode','AgentDeck',b.title()) for b in ['left','center','right']]),
+])
+frames=[]
+for tick in range(96):
+    im=Image.new('RGB',(510,210),BG);d=ImageDraw.Draw(im)
+    d.text((18,15),'TEXT EFFECTS / clipped scrolling and shimmer',font=SMALL,fill='white')
+    for k,effect in enumerate(['none','scroll','shimmer']):
+        a=replace(BASE,alias='Backend review agent',primary='alias',secondary='status',text_effect=effect,intensity=0)
+        im.paste(frame('running','AgentDeck',k,tick,120,a,'claude'),(25+k*165,52))
+        d.text((85+k*165,185),effect.upper(),font=SMALL,fill='white',anchor='mt')
+    frames.append(im)
+palette=frames[0].quantize(colors=96)
+frames=[im.quantize(palette=palette,dither=Image.Dither.NONE) for im in frames]
+frames[0].save(OUT/'text-effects.gif',save_all=True,append_images=frames[1:],duration=[80,80,80,80,80,100]*16,loop=0,optimize=True)
