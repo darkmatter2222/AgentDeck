@@ -30,6 +30,7 @@ class Registry:
                     self.slots[slot] = key
                 record = {"id": key, "process": process, "slot": slot,
                           "label": str(data.get("label", "OpenCode"))[:100],
+                          "harness": str(data.get("harness", ""))[:40],
                           "windowToken": str(data.get("windowToken", ""))[:128],
                           "seq": -1, "producer": None, "retired": [],
                           "status": "unknown", "pending": 0,
@@ -102,7 +103,8 @@ class Registry:
                         state = "idle"
                 result.append({"slot": slot, "generation": self.generations[slot],
                                "id": key, "state": state, "label": r["label"] if r else "",
-                               "detail": r["detail"] if r else ""})
+                               "detail": r["detail"] if r else "",
+                               "harness": r["harness"] if r else ""})
             return result
 
     def resolve(self, slot, generation, key):

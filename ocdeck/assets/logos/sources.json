@@ -1,0 +1,27 @@
+{
+  "opencode": {
+    "url": "https://opencode.ai/favicon-96x96-v3.png",
+    "source_sha256": "aa34092540de60c889610edfa3c25316e215f12d88af29cfba530d09aee7265c",
+    "png_sha256": "8a1c127d6adb1b495660ff81565a2cd0da7203f7235f385464bfa874c2241054"
+  },
+  "claude": {
+    "url": "https://cdn.prod.website-files.com/6889473510b50328dbb70ae6/68c33859cc6cd903686c66a2_apple-touch-icon.png",
+    "source_sha256": "1bec5f7b12a4a46fea879633464ebf1d32144ef731a0f054539b2d7251871cb6",
+    "png_sha256": "1d943f37f586eec8a8346fe917be598be47a03a4ae746ae3b8f6d8ce273bfc42"
+  },
+  "cursor": {
+    "url": "https://cursor.com/marketing-static/icon-192x192-light.png",
+    "source_sha256": "267649be4d2a26dea632bb6cc1f7a400daa117e5cd3335a140ba5cb0148aaedc",
+    "png_sha256": "3911203e4da4161447c419c975509c9b2aeb6c930b4fbd2ab532b6c4c26538cf"
+  },
+  "gemini": {
+    "url": "https://www.gstatic.com/lamda/images/gemini_sparkle_4g_512_lt_f94943af3be039176192d.png",
+    "source_sha256": "5e7cfecaa53f4f65a313fe89b0f389548126544a78fad8489510c70ae641a4a1",
+    "png_sha256": "a77c8a62f06cd08f1da2bf49bd2412433409e1826ab2b6213414080169a332ad"
+  },
+  "copilot": {
+    "url": "https://raw.githubusercontent.com/primer/octicons/main/icons/copilot-24.svg",
+    "source_sha256": "eeafb3c2f333e04ccf7d031ae215f7adafaed4c6352556b0bf79496e048bcdd7",
+    "png_sha256": "d3272efdb1524b1f650ac6ddd5def2e82158f74797a354da922fee9baa9f7da5"
+  }
+}

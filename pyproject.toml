@@ -14,3 +14,6 @@ ocdeck = "ocdeck.__main__:main"
 
 [tool.setuptools]
 packages = ["ocdeck"]
+
+[tool.setuptools.package-data]
+ocdeck = ["assets/logos/*.png", "assets/logos/*.svg", "assets/logos/*.json", "assets/logos/*.txt"]

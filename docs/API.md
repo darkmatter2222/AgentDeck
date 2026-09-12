@@ -51,3 +51,11 @@ Normalization strips prompts/tool arguments/results before delivery. Its payload
 and native profiles are internal implementation details in
 `plugins/harnesses/profiles.mjs`; extension authors should use the stable snapshot
 contract above. See [architecture](ARCHITECTURE.md) for lifetime and failure handling.
+
+## Optional appearance metadata
+
+Registration accepts an optional `harness` string (stored up to 40 characters),
+returned in each `/v1/status` slot. This is display metadata only; no sequence,
+state-priority, process identity, or focus-generation invariant changes. Older
+clients can omit it; the renderer recognizes legacy harness-prefixed labels.
+Appearance preferences are local file settings, with no new HTTP endpoints.

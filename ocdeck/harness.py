@@ -58,7 +58,7 @@ def worker(spec):
     directory.mkdir(parents=True, mode=0o700)
     binding, descriptor = directory / 'binding.json', directory / 'hook.json'
     reg = {'id':spec['id'], 'process':identity(), 'windowToken':spec['windowToken'],
-           'label':spec['profile'] + ':' + Path(spec['cwd']).name, 'managed':True}
+           'harness':spec['profile'], 'label':spec['profile'] + ':' + Path(spec['cwd']).name, 'managed':True}
     atomic_json(binding, reg)
     env = dict(os.environ, OCDECK_HOME=str(root), AGENTDECK_HOOK_BINDING=str(descriptor))
     # Do not let nested OpenCode instances claim an unrelated managed launch.

@@ -45,7 +45,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed. Check Internet
 $install = @{ python=$runtime; source=$source; opencode=$OpenCodePath; pluginMode=$PluginMode }
 $install | ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $data 'install.json')
 if (-not (Test-Path (Join-Path $data 'config.json'))) {
-    @{fps=10;brightness=45;animations=$true;ready=$true;serial=$null} | ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $data 'config.json')
+    @{fps=24;brightness=45;animations=$true;ready=$true;serial=$null} | ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $data 'config.json')
 }
 $pluginArgs = @('-m','ocdeck','install-plugin','--mode',$PluginMode)
 if ($ConfigDirectory) { $pluginArgs += @('--config-dir',$ConfigDirectory) }
