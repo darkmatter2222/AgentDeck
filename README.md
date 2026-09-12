@@ -7,11 +7,138 @@ Gemini CLI and Cursor CLI to one local controller. Each managed launch gets a st
 key. A seventh launch waits for a vacancy; closing one does not shuffle the others.
 The controller uses direct USB HID, with no Elgato plugin or MCP server.
 
-![Animation preview — all states at once](docs/animation-preview.gif)
+![AgentDeck animated harness icons with Aurora colors](docs/appearance-preview.gif)
 
-The preview shows every state together. In normal use, READY appears only when no
+The preview demonstrates several states together. In normal use, READY appears only when no
 agents are registered. Windows hardware and native harness acceptance gates are
 tracked in [the verification record](docs/TEST-RESULTS.md).
+
+## Make every key your own
+
+Three layouts. Five palettes. Two text lines you control. Each button can have its
+own look, brightness, and motion. These examples come directly from AgentDeck's
+renderer using sample sessions; they are enlarged key previews, not hardware photos.
+The harness glyphs are original brand-inspired artwork, not official logo assets.
+
+[Layouts](#three-ways-to-see-your-agents) · [Themes](#five-color-palettes) ·
+[Harness icons](#recognize-the-harness) · [Text](#choose-the-text-under-each-icon) ·
+[Motion](#breathing-glowing-or-still) · [Mixed deck](#mix-it-up-button-by-button)
+
+### Three ways to see your agents
+
+**Classic** puts the state front and center. **Harness** shows the agent glyph with
+an upper-right status dot. **Minimal** uses a simple state symbol. Each row below
+shows RUNNING, IDLE, INPUT, LINK ?, READY, and an empty black key in the same order.
+
+![Classic, Harness, and Minimal layouts across all six states](docs/visuals/layouts.png)
+
+```powershell
+ocdeck appearance --layout harness
+```
+
+### Five color palettes
+
+Compare the same states in **Classic, Aurora, Ocean, Accessible, and Mono**.
+State labels stay readable regardless of the palette. Keep a status text line
+when using harness icons, especially with Mono, so color is not your only cue.
+
+![Five palettes compared across running, idle, input, unknown, ready, and off states](docs/visuals/themes.png)
+
+```powershell
+ocdeck appearance --theme aurora
+```
+
+### Recognize the harness
+
+OpenCode, Claude, Copilot CLI, Copilot in VS Code, Gemini, and Cursor share the
+same status language. Both Copilot adapters use the same glyph; use a project
+name or per-button custom text when you want to distinguish them on the deck.
+
+![All six supported adapters with harness names and running status](docs/visuals/harnesses.png)
+
+```powershell
+ocdeck appearance --layout harness --primary harness --secondary status
+```
+
+### Choose the text under each icon
+
+Lead with the state, project name, or harness. Show adapter-reported detail, add
+your own short label, or hide both text lines. Detail availability depends on the
+adapter. Long text is shortened to fit; text does not scroll.
+
+![Six text configurations including state, project, harness, detail, custom text, and icon only](docs/visuals/labels.png)
+
+```powershell
+ocdeck appearance --primary project --secondary status --no-show-slot
+ocdeck appearance --slot 2 --primary custom --custom-text "Code review"
+```
+
+### Breathing, glowing, or still
+
+Watch the same INPUT state with three effects: **Breathe** pulses its artwork,
+**Glow** adds whole-button dimming, and **Steady** freezes the animation.
+These are rendered effects; pressing the button still only requests window focus.
+
+![Animated comparison of breathing, whole-button glow, and steady artwork](docs/visuals/effects.gif)
+
+```powershell
+ocdeck appearance --effect glow --intensity 0.8 --fps 24
+ocdeck appearance --slot 6 --effect steady
+```
+
+### Set your pace
+
+Slow motion for a calmer desk, standard speed for everyday use, or faster motion
+for a key you want to notice. Below: the same running indicator at 0.5x, 1x, and 2x.
+Speed controls the animation cycle; FPS controls how often the device can update.
+
+![Animated running indicators at half, standard, and double speed](docs/visuals/speeds.gif)
+
+```powershell
+ocdeck appearance --speed 0.5
+ocdeck appearance --slot 2 --speed 2
+```
+
+Motion uses a 96-step clock with a default 24 FPS target. Actual hardware frame
+rate depends on USB throughput and active keys; physical Mini performance still
+needs validation. Existing installations retain their saved FPS setting.
+
+### Give individual keys different brightness
+
+Keep a primary session bright and supporting sessions subdued. These settings
+dim each button's rendered pixels; the Mini's hardware brightness remains global.
+
+![Six per-button brightness levels from 15 percent to 100 percent](docs/visuals/brightness.png)
+
+```powershell
+ocdeck appearance --slot 6 --brightness 0.6
+```
+
+### Mix it up, button by button
+
+You do not have to choose one style for the whole deck. This example combines
+project-first text, a custom review label, a minimal icon, a harness name, a mono
+key, and a dimmed key. Settings follow physical slots 1–6, not particular agents.
+
+![Six individually configured keys with mixed layouts, palettes, text, and brightness](docs/visuals/mixed.png)
+
+```powershell
+ocdeck appearance --layout harness --theme aurora --effect glow --fps 24
+ocdeck appearance --slot 2 --theme ocean --primary custom --custom-text "Code review"
+ocdeck appearance --slot 3 --layout minimal --theme accessible
+ocdeck appearance --slot 5 --theme mono --effect steady
+ocdeck appearance --slot 6 --brightness 0.6
+```
+
+**Restart the broker after saving settings.** Global preferences apply unless a
+button overrides that field. Try a temporary preview before changing your deck:
+
+```powershell
+ocdeck preview --layout harness --theme ocean --effect glow --output my-deck.gif
+```
+
+[Full appearance guide, settings, and JSON examples](docs/APPEARANCE.md).
+Contributors can regenerate this gallery with `python scripts/render-gallery.py`.
 
 ## Demo video
 
@@ -160,10 +287,10 @@ is useful for status tests; it does not promise exact terminal focus.
 Broker settings live in `%USERPROFILE%\.opencode-deck\config.json` (or `OCDECK_HOME`):
 
 ```json
-{"fps": 10, "brightness": 45, "animations": true, "ready": true, "serial": null}
+{"fps": 24, "brightness": 45, "animations": true, "ready": true, "serial": null}
 ```
 
-Restart the broker after edits. FPS is capped at 15. Disable animations for static
+Restart the broker after edits. FPS is configurable from 1 to 30; new installations target 24. Disable animations for static
 images, disable ready for an empty black deck, or select a serial when multiple
 Minis are connected. Compatibility names remain `ocdeck`, `.opencode-deck` and the
 `OpenCode Deck` scheduled task; renaming the project does not rename installed state.
@@ -207,9 +334,3 @@ harness/runtime versions, redacted `ocdeck status`, and the failed acceptance st
 Never include model credentials, broker tokens or hook connection descriptors.
 
 Apache-2.0 · Python 3.11+ · Windows desktop · Local controller
-
-## Button appearance and smoother animation
-
-Choose Classic, Harness, or Minimal artwork, five palettes, two configurable text
-lines, and per-button glow, pulse speed, and brightness. New installations target
-24 FPS with 96-step animation cycles. [Customization guide and animated preview](docs/APPEARANCE.md).
