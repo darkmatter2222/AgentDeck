@@ -58,3 +58,9 @@ launcher when you want to focus an interactive agent. In Windows Terminal, retai
 `showTerminalTitleInTitlebar: true` and the managed tab title.
 The updated fallback attaches both GUI threads and checks keyboard focus as well
 as foreground ownership. Restart the broker after updating its source code.
+
+
+## 2.1 additions
+
+See [the 2.1 feature guide](NEXT.md) for larger decks, Codex, alerts, doctor/report,
+appearance import/export, dry-run and complete integration uninstall.

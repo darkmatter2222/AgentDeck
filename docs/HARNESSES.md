@@ -1,7 +1,7 @@
 # Agent harness adapters
 
 Implemented for Claude Code, GitHub Copilot CLI, GitHub Copilot in VS Code,
-Gemini CLI, and Cursor CLI (`agent`). OpenCode's existing plugins continue to work.
+Gemini CLI, Cursor CLI (`agent`), and Codex CLI. OpenCode's existing plugins continue to work.
 These are native lifecycle-hook integrations, not model prompts, MCP tools, or
 extensions that require the model to remember to update its status.
 
@@ -12,17 +12,20 @@ For diagnostics, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
 | Profile | Native config in the project | Activity | Pending input |
 |---|---|---|---|
+| `codex` | `.codex/hooks.json` | Start, prompt, tools, stop, interrupt, compaction | Observed approval requests show INPUT with unknown count; paired `request_user_input` IDs can be tracked. Review/trust installed hooks with `/hooks`. |
 | `claude` | `.claude/settings.local.json` | Start, prompt, tools, stop, errors, compaction | `AskUserQuestion` tool IDs counted until result/failure/turn end. Permission hooks lack paired IDs: show LINK ? with diagnostic detail. |
 | `copilot-cli` | `.github/hooks/agentdeck-copilot-cli.json` | Start, prompt, tools, agent stop, errors | Not reported: no guaranteed paired request IDs in subscribed payloads. |
 | `copilot-vscode` | `.github/hooks/agentdeck-copilot-vscode.json` | Start, prompt, tools, stop, compaction | Not reported. VS Code hooks are a preview feature. |
 | `gemini` | `.gemini/settings.json` | Start, turn/model/tool activity, stop, compaction | Permission notifications show LINK ?; no invented pending count. |
 | `cursor` | `.cursor/hooks.json` | Start, prompt, tools, stop, compaction | Not reported. This launcher targets Cursor CLI, not the Cursor desktop editor. |
 
-All new adapters are **implemented and fixture-tested, awaiting live harness and
-Windows hardware validation**. Copilot cloud agent, remote SSH/WSL/containers,
-Codex CLI and Aider are not included in this implementation. No remote relay or
-approval automation is installed. Native hooks must be available and enabled in
-the user's installed harness; record its version when testing.
+All hook adapters are implemented and fixture-tested. Windows/Ubuntu CI verifies
+mock hardware and subprocess transport; native hook loading and interactive
+hardware behavior still require live validation. Codex setup and lifecycle limits
+are described in [the 2.1 guide](NEXT.md#codex-cli). Copilot cloud agent, Aider and
+remote SSH/WSL/container integrations are not included. No approval automation is
+installed. Native hooks must be available and enabled in the installed harness;
+record its version when testing.
 
 ## Quick start on your existing Windows AgentDeck installation
 
@@ -48,7 +51,7 @@ C:\Tools\AgentDeck\scripts\Launch-Copilot.bat
 For Gemini and Cursor, repeat with `-Profile gemini` / `-Profile cursor`, and
 `Launch-Gemini.bat` / `Launch-Cursor.bat`. Arguments after a BAT launcher are passed
 to the harness. Use the Python command below for an explicit executable path.
-Continue launching OpenCode as before. All harnesses share the existing six-slot
+Continue launching OpenCode as before. All harnesses share the device-sized 6/15/32-slot
 registry and overflow policy.
 
 To preview installation without writing settings, add `-DryRun`. To remove just
@@ -208,3 +211,9 @@ Event/config mappings were checked against these official references on 2026-09-
 - [VS Code agent hooks](https://code.visualstudio.com/docs/agent-customization/hooks)
 - [Gemini CLI hooks](https://geminicli.com/docs/hooks/reference/)
 - [Cursor hooks](https://cursor.com/docs/hooks)
+
+
+## 2.1 additions
+
+See [the 2.1 feature guide](NEXT.md) for larger decks, Codex, alerts, doctor/report,
+appearance import/export, dry-run and complete integration uninstall.

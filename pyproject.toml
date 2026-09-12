@@ -3,11 +3,18 @@ requires = ["setuptools>=69"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "opencode-deck"
-version = "2.0.0"
-description = "Local AI coding-agent presence and customizable Stream Deck Mini controller"
+name = "agentdeck"
+version = "2.1.0"
+description = "Local AI coding-agent status, alerts and focus for Stream Deck Mini, MK.2 and XL"
+readme = "README.md"
+license = {file = "LICENSE"}
 requires-python = ">=3.11"
-dependencies = ["Pillow>=10.4,<13", "psutil==7.2.2", "streamdeck==0.10.0", "hidapi==0.15.0"]
+dependencies = ["packaging>=24,<27", "Pillow>=10.4,<13", "psutil==7.2.2", "streamdeck==0.10.0", "hidapi==0.15.0"]
+
+[project.urls]
+Homepage = "https://github.com/darkmatter2222/AgentDeck"
+Documentation = "https://github.com/darkmatter2222/AgentDeck#readme"
+Issues = "https://github.com/darkmatter2222/AgentDeck/issues"
 
 [project.scripts]
 ocdeck = "ocdeck.__main__:main"
@@ -17,3 +24,19 @@ packages = ["ocdeck"]
 
 [tool.setuptools.package-data]
 ocdeck = ["assets/logos/*.png", "assets/logos/*.svg", "assets/logos/*.json", "assets/logos/*.txt"]
+
+[project.optional-dependencies]
+dev = ["ruff==0.12.12", "pyright==1.1.405", "pre-commit>=4,<5", "build>=1,<2"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E9", "F63", "F7", "F82"]
+
+[tool.pyright]
+include = ["ocdeck"]
+pythonVersion = "3.11"
+typeCheckingMode = "basic"
+reportMissingTypeStubs = false

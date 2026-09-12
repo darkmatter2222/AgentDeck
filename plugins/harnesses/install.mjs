@@ -19,6 +19,7 @@ export function configuration(profile, script = fileURLToPath(new URL('./hook.mj
     if (p.format === 'nested') {
       // Gemini measures hook timeout in milliseconds; Claude measures seconds.
       if (profile === 'gemini') entry.timeout = 5000;
+      if (profile === 'codex' && ['SessionEnd','Interrupt'].includes(event)) entry.timeout = 3;
       entry = {hooks:[entry]};
     }
     hooks[event] = [entry];

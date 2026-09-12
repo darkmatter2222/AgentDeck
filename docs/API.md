@@ -65,3 +65,19 @@ Successful activation includes `keyboardFocus: true`. A failed activation may
 include `foreground` (observed HWND), `keyboardFocus`, and `attachmentFailures`
 (GUI thread IDs). Exact window-token matching and registry identity checks remain
 unchanged. Local wrappers do not add broker endpoints; see [launchers](LAUNCHERS.md).
+
+
+## 2.1 snapshot extensions
+
+Optional snapshot fields: `pendingKnown` (boolean, default true), `inputNeeded`
+(boolean, default false), `requestIds` (array of SHA-256 hex strings). OpenCode
+sets `pendingKnown: true`; hook adapters use false. No prompt text or raw request
+ID belongs in this list. Public slot `pending` is an integer when known and null
+otherwise. Identified requests drive toast deduplication. Unknown/stale status
+still takes priority over input; input takes priority over busy/idle.
+
+Slots dynamically number 0..5, 0..14 or 0..31. Resizing invalidates assignment
+generations. `/v1/status` also includes `recentErrors` and `update` release notes.
+The input-request identity list is a diagnostic/notification field; it cannot be
+used to authorize or answer a request. Error messages include stable AD codes and
+fix/check commands. Known credential strings are scrubbed at the API boundary.

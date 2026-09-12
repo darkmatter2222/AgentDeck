@@ -1,0 +1,52 @@
+name: Signed Python release
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: python -m pip install -e ".[dev]" cyclonedx-bom
+      - run: python -m unittest discover -s tests -v
+      - run: node --test tests/facts.test.mjs tests/harnesses.test.mjs tests/next.test.mjs
+      - run: ruff check ocdeck tests && pyright
+      - run: python -m build
+      - run: cyclonedx-py environment --of JSON -o sbom.json
+      - run: sha256sum dist/* sbom.json > SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-release
+          path: |
+            dist/
+            sbom.json
+            SHA256SUMS.txt
+  publish:
+    if: github.ref == 'refs/heads/main' && github.repository == 'darkmatter2222/AgentDeck'
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+      attestations: write
+      contents: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-release
+      - run: sha256sum --check SHA256SUMS.txt
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            dist/*
+            sbom.json
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          attestations: true

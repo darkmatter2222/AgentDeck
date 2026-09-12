@@ -1,0 +1,37 @@
+name: Tests
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.13']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m unittest discover -s tests -v
+      - run: node --test tests/facts.test.mjs tests/harnesses.test.mjs tests/next.test.mjs
+      - run: ruff check ocdeck tests
+      - run: ruff format --check ocdeck tests
+      - run: pyright
+      - run: python -m build
+      - name: Install wheel outside checkout
+        shell: bash
+        run: |
+          python -m venv "$RUNNER_TEMP/wheel-test"
+          if [ "$RUNNER_OS" = "Windows" ]; then PY="$RUNNER_TEMP/wheel-test/Scripts/python.exe"; else PY="$RUNNER_TEMP/wheel-test/bin/python"; fi
+          "$PY" -m pip install dist/*.whl
+          cd "$RUNNER_TEMP"
+          "$PY" -m ocdeck --version
+          "$PY" -c 'from ocdeck.harness import SOURCE; assert (SOURCE / "plugins/harnesses/install.mjs").is_file(); assert (SOURCE / "scripts/Run-OpenCode.ps1").is_file()'

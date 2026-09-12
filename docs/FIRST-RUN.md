@@ -76,3 +76,9 @@ that its hooks load before treating a key as accurate.
 The local relay does not extend support to WSL, SSH or containers. Record actual
 outcomes in [TEST-RESULTS.md](TEST-RESULTS.md); automated fixture tests and synthetic
 focus requests do not replace these physical/native-runtime observations.
+
+
+## 2.1 additions
+
+See [the 2.1 feature guide](NEXT.md) for larger decks, Codex, alerts, doctor/report,
+appearance import/export, dry-run and complete integration uninstall.

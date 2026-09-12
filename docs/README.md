@@ -3,6 +3,7 @@
 | Goal | Start here |
 |---|---|
 | Understand supported harnesses and key states | [Project README](../README.md) |
+| Configure all 20 additions, alerts, Codex, larger decks and release checks | [2.1 feature guide](NEXT.md) |
 | Install, add adapters, upgrade or remove | [Tutorials](TUTORIALS.md) |
 | Compare profiles, hooks and limitations | [Harness adapters](HARNESSES.md) |
 | Validate physical keys and focus on Windows | [First-run acceptance](FIRST-RUN.md) |
@@ -12,6 +13,7 @@
 | Implement a snapshot producer | [Broker API](API.md) |
 | Understand WSL, SSH, containers and OS limits | [Environment boundaries](REMOTE-AND-WSL.md) |
 | Inspect what was actually tested | [Verification record](TEST-RESULTS.md) |
+| Set up and run PyPI trusted publishing | [Exact PyPI steps](PYPI.md) |
 | Add or change an adapter | [Contributing](../CONTRIBUTING.md) |
 | Read original OpenCode design research | [Historical research](RESEARCH.md) |
 

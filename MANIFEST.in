@@ -1,0 +1,4 @@
+recursive-include plugins *.mjs
+recursive-include scripts *.ps1 *.py *.bat
+recursive-include ocdeck/assets *
+include README.md LICENSE
