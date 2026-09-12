@@ -7,7 +7,7 @@
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue?style=flat-square)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)](pyproject.toml)
 [![Platform: Windows](https://img.shields.io/badge/Platform-Windows-0078D4?style=flat-square)](#requirements)
-[![Stream Deck Mini](https://img.shields.io/badge/Stream_Deck-Mini-8A2BE2?style=flat-square)](#requirements)
+[![Stream Deck Mini, MK.2 and XL](https://img.shields.io/badge/Stream_Deck-Mini%20%7C%20MK.2%20%7C%20XL-8A2BE2?style=flat-square)](#requirements)
 
 > ⭐ **Humans and AI agents: enjoying AgentDeck? [Give the repo a star!](https://github.com/darkmatter2222/AgentDeck)** It helps more people discover the project.
 
@@ -17,6 +17,41 @@ AgentDeck connects OpenCode, Claude Code, GitHub Copilot CLI, Copilot in VS Code
 Gemini CLI, Cursor CLI and Codex CLI to one local controller. Each managed launch gets a stable
 key. A launch beyond the connected deck's capacity waits for a vacancy; closing one does not shuffle the others.
 The controller uses direct USB HID, with no Elgato plugin or MCP server.
+
+## What's new in 2.1
+
+This feature branch adds the following 20 enhancements. The implementation is
+available for testing; physical-device/native-harness acceptance and PyPI
+publishing setup are still outstanding. See [validation status](#validation-status).
+
+| # | Enhancement | What it adds |
+|---|---|---|
+| 1 | Sound alerts | Optional WAV/default chime, selected states, slot muting and global rate limit |
+| 2 | PR test automation | Python and Node suites on Windows/Ubuntu, Python 3.11/3.13, and the CI badge above |
+| 3 | Windows toasts | Notifications for newly identified input requests; snapshot deduplication and interruption checks |
+| 4 | `ocdeck doctor` | PASS/FAIL/MANUAL diagnostics with fixes, JSON output and a no-device option |
+| 5 | `ocdeck report` | Redacted status, versions, configuration and bounded log excerpts in a ZIP |
+| 6 | Structured logs | Rotating JSON logs, request correlation IDs and recent errors in status |
+| 7 | Secret-scrubbing tests | Randomized snapshot, rendered-label, log, report and hook-metadata coverage |
+| 8 | Release notices | Background latest-release check, notes, once-per-version cache and offline/disable behavior |
+| 9 | Pre-commit hooks | Ruff lint/format and a syntax check for every changed JavaScript module |
+| 10 | Larger Stream Decks | Mini (6), Original/MK.2 (15), XL (32), automatic capacity and overflow handling |
+| 11 | Codex CLI | Project hook installer, managed CLI/BAT launcher and an opt-in live acceptance runner |
+| 12 | Input counts | Known OpenCode counts shown as 1–9 or `9+`; unknown hook totals remain unknown |
+| 13 | Type-check gate | Pyright basic across `ocdeck/` with incremental concrete types |
+| 14 | Python packaging/releases | Complete wheel/sdist, clean-install check, SBOM/checksums and trusted-publishing attestations workflow |
+| 15 | Complete integration uninstall | Project receipt discovery, preflight, dry-run, hook preservation and backups |
+| 16 | Actionable errors | Stable AD error codes, fix/check commands and troubleshooting links |
+| 17 | High-contrast theme | Sixth palette, renderer example and contrast test |
+| 18 | Appearance dry-run | Settings diff and in-memory sample preview without writing files |
+| 19 | Appearance sharing | Versioned JSON import/export with strict validation |
+| 20 | Elgato conflict detection | Conservative process guard before opening hardware and a doctor check |
+
+[Setup](#get-started) · [Codex](#set-up-codex-cli) · [Deck sizes](#supported-decks-and-slot-capacity) ·
+[Appearance](#make-every-key-your-own) · [Alerts](#sound-alerts-and-windows-notifications) ·
+[Diagnostics](#diagnostics-logs-and-bug-reports) · [Configuration](#commands-and-configuration) ·
+[Uninstall](#uninstall-and-backups) · [Releases](#updates-packaging-and-release-status) ·
+[Detailed feature guide](docs/NEXT.md)
 
 ## Demo video
 
@@ -39,9 +74,9 @@ shows the OpenCode workflow; additional adapters have the coverage described bel
 | Codex CLI | Project hooks; `Launch-Codex.bat` | Observed approval state with unknown count; review hooks using `/hooks` |
 | Cursor CLI (`agent`) | Project hooks; `Launch-Cursor.bat` | Activity only; Cursor desktop integration is not included |
 
-All six added hook adapters are implemented and fixture-tested. Live loading in
-each native harness, Windows scripts, editor focus and physical hardware still
-need local validation. A non-red key does **not** prove that no approval is waiting.
+All six hook adapters are implemented and fixture-tested. Windows/Ubuntu CI
+exercises mocked hardware and subprocess transport. Live native-hook loading,
+interactive Windows focus/notifications and physical USB behavior require local validation. A non-red key does **not** prove that no approval is waiting.
 See [adapter details](docs/HARNESSES.md) for lifecycle and missed-event limitations.
 Aider and cloud/remote agent integrations are not included.
 
@@ -50,7 +85,7 @@ Aider and cloud/remote agent integrations are not included.
 | Device initialized, no registered launches | Cyan **READY** on key 1; remaining keys black |
 | Reported busy or retry | Green moving ring |
 | Reported idle | Amber breathing glow |
-| Identified unresolved input request | Red pulsing attention icon |
+| Identified input or observed Codex approval request | Red pulsing attention icon |
 | Unknown or snapshots stale for more than 10 seconds | Amber **LINK ?** |
 | Empty slot | Black; pressing it does nothing |
 
@@ -115,10 +150,78 @@ For AI-assisted setup, give your coding agent this instruction:
 Install AgentDeck from https://github.com/darkmatter2222/AgentDeck in a permanent
 source directory. Read docs/QWEN-HANDOFF.md and docs/TUTORIALS.md. Use the setup path
 for the harnesses I actually use, preserve my existing configuration, and verify
-that the Mini has been released by Elgato before opening it. Run the automated
+that Elgato Stream Deck is closed before opening the device. Read docs/NEXT.md
+for 2.1 commands, supported deck sizes, Codex trust and current limitations. Run the automated
 checks, then guide me through docs/FIRST-RUN.md and the harness-specific acceptance
 steps. Record observed results separately from unverified hardware/runtime gates.
 ```
+
+### Install or update this feature branch
+
+To try 2.1 before it is merged, use this branch in your permanent checkout. Inspect
+and preserve any local edits before switching. Close managed sessions and stop the
+broker before updating its source and dependencies.
+
+```powershell
+cd C:\Tools\AgentDeck
+git fetch origin
+git switch feature/agentdeck-next-20
+git pull --ff-only
+```
+
+For an original OpenCode/task installation, rerun
+`powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Install.ps1`.
+For a foreground setup, run `python -m pip install -e .` using its existing Python
+environment and restart `python -m ocdeck broker`. Reinstall the affected project
+hooks so receipts point to the current scripts, then relaunch managed sessions.
+Existing config is retained; sound/toasts remain off until enabled. See
+[the installation tutorials](docs/TUTORIALS.md) for fresh setups and custom paths.
+
+### Set up Codex CLI
+
+Install and authenticate Codex normally, then install its observer hooks in the
+software project you will work on:
+
+```powershell
+ocdeck harness-install codex --project C:\Projects\MyApp --dry-run
+ocdeck harness-install codex --project C:\Projects\MyApp
+cd C:\Projects\MyApp
+ocdeck start --profile codex
+# Equivalent checkout launcher:
+# C:\Tools\AgentDeck\scripts\Launch-Codex.bat
+```
+
+Open `/hooks` in Codex to review and trust the exact installed hooks. AgentDeck
+merges `.codex/hooks.json`, preserves unrelated settings, creates a receipt and
+backs up changes. It never grants hook trust or emits approval decisions.
+
+Prompt/tool events map to RUNNING; Stop/Interrupt map to IDLE; an observed
+PermissionRequest maps to INPUT with an unknown count until a result, new turn,
+stop or interrupt. This is observed lifecycle state, not confirmation that an
+approval dialog remains open. Missing hooks remain UNKNOWN. Paired
+`request_user_input` tool IDs can also establish pending input. Exiting the
+managed child removes its slot. [Codex coverage and live checks](docs/NEXT.md#codex-cli).
+
+### Supported decks and slot capacity
+
+| Device family | Agent slots | Selection |
+|---|---|---|
+| Stream Deck Mini | 6 | Automatic product/driver detection |
+| Stream Deck Original / MK.2 | 15 | Automatic product/driver detection |
+| Stream Deck XL | 32 | Automatic product/driver detection |
+
+One broker controls one deck. Use `ocdeck devices` to list models, serials and key
+counts. Set `serial` in config when more than one matching deck is attached.
+Capacity resizes on attachment; overflow launches take a freed slot in registration
+order. Resizing invalidates stale key-press assignments. These are agent/focus
+slots; arbitrary custom action keys and multi-deck aggregation are not included.
+
+The broker conservatively refuses hardware access while an Elgato Stream Deck
+process is running. Quit it from the tray. If you have explicitly released this
+device in Elgato and need other devices there, `"allow_elgato": true` disables the
+process guard; it does not release a device on your behalf. `hardware-check`
+requires Elgato to be closed. For mock capacity only, configure `"slots": 15` or
+`32`; physical hardware supplies its own capacity.
 
 ### Using HomeAILab or another local-model launcher?
 
@@ -159,13 +262,14 @@ The preview demonstrates several states together. In normal use, READY appears o
 agents are registered. Windows hardware and native harness acceptance gates are
 tracked in [the verification record](docs/TEST-RESULTS.md).
 
-Three layouts. Five palettes. Two text lines you control. Each button can have its
+Three layouts. Six palettes. Two text lines you control. Each button can have its
 own look, brightness, and motion. These examples come directly from AgentDeck's
 renderer using sample sessions; they are enlarged key previews, not hardware photos.
-Harness mode uses bundled official app icons and GitHub's Copilot UI icon.
+Harness mode uses bundled official app icons and GitHub's Copilot UI icon where
+available. Codex uses a text identifier and procedural status symbol.
 [Asset sources and attribution](THIRD-PARTY.md#harness-icons) are included; no runtime downloads are needed.
 
-[Layouts](#three-ways-to-see-your-agents) · [Themes](#five-color-palettes) ·
+[Layouts](#three-ways-to-see-your-agents) · [Themes](#six-color-palettes) ·
 [Harness icons](#recognize-the-harness) · [Text](#choose-the-text-under-each-icon) ·
 [Motion](#breathing-glowing-or-still) · [Mixed deck](#mix-it-up-button-by-button)
 
@@ -257,9 +361,10 @@ shows RUNNING, IDLE, INPUT, LINK ?, READY, and an empty black key in the same or
 ocdeck appearance --layout harness
 ```
 
-### Five color palettes
+### Six color palettes
 
-Compare the same states in **Classic, Aurora, Ocean, Accessible, and Mono**.
+Choose **Classic, Aurora, Ocean, Accessible, Mono, or High Contrast**. The original
+five-palette comparison is below; the new high-contrast example follows.
 State labels stay readable regardless of the palette. Keep a status text line
 when using harness icons, especially with Mono, so color is not your only cue.
 
@@ -271,11 +376,12 @@ ocdeck appearance --theme aurora
 
 ### Recognize the harness
 
-OpenCode, Claude, Copilot CLI, Copilot in VS Code, Gemini, and Cursor share the
-same status language. Both Copilot adapters use the same icon; use a project
+OpenCode, Claude, Copilot CLI, Copilot in VS Code, Gemini, Cursor and Codex share
+the same status language. The gallery below shows the original six adapters;
+Codex uses its name and a procedural symbol rather than a bundled brand image. Both Copilot adapters use the same icon; use a project
 name or per-button custom text when you want to distinguish them on the deck.
 
-![All six supported adapters with harness names and running status](docs/visuals/harnesses.png)
+![Original six adapters with harness names and running status](docs/visuals/harnesses.png)
 
 ```powershell
 ocdeck appearance --layout harness --primary harness --secondary status
@@ -327,7 +433,7 @@ needs validation. Existing installations retain their saved FPS setting.
 ### Give individual keys different brightness
 
 Keep a primary session bright and supporting sessions subdued. These settings
-dim each button's rendered pixels; the Mini's hardware brightness remains global.
+dim each button's rendered pixels; the deck's hardware brightness remains global.
 
 ![Six per-button brightness levels from 15 percent to 100 percent](docs/visuals/brightness.png)
 
@@ -361,6 +467,108 @@ ocdeck preview --layout harness --theme ocean --effect glow --output my-deck.gif
 [Full appearance guide, settings, and JSON examples](docs/APPEARANCE.md).
 Contributors can regenerate this gallery with `python scripts/render-gallery.py`.
 
+### High contrast and pending-input counts
+
+```powershell
+ocdeck appearance --theme high-contrast --effect steady --text-size large
+```
+
+![High contrast and known/unknown input counts](docs/visuals/next-high-contrast.png)
+
+OpenCode supplies known pending counts, including questions and permissions. INPUT
+keys show 1–9 or `9+`. Hook adapters do not claim complete totals: their public slot
+`pending` is `null`, and the numeric badge is omitted. An unknown count is not zero.
+Keep status text enabled for a cue beyond color. Global appearance defaults are
+Classic layout/theme, status + project text, Breathe, speed 1, intensity 0.55 and
+per-button brightness 1. Per-slot overrides take precedence.
+
+### Share a look or preview a change
+
+```powershell
+ocdeck appearance --export my-look.json
+ocdeck appearance --import my-look.json --dry-run
+ocdeck appearance --import my-look.json
+ocdeck appearance --slot 15 --alias Reviewer --dry-run
+```
+
+The schema-version-1 file contains only `appearance`, `buttons` and `fps`, plus
+`schema_version`. Unknown keys, invalid values and slot keys outside 1–32 are
+rejected. Import replaces visual settings while retaining serial, alerts and
+other broker options; explicit flags apply after the import. Malformed config
+JSON is rejected instead of silently overwritten.
+
+`--dry-run` prints a settings diff and a PNG data URI of sample keys using the
+resulting settings. It writes no configuration, preview or export files, even
+when combined with `--export`. This is a sample appearance preview, not a live USB
+capture. Use `ocdeck preview --output my-look.gif` for a saved six-key sample GIF.
+Restart the broker after applying saved settings.
+
+## Sound alerts and Windows notifications
+
+Merge an `alerts` object into your existing config, then restart the broker:
+
+```json
+{
+  "alerts": {
+    "sound": true,
+    "toast": true,
+    "states": ["input"],
+    "cooldown_seconds": 10,
+    "muted_slots": ["2"]
+  }
+}
+```
+
+Both channels default off. Sound uses SystemExclamation unless `sound_file` names
+a WAV path, such as `"C:\\Sounds\\input.wav"`. The `states` list selects sound
+transitions: `input`, `running`, `idle`, or `unknown`. Cooldown is global; repeated
+snapshots do not produce another chime. Muted slots are one-based **strings** and
+suppress both channels. Alerts are processed independently of USB rendering.
+
+Toasts require a newly identified request. Multiple new IDs in one snapshot
+produce one slot toast. Repeated delivery and stale-state recovery do not repeat
+that toast during the broker lifetime. A broker restart resets deduplication
+history. INPUT without a request ID can trigger sound but not a request-specific
+toast; `states` does not turn toasts into generic activity notifications.
+
+Windows delivery uses normal-priority notifications, silent toast audio and the
+shell interruption-state check. The first opted-in toast registers the per-user
+AgentDeck notification identity. Enable AgentDeck in Windows notification
+settings. Focus Assist/Do Not Disturb and fullscreen/presentation states may
+suppress delivery. Sound and desktop toasts are Windows-only; mock tests elsewhere
+exercise the transition logic. [Live notification checks](docs/NEXT.md#live-acceptance-checklist)
+remain required.
+
+## Diagnostics, logs and bug reports
+
+```powershell
+ocdeck doctor --project C:\Projects\MyApp
+ocdeck doctor --no-device --json
+ocdeck status --json
+ocdeck report --output agentdeck-report.zip --lines 200
+```
+
+Doctor checks configuration, Node, runtime assets, hook receipts, broker health,
+capacity and (unless excluded) device/Elgato state. It also lists interactive
+checks for native hook trust, focus and other troubleshooting cases. Every line
+includes a fix/check; PASS means verified, FAIL means a detected problem, and
+MANUAL means unverified. Exit status is 1 if any check fails, otherwise 0. A MANUAL
+result is not a pass. `--no-device` never enumerates or opens HID; it still checks
+whether the broker responds. Errors use stable AD codes and troubleshooting links.
+
+`broker.log` contains JSON lines, request correlation IDs and up to three rotated
+backups, each capped at approximately 2 MB. Status includes at most ten recent
+warning/error excerpts. Report ZIPs contain only `status.json`, `versions.json`,
+`config.json` and `logs.json`, with 100 log lines by default and a 2,000-line cap.
+An existing output ZIP is never overwritten.
+
+Credential-named fields, recognizable secret patterns and the exact local bearer
+token are scrubbed. Reports exclude raw hook/launch/discovery files, prompts and
+transcripts. Automated tests cover metadata, rendered labels, logs and reports;
+arbitrary prose is not reliably classifiable as a secret. Avoid credentials in
+custom labels and inspect a report before sharing it. [Troubleshooting](docs/TROUBLESHOOTING.md)
+contains the symptom guide; [the API reference](docs/API.md) describes status fields.
+
 ## How it works
 
 ```mermaid
@@ -371,7 +579,7 @@ flowchart TD
     H --> R["Per-launch relay"]
     O --> B["Local broker"]
     R --> B
-    B <--> D["Stream Deck Mini"]
+    B <--> D["Stream Deck Mini / MK.2 / XL"]
     B -->|"Validate identity and focus"| W
 ```
 
@@ -399,6 +607,14 @@ restores reported state; confirmed process death releases a slot.
 | `ocdeck hardware-check` | Physical diagnostic; stop the broker first |
 | `ocdeck broker --mock` | Foreground broker with a mock device |
 | `ocdeck preview` | Render the animation preview |
+| `ocdeck --version` | Print the installed version |
+| `ocdeck start --profile codex` | Launch a managed Codex session |
+| `ocdeck doctor --no-device --json` | Diagnose configuration and broker without HID access |
+| `ocdeck report --output report.zip --lines 200` | Create a redacted diagnostic ZIP |
+| `ocdeck appearance --dry-run` | Inspect settings changes and an in-memory sample preview |
+| `ocdeck appearance --export look.json` | Export visual preferences |
+| `ocdeck appearance --import look.json` | Validate and import visual preferences |
+| `ocdeck uninstall --all --scan C:\Projects --dry-run` | Preview integration and project-hook removal |
 
 Use `python -m ocdeck` instead of `ocdeck` if no command shim is installed, with the
 Python environment containing this checkout. `--current-window` on `harness-launch`
@@ -407,33 +623,122 @@ is useful for status tests; it does not promise exact terminal focus.
 Broker settings live in `%USERPROFILE%\.opencode-deck\config.json` (or `OCDECK_HOME`):
 
 ```json
-{"fps": 24, "brightness": 45, "animations": true, "ready": true, "serial": null}
+{
+  "fps": 24,
+  "brightness": 45,
+  "animations": true,
+  "ready": true,
+  "serial": null,
+  "allow_elgato": false,
+  "check_updates": true,
+  "alerts": {
+    "sound": false,
+    "toast": false,
+    "states": ["input"],
+    "cooldown_seconds": 10,
+    "muted_slots": []
+  }
+}
 ```
+
+Merge settings into existing config rather than replacing unrelated preferences.
+
+| Setting | Default / accepted values |
+|---|---|
+| `fps` | 24; integers 1–30 |
+| `brightness` | 45; hardware backlight 0–100, distinct from per-key image brightness |
+| `animations` / `ready` | Both true; false disables motion / the initial READY key |
+| `serial` | null; select one detected device serial when necessary |
+| `slots` | 6 in mock mode; 6, 15 or 32; real deck capacity is automatic |
+| `allow_elgato` | false; advanced opt-out of the Elgato process guard |
+| `check_updates` | true for hardware broker, false for mock unless explicitly configured |
+| `alerts.sound` / `alerts.toast` | false; independently opt in |
+| `alerts.sound_file` | Omitted uses system sound; otherwise a WAV path |
+| `alerts.states` | `["input"]`; sound transitions only |
+| `alerts.cooldown_seconds` | 10; finite number 0–3600 |
+| `alerts.muted_slots` | `[]`; one-based strings `"1"` through `"32"` |
+| `appearance` / `buttons` | Global preferences / per-slot overrides; [full field reference](docs/APPEARANCE.md) |
 
 Restart the broker after edits. FPS is configurable from 1 to 30; new installations target 24. Disable animations for static
 images, disable ready for an empty black deck, or select a serial when multiple
 decks are connected. Compatibility names remain `ocdeck`, `.opencode-deck` and the
 `OpenCode Deck` scheduled task; renaming the project does not rename installed state.
 
-## Maintenance and troubleshooting
+## Uninstall and backups
 
-See [tutorials](docs/TUTORIALS.md) for upgrade and removal, and
-[troubleshooting](docs/TROUBLESHOOTING.md) for LINK ?, missing keys, configuration,
-permissions, focus, Node, broker restart and editor setup problems.
+Close managed sessions before removal. The command reads registered projects and
+scans specified roots for older `.agentdeck` receipts, skipping symlinks and
+common dependency folders. Supply every root containing older installations;
+without `--scan`, it scans the current directory as well as registered projects.
 
-Remove project hooks **before** deleting their source files. `scripts/Uninstall.ps1`
-delegates to `ocdeck uninstall --all`. Supply `--scan` roots for old projects and
-use `--dry-run` first. Retain `.agentdeck` receipts until removal. Source paths are absolute: do not move the checkout
-without reinstalling its integrations.
+```powershell
+ocdeck uninstall --all --scan C:\Projects --scan D:\Work --dry-run
+ocdeck uninstall --all --scan C:\Projects --scan D:\Work
+```
+
+All project receipts are preflighted before mutation. Unrelated hooks remain,
+modified configs are backed up, and moved/malformed project receipts stop removal.
+The owned Windows task, managed OpenCode server/TUI integration, PATH/shims and
+notification identity are removed. Local config, metadata and token move under a
+timestamped `backups` directory. Logs, backups and the Python environment remain.
+Remove the package separately with `python -m pip uninstall agentdeck` after
+integration cleanup. Source paths are absolute: uninstall/reinstall hooks before
+moving or deleting the checkout.
+
+`scripts/Uninstall.ps1` delegates to this flow and supports `-DryRun` and `-Scan`.
+To remove just one adapter, use
+`ocdeck harness-install codex --project C:\Projects\MyApp --remove`.
+[Full uninstall behavior](docs/NEXT.md#uninstall) · [Troubleshooting](docs/TROUBLESHOOTING.md).
+
+## Updates, packaging and release status
+
+A hardware broker checks GitHub's latest stable release in a background worker
+at startup with a three-second network timeout and a bounded response. It announces
+newer versions once per cached version, with release notes also in `ocdeck status`.
+Offline failures do not block startup. Set `"check_updates": false` to disable
+lookups. It never automatically downloads or installs an update.
+
+The Python distribution is named `agentdeck`; the CLI remains `ocdeck`. Wheel/sdist
+builds include Node adapters, PowerShell runtime helpers and renderer assets.
+To build/install locally, use the Python environment intended for AgentDeck:
+
+```powershell
+python -m pip install -e ".[dev]"
+python -m build
+python -m pip install .\dist\agentdeck-2.1.0-py3-none-any.whl
+ocdeck --version
+```
+
+**PyPI publication is not complete.** Do not assume `pip install agentdeck` retrieves
+this project/version until its PyPI ownership and release are established. Use
+this checkout or its built wheel meanwhile. The original automatic OpenCode task
+and shim setup still uses `scripts/Install.ps1` from a permanent checkout.
+
+The manual [Signed Python release workflow](.github/workflows/pypi.yml) builds
+wheel/sdist, SHA-256 checksums and a CycloneDX SBOM. Its publish job is restricted
+to this repository's `main`, the `pypi` environment and configured trusted
+publishing. It creates provenance/PyPI attestations. Maintainers must establish
+PyPI project ownership and publisher settings first. Pushing this feature branch
+does not publish a PyPI package or GitHub release.
 
 ## Tests and contributor documentation
 
 On Windows, run `scripts\Test.ps1`. On a configured development environment:
 
 ```text
+python -m pip install -e ".[dev]"
+pre-commit install
+ruff check ocdeck tests
+ruff format --check ocdeck tests
+pyright
 python -m unittest discover -s tests -v
 node --test tests/facts.test.mjs tests/harnesses.test.mjs tests/next.test.mjs
 ```
+
+[PR CI](.github/workflows/ci.yml) runs the suites on Windows/Ubuntu with Python
+3.11/3.13 and Node 22, then lint, formatting, Pyright basic, build and clean-wheel
+checks. Pre-commit runs Ruff and per-file Node syntax checks. The type gate covers
+all of `ocdeck/`; concrete annotations are being expanded incrementally.
 
 The tests use real subprocesses and loopback HTTP with fixture harness events and
 mock hardware. They do not prove that a native agent loads hooks or that Windows
@@ -445,22 +750,33 @@ can focus a physical window. [TEST-RESULTS.md](docs/TEST-RESULTS.md) records evi
 | `plugins/` | Shared transport and OpenCode server/TUI plugins |
 | `plugins/harnesses/` | Hook profiles, normalization, relay, observer and installer |
 | `scripts/` | Original installer, project-hook installer, BAT launchers and checks |
-| `tests/` | Python/Node tests and optional live OpenCode fixture |
+| `tests/` | Python/Node suites and opt-in live OpenCode/Codex runners |
 | `docs/` | [Documentation index](docs/README.md), tutorials, architecture and verification |
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before adding an adapter. Report issues with
 harness/runtime versions, redacted `ocdeck status`, and the failed acceptance step.
 Never include model credentials, broker tokens or hook connection descriptors.
 
+## Validation status
+
+The implementation passed **61 Python tests and 25 Node tests**, plus lint,
+formatting, type and wheel checks, on the four Windows/Ubuntu CI combinations.
+[Verified implementation CI run](https://github.com/darkmatter2222/AgentDeck/actions/runs/34722639768).
+The Windows run caught and verified a native-EXE quote-preservation fix; receipt
+tests also account for Windows canonical paths. The high-contrast gallery was
+visually inspected. These results are automated evidence, not physical acceptance.
+
+Before a release, complete:
+
+- Physical Mini/MK.2/XL key order, USB reconnect, overflow and focus checks.
+- Interactive Windows focus, toast delivery, Focus Assist and task cleanup checks.
+- Native Codex hook loading after trust review, including approval/result/exit.
+- PyPI project ownership, environment and trusted-publisher setup.
+
+Run `ocdeck hardware-check` with the broker stopped for physical input checks.
+`python tests/live_codex.py` is an explicit interactive check requiring a running
+broker, trusted hooks and your own native Codex setup; it is not a CI test.
+[Detailed acceptance checklist](docs/NEXT.md#live-acceptance-checklist) ·
+[Verification record](docs/TEST-RESULTS.md).
+
 Apache-2.0 · Python 3.11+ · Windows desktop · Local controller
-
-## What's new in 2.1
-
-Mini, 15-key MK.2 and 32-key XL support; Codex CLI hooks; optional chimes and
-Windows notifications; known input counts; doctor and redacted reports; rotating
-JSON logs; update notices; high-contrast colors; appearance sharing and dry-run;
-receipt-aware uninstall; cross-platform CI, lint/type gates and signed Python
-release infrastructure. See the [2.1 feature guide](docs/NEXT.md) for commands,
-configuration and live acceptance requirements.
-
-![High contrast and input counts](docs/visuals/next-high-contrast.png)

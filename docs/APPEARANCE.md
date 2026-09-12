@@ -23,7 +23,7 @@ explicit preview flags override them temporarily without saving changes.
 | Setting | Choices |
 |---|---|
 | Layout | `classic` existing state artwork; `harness` official icon + upper-right state dot; `minimal` state glyph in a dot |
-| Theme | `classic`, `aurora`, `ocean`, `accessible`, `mono` |
+| Theme | `classic`, `aurora`, `ocean`, `accessible`, `mono`, `high-contrast` |
 | Primary / secondary text | `status`, `project`, `alias`, `harness`, `detail`, `custom`, `none` |
 | Effect | `breathe` border/status pulse; `glow` adds whole-image brightness breathing; `steady` freezes motion |
 | Speed | 0.25–3; 1 is a two-second cycle |
@@ -45,7 +45,7 @@ terminal, never another product's logo. Marks are not recolored by themes.
 ## Ten additional controls
 
 All appearance flags below also work on `ocdeck preview` without saving settings.
-Add `--slot 1` through `--slot 6` to save a per-button override with `appearance`.
+Add `--slot 1` through `--slot 32` to save a per-button override with `appearance`.
 
 | Control | Values / behavior |
 |---|---|

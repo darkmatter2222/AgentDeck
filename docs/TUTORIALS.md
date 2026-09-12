@@ -38,6 +38,7 @@ Use these exact profile names for other adapters:
 
 | Install profile | Launcher |
 |---|---|
+| `codex` | `scripts\Launch-Codex.bat` (review/trust hooks using `/hooks`) |
 | `gemini` | `scripts\Launch-Gemini.bat` |
 | `cursor` | `scripts\Launch-Cursor.bat` (Cursor CLI `agent`) |
 | `copilot-vscode` | `scripts\Launch-Copilot-VSCode.bat` |
@@ -54,7 +55,7 @@ integration. It also supports adding any of the project-hook adapters above.
 1. Install Python 3.11+, Windows Terminal and OpenCode. Add Node 20+ if using hook
    adapters or running the JavaScript tests. Check `python --version`,
    `opencode --version`, `node --version`, and `Get-Command wt`.
-2. Disable the Mini in Elgato's device preferences and close competing controllers.
+2. Quit Elgato Stream Deck from the tray and close competing controllers.
 3. Clone/extract this repository into a permanent directory; enter it:
 
 ```powershell
@@ -80,12 +81,12 @@ installation path specifically; it is not a generic hook installer check.
 
 ## Fresh install without OpenCode
 
-The original installer requires OpenCode. To use only Claude, Copilot, Gemini or
-Cursor, set up the Python environment and run the broker in a foreground terminal.
+The original installer requires OpenCode. To use only Claude, Copilot, Gemini, Cursor or
+Codex, set up the Python environment and run the broker in a foreground terminal.
 This path **does not create a scheduled task or global command shims**.
 
 After installing Python 3.11+, Node 20+, Windows Terminal and your desired harness,
-release the Mini in Elgato. In PowerShell:
+quit Elgato Stream Deck. In PowerShell:
 
 ```powershell
 $agentDeckSource = 'C:\Tools\AgentDeck'
@@ -155,10 +156,15 @@ AgentDeck command yourself, it may no longer match the receipt: inspect and remo
 that edited command manually. Keep unrelated hooks. Timestamped backups are for
 manual recovery; do not overwrite newer unrelated edits with an old whole file.
 
-For an original scheduled/OpenCode install, then run `scripts\Uninstall.ps1`. It
-removes the owned task/server-plugin entry and user PATH entry but retains state,
-logs and the venv. Remove an optional TUI plugin URI manually as its output directs.
-For the foreground-only setup, stop the broker with its installed interpreter;
-there is no task or shim to remove. After all hooks are gone and all processes are
-closed, you may remove the source folder, retained editor profiles and unused
-AgentDeck state. Re-enable the Mini in Elgato if desired.
+For complete integration removal, preview the plan first:
+
+```powershell
+ocdeck uninstall --all --scan C:\Projects --dry-run
+ocdeck uninstall --all --scan C:\Projects
+```
+
+Add `--scan` for other project roots. `scripts\Uninstall.ps1` delegates to that command and supports
+`-DryRun`/`-Scan`. It removes owned integration entries, including the managed TUI
+URI, and backs up local configuration. Logs, backups and the Python environment
+remain. See [complete removal behavior](NEXT.md#uninstall). Re-enable your device
+in Elgato afterward if desired.

@@ -3,6 +3,7 @@
 | Goal | Start here |
 |---|---|
 | Understand supported harnesses and key states | [Project README](../README.md) |
+| Configure all 20 additions, alerts, Codex, larger decks and release checks | [2.1 feature guide](NEXT.md) |
 | Install, add adapters, upgrade or remove | [Tutorials](TUTORIALS.md) |
 | Compare profiles, hooks and limitations | [Harness adapters](HARNESSES.md) |
 | Validate physical keys and focus on Windows | [First-run acceptance](FIRST-RUN.md) |
