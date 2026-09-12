@@ -148,7 +148,9 @@ def worker(spec):
             if spec["windowToken"]:
                 atomic_json(editor_data / "User/settings.json", {"window.title": spec["windowToken"]})
             command += ["--new-window", "--wait", "--user-data-dir", str(editor_data), spec["cwd"]]
-        if os.name == "nt":
+        # Native executables use CreateProcess argv quoting directly. Legacy
+        # PowerShell argument binding drops embedded quotes on Windows.
+        if os.name == "nt" and Path(command[0]).suffix.lower() in (".bat", ".cmd", ".ps1"):
             launch_file = directory / "command.json"
             atomic_json(launch_file, {"executable": command[0], "args": command[1:], "cwd": spec["cwd"]})
             command = [

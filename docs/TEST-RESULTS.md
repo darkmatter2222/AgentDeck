@@ -145,3 +145,7 @@ Not executed here: physical USB acceptance, Windows toast/Focus Assist behavior,
 Windows focus/task cleanup, and a provider-backed Codex session with native hooks
 trusted. See [live acceptance](NEXT.md#live-acceptance-checklist). PyPI publishing
 requires project ownership and trusted-publisher setup and was not executed.
+
+The first GitHub matrix passed Ubuntu 3.11/3.13 and exposed Windows native-argv
+quoting plus a short-path test comparison. Native EXE launches now bypass the
+legacy PowerShell argument binder; the test compares canonical paths.

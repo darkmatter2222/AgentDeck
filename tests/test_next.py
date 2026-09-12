@@ -306,7 +306,7 @@ class NextTests(unittest.TestCase):
                 directory = root / prefix / ".agentdeck"
                 directory.mkdir(parents=True)
                 (directory / "codex.json").write_text("{}")
-            self.assertEqual(discover([root]), [str(root / "project")])
+            self.assertEqual(discover([root]), [str((root / "project").resolve())])
 
     def test_high_contrast_state_colors(self):
         for color in THEMES["high-contrast"]:
