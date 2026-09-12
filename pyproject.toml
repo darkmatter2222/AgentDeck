@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "opencode-deck"
-version = "1.0.0"
-description = "Local OpenCode presence and animated Stream Deck Mini controller"
+version = "2.0.0"
+description = "Local AI coding-agent presence and customizable Stream Deck Mini controller"
 requires-python = ">=3.11"
 dependencies = ["Pillow>=10.4,<13", "psutil==7.2.2", "streamdeck==0.10.0", "hidapi==0.15.0"]
 
