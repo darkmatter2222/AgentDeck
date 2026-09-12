@@ -1,4 +1,4 @@
-# AgentDeck 2.1 feature guide
+# AgentStreamDeck 2.1 feature guide
 
 This branch adds the 20 requested improvements. Run the Python and Node suites
 before use. Physical USB, foreground focus, native Codex hook trust and Windows
@@ -35,7 +35,7 @@ restart resets in-memory notification history. Muted slots suppress both channel
 
 Delivery uses Windows' ordinary notification system, default priority, silent
 toast audio and the shell interruption-state check. It never uses an alarm or
-priority bypass. Enable **AgentDeck** in Windows notification settings. The first
+priority bypass. Enable **AgentStreamDeck** in Windows notification settings. The first
 opted-in toast creates a per-user notification identity. Focus Assist/Do Not
 Disturb and fullscreen/presentation modes may suppress alerts. Linux mock mode
 validates transitions but does not emit desktop notifications. Delivery failures
@@ -155,7 +155,7 @@ or malformed native configs stop removal so they can be reconciled.
 The Windows task, managed OpenCode plugin/TUI entry, PATH shims and notification
 identity are removed. Local config/metadata/token move to a timestamped `backups`
 directory. Backups and the Python environment remain, so the running interpreter
-is never deleted. Use `python -m pip uninstall agentdeck` separately to remove the
+is never deleted. Use `python -m pip uninstall agentstreamdeck` separately to remove the
 package after completing integration removal. `scripts/Uninstall.ps1` delegates
 to this command and supports `-DryRun` and `-Scan`.
 
@@ -167,7 +167,7 @@ per cached version with release notes, also available through `ocdeck status`.
 Network errors do not block startup. Mock brokers disable this lookup unless explicitly enabled. Set `"check_updates": false` to disable all
 release lookups. Nothing is downloaded or installed automatically.
 
-The distribution is named `agentdeck`, with `ocdeck --version`. The wheel contains
+The distribution is named `agentstreamdeck`, with `ocdeck --version`. The wheel contains
 Node adapters, PowerShell runtime helpers and renderer assets. Python 3.11+ and
 Node 20+ are required; the Windows OpenCode task/shim installation still uses
 `scripts/Install.ps1` from a checkout. Hook harnesses run from an installed wheel.
@@ -177,7 +177,7 @@ Python 3.11/3.13, plus Ruff, formatting, Pyright basic and wheel checks.
 The manual **Signed Python release** workflow builds wheel/sdist, checksums and a
 CycloneDX SBOM, then publishes using PyPI trusted publishing and attestations from
 `main`. Before publishing, configure the `pypi` GitHub environment and establish
-ownership/trusted publishing for the PyPI `agentdeck` project. Registry name
+ownership/trusted publishing for the PyPI `agentstreamdeck` project. Registry name
 availability/ownership is not established by building the wheel. No PyPI or
 GitHub release is published merely by pushing this feature branch.
 

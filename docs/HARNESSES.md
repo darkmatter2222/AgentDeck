@@ -27,25 +27,25 @@ remote SSH/WSL/container integrations are not included. No approval automation i
 installed. Native hooks must be available and enabled in the installed harness;
 record its version when testing.
 
-## Quick start on your existing Windows AgentDeck installation
+## Quick start on your existing Windows AgentStreamDeck installation
 
-Keep this checkout in a permanent location (for example `C:\Tools\AgentDeck`).
+Keep this checkout in a permanent location (for example `C:\Tools\AgentStreamDeck`).
 Hook commands contain its absolute path. Python 3.11+, Node.js 20+ on PATH,
-your harness, and a running AgentDeck broker are required. The BAT files use the
-existing AgentDeck Python environment and this checkout's source, so you can test
+your harness, and a running AgentStreamDeck broker are required. The BAT files use the
+existing AgentStreamDeck Python environment and this checkout's source, so you can test
 the branch without repointing the original installed broker or OpenCode plugin.
 
 Run these commands in PowerShell, replacing paths with your own:
 
 ```powershell
 # Install each integration once per software project, preserving other hooks.
-C:\Tools\AgentDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp
-C:\Tools\AgentDeck\scripts\Install-Harness.ps1 -Profile copilot-cli -Project C:\Projects\MyApp
+C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp
+C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile copilot-cli -Project C:\Projects\MyApp
 
 # Start agents from the software project directory, each in its own window.
 cd C:\Projects\MyApp
-C:\Tools\AgentDeck\scripts\Launch-Claude.bat
-C:\Tools\AgentDeck\scripts\Launch-Copilot.bat
+C:\Tools\AgentStreamDeck\scripts\Launch-Claude.bat
+C:\Tools\AgentStreamDeck\scripts\Launch-Copilot.bat
 ```
 
 For Gemini and Cursor, repeat with `-Profile gemini` / `-Profile cursor`, and
@@ -55,13 +55,13 @@ Continue launching OpenCode as before. All harnesses share the device-sized 6/15
 registry and overflow policy.
 
 To preview installation without writing settings, add `-DryRun`. To remove just
-AgentDeck's entries, use the same install command with `-Remove`. Existing settings
+AgentStreamDeck's entries, use the same install command with `-Remove`. Existing settings
 and other hooks are preserved; changed config files receive timestamped
 `.agentdeck-backup-*` copies. JSONC/malformed settings are refused, not rewritten.
 Receipts live in the software project's `.agentdeck/` directory. Keep them until
 uninstalling. Add receipts, backups and machine-specific hook settings to that
 project's local git excludes if they should not be shared. Reinstall after moving
-the AgentDeck checkout; if you move the software project, remove the old hook
+the AgentStreamDeck checkout; if you move the software project, remove the old hook
 entries and receipt manually, then reinstall. Do not restore a whole backup over
 subsequent unrelated edits.
 
@@ -109,9 +109,9 @@ Globally installed hooks are deliberately inert outside a matching managed launc
 ## Copilot in VS Code (preview)
 
 ```powershell
-C:\Tools\AgentDeck\scripts\Install-Harness.ps1 -Profile copilot-vscode -Project C:\Projects\MyApp
+C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile copilot-vscode -Project C:\Projects\MyApp
 cd C:\Projects\MyApp
-C:\Tools\AgentDeck\scripts\Launch-Copilot-VSCode.bat
+C:\Tools\AgentStreamDeck\scripts\Launch-Copilot-VSCode.bat
 ```
 
 This starts a **separate VS Code application with a new user-data directory per
@@ -123,7 +123,7 @@ window to end the launch. Its data is kept under
 `~/.opencode-deck/editors/<launch-id>`; you may delete that directory after closing
 that instance. Never put the generated hook connection token in settings.
 
-The isolated editor's `window.title` is set to its exact AgentDeck identity. Its
+The isolated editor's `window.title` is set to its exact AgentStreamDeck identity. Its
 launcher terminal has a different title, so the existing Windows focus adapter
 can target the editor without choosing between two matching windows. A workspace
 `window.title` override or an OS-added title suffix can prevent matching; verify

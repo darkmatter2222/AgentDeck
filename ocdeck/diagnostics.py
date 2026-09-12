@@ -83,7 +83,7 @@ def doctor(project=".", no_device=False, root=None):
         "runtime-assets",
         (SOURCE / "plugins/harnesses/hook.mjs").is_file() and (SOURCE / "scripts/Run-OpenCode.ps1").is_file(),
         "Packaged adapter and launcher sources",
-        "python -m pip install --force-reinstall agentdeck",
+        "python -m pip install --force-reinstall agentstreamdeck",
     )
     try:
         status = request("GET", "/v1/status", root=root)
@@ -128,7 +128,7 @@ def doctor(project=".", no_device=False, root=None):
                     "Release Elgato ownership and reconnect USB; ocdeck broker",
                 )
         except Exception as error:
-            add("device", False, str(error), "python -m pip install --upgrade agentdeck; ocdeck devices")
+            add("device", False, str(error), "python -m pip install --upgrade agentstreamdeck; ocdeck devices")
     receipts = list((project / ".agentdeck").glob("*.json"))
     add(
         "hooks-installed",
@@ -197,7 +197,7 @@ def doctor(project=".", no_device=False, root=None):
         "opencode-shim": "Run Get-Command opencode in PowerShell; use ocdeck launch if an alias wins.",
         "deleted-checkout": "Keep the installed source or reinstall hooks to the new source before removing it.",
         "homeailab-focus": "Use the managed wrapper and retain the Windows Terminal managed tab title.",
-        "notifications": "Enable AgentDeck notifications in Windows Settings; test a real identified question with Focus Assist on and off.",
+        "notifications": "Enable AgentStreamDeck notifications in Windows Settings; test a real identified question with Focus Assist on and off.",
     }
     for key, fix in manual.items():
         add(key, None, "Interactive verification required", fix)

@@ -1,23 +1,23 @@
 # Managed launchers: HomeAILab, local AI, and cloud
 
 The model endpoint and the window are separate concerns. HomeAILab selects a
-backend and launches a CLI; AgentDeck needs a stable association with the desktop
+backend and launches a CLI; AgentStreamDeck needs a stable association with the desktop
 window to focus it. A directly started OpenCode process can report state while
 having no usable top-level window: Windows Terminal owns that window, not the
 OpenCode PID. This explains why a lit key does not establish a focus mapping.
 
-`Launch-Agent.bat` runs the selected CLI or existing launcher inside AgentDeck's
+`Launch-Agent.bat` runs the selected CLI or existing launcher inside AgentStreamDeck's
 unique, title-pinned window. Its supervisor owns one registration, and the child
 inherits the appropriate plugin/hook binding. Backend selection and tuning remain
 inside HomeAILab. Nothing in HomeAILab needs to be copied or edited.
 
 ## Setup
 
-1. Update AgentDeck to current main and restart its broker. Run the broker as your
+1. Update AgentStreamDeck to current main and restart its broker. Run the broker as your
    desktop user, at the same elevation as the agent windows.
 2. For OpenCode, run `scripts\Install.ps1` as described in the README. This installs
    the global OpenCode plugin and records the actual CLI path. If requested, supply
-   `-OpenCodePath` pointing to the original CLI, not AgentDeck's shim.
+   `-OpenCodePath` pointing to the original CLI, not AgentStreamDeck's shim.
 3. For Claude and other hook adapters, install their project hooks once, e.g.
    `scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp`.
    Follow [tutorials](TUTORIALS.md) for a setup without OpenCode.
@@ -36,8 +36,8 @@ From PowerShell:
 
 ```powershell
 cd C:\Projects\MyApp
-C:\Tools\AgentDeck\scripts\Launch-Agent.bat --profile opencode --launcher "C:\Tools\HomeAILab\harness\opencode\opencode-5090.bat" --
-C:\Tools\AgentDeck\scripts\Launch-Agent.bat --profile claude --launcher "C:\Tools\HomeAILab\harness\claude\claude-5090.bat" --
+C:\Tools\AgentStreamDeck\scripts\Launch-Agent.bat --profile opencode --launcher "C:\Tools\HomeAILab\harness\opencode\opencode-5090.bat" --
+C:\Tools\AgentStreamDeck\scripts\Launch-Agent.bat --profile claude --launcher "C:\Tools\HomeAILab\harness\claude\claude-5090.bat" --
 ```
 
 Or use the short examples:
@@ -45,8 +45,8 @@ Or use the short examples:
 ```powershell
 $env:HOMEAILAB_ROOT = "C:\Tools\HomeAILab"
 cd C:\Projects\MyApp
-C:\Tools\AgentDeck\scripts\examples\HomeAILab-OpenCode-5090.bat
-C:\Tools\AgentDeck\scripts\examples\HomeAILab-Claude-Cluster.bat
+C:\Tools\AgentStreamDeck\scripts\examples\HomeAILab-OpenCode-5090.bat
+C:\Tools\AgentStreamDeck\scripts\examples\HomeAILab-Claude-Cluster.bat
 ```
 
 | Example | Existing HomeAILab launcher used |
@@ -68,7 +68,7 @@ An unrelated `opencode attach` window is not automatically mapped to it.
 
 HomeAILab scripts must remain in their checkout, where their relative `.env`
 loader works. They must run the CLI synchronously rather than detaching it into
-another window. AgentDeck does not infer endpoint ports or scan your LAN.
+another window. AgentStreamDeck does not infer endpoint ports or scan your LAN.
 
 The OpenCode shim detects an inherited `OCDECK_BINDING` and calls the recorded real
 CLI directly. This prevents HomeAILab's `where opencode` lookup from nesting a
@@ -85,7 +85,7 @@ $env:AGENTDECK_LOCAL_URL = "http://127.0.0.1:8201"
 $env:AGENTDECK_LOCAL_MODEL = "your-served-model-id"
 # Set AGENTDECK_LOCAL_TOKEN separately if your server enforces authentication.
 cd C:\Projects\MyApp
-C:\Tools\AgentDeck\scripts\examples\Claude-Local.bat
+C:\Tools\AgentStreamDeck\scripts\examples\Claude-Local.bat
 ```
 
 The file selects the local endpoint/model for Claude and its model roles. It uses
@@ -97,10 +97,10 @@ full tuning. Environment changes use `setlocal` and end with the launcher.
 
 ```powershell
 cd C:\Projects\MyApp
-C:\Tools\AgentDeck\scripts\examples\Claude-Cloud.bat
-C:\Tools\AgentDeck\scripts\examples\OpenCode-Cloud.bat
-C:\Tools\AgentDeck\scripts\Launch-Agent.bat --profile gemini --
-C:\Tools\AgentDeck\scripts\Launch-Agent.bat --profile copilot-cli --
+C:\Tools\AgentStreamDeck\scripts\examples\Claude-Cloud.bat
+C:\Tools\AgentStreamDeck\scripts\examples\OpenCode-Cloud.bat
+C:\Tools\AgentStreamDeck\scripts\Launch-Agent.bat --profile gemini --
+C:\Tools\AgentStreamDeck\scripts\Launch-Agent.bat --profile copilot-cli --
 ```
 
 Claude-Cloud clears local endpoint/model routing and uses normal Anthropic

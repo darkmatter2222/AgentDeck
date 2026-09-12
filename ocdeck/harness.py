@@ -169,7 +169,7 @@ def worker(spec):
         while child.poll() is None:
             if bridge.poll() is not None and not warned:
                 print(
-                    "AgentDeck bridge exited; status will become unknown. Restart this launch to reconnect.",
+                    "AgentStreamDeck bridge exited; status will become unknown. Restart this launch to reconnect.",
                     file=sys.stderr,
                 )
                 warned = True

@@ -1,8 +1,8 @@
 # Setup, upgrade and removal tutorials
 
-Start with a permanent checkout, such as `C:\Tools\AgentDeck`. Examples use
+Start with a permanent checkout, such as `C:\Tools\AgentStreamDeck`. Examples use
 PowerShell and `C:\Projects\MyApp` as the software project; substitute real paths.
-Do not confuse the AgentDeck source directory with the project your agent will edit.
+Do not confuse the AgentStreamDeck source directory with the project your agent will edit.
 See [HARNESSES.md](HARNESSES.md) for the profile/capability matrix.
 
 ## Existing install: add a harness
@@ -17,17 +17,17 @@ See [HARNESSES.md](HARNESSES.md) for the profile/capability matrix.
 3. Preview and install hooks for your project:
 
 ```powershell
-C:\Tools\AgentDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp -DryRun
-C:\Tools\AgentDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp
-C:\Tools\AgentDeck\scripts\Install-Harness.ps1 -Profile copilot-cli -Project C:\Projects\MyApp
+C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp -DryRun
+C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp
+C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile copilot-cli -Project C:\Projects\MyApp
 ```
 
 4. Launch from that project:
 
 ```powershell
 cd C:\Projects\MyApp
-C:\Tools\AgentDeck\scripts\Launch-Claude.bat
-C:\Tools\AgentDeck\scripts\Launch-Copilot.bat
+C:\Tools\AgentStreamDeck\scripts\Launch-Claude.bat
+C:\Tools\AgentStreamDeck\scripts\Launch-Copilot.bat
 ```
 
 5. Verify the native harness accepts the generated hook config. Submit a task and
@@ -59,7 +59,7 @@ integration. It also supports adding any of the project-hook adapters above.
 3. Clone/extract this repository into a permanent directory; enter it:
 
 ```powershell
-cd C:\Tools\AgentDeck
+cd C:\Tools\AgentStreamDeck
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Install.ps1
 ```
 
@@ -89,7 +89,7 @@ After installing Python 3.11+, Node 20+, Windows Terminal and your desired harne
 quit Elgato Stream Deck. In PowerShell:
 
 ```powershell
-$agentDeckSource = 'C:\Tools\AgentDeck'
+$agentDeckSource = 'C:\Tools\AgentStreamDeck'
 $agentDeckData = Join-Path $env:USERPROFILE '.opencode-deck'
 New-Item -ItemType Directory -Force -Path $agentDeckData | Out-Null
 $agentDeckUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
@@ -116,7 +116,7 @@ files automatically use this per-user virtual environment. To inspect status:
 
 Use the same interpreter with `-m ocdeck stop` to stop the broker. Relaunch it after
 logging in again. Automated non-OpenCode installation/startup is not yet supplied.
-If an existing AgentDeck environment is present, use the existing-install path
+If an existing AgentStreamDeck environment is present, use the existing-install path
 rather than recreating it.
 
 ## Upgrade
@@ -146,13 +146,13 @@ Close affected agent windows. Remove project hooks while the checkout and receip
 still exist, once for each installed profile in each software project:
 
 ```powershell
-C:\Tools\AgentDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp -Remove
-C:\Tools\AgentDeck\scripts\Install-Harness.ps1 -Profile copilot-cli -Project C:\Projects\MyApp -Remove
+C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp -Remove
+C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile copilot-cli -Project C:\Projects\MyApp -Remove
 ```
 
 This removes matching recorded entries and preserves other settings/hooks. It may
 leave an empty hooks object/file; that's harmless. If you edited an installed
-AgentDeck command yourself, it may no longer match the receipt: inspect and remove
+AgentStreamDeck command yourself, it may no longer match the receipt: inspect and remove
 that edited command manually. Keep unrelated hooks. Timestamped backups are for
 manual recovery; do not overwrite newer unrelated edits with an old whole file.
 

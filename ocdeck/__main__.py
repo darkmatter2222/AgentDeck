@@ -231,7 +231,7 @@ def main():
                 atomic_json(Path(args.export_file), export_settings(config))
             if changes or args.fps is not None or args.import_file:
                 atomic_json(home() / "config.json", config)
-                print("Appearance saved. Restart the AgentDeck broker to apply.")
+                print("Appearance saved. Restart the AgentStreamDeck broker to apply.")
             print(json.dumps(config, indent=2))
         elif args.command == "preview":
             from .art import frame

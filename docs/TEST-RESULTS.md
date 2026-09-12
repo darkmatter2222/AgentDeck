@@ -118,7 +118,7 @@ Linux/Python 3.11+ checkout verification:
 - Two launcher tests cover external BAT path/argument retention and nested
   OpenCode shim routing without creating another managed window.
 - Inspected HomeAILab harness sources: they directly invoke their real CLI and
-  leave backend selection in their own scripts. New AgentDeck wrappers preserve
+  leave backend selection in their own scripts. New AgentStreamDeck wrappers preserve
   that behavior inside a managed window; HomeAILab itself was not modified.
 - Documentation links and BAT CRLF line endings verified.
 - Physical Stream Deck presses, native Windows focus, and executing HomeAILab

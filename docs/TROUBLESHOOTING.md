@@ -1,4 +1,4 @@
-# Troubleshooting AgentDeck
+# Troubleshooting AgentStreamDeck
 
 Start with `ocdeck status`, or invoke `-m ocdeck status` with the installed Python
 interpreter if no shim exists. Record harness, Python, Node and Windows Terminal
@@ -23,7 +23,7 @@ or provider credentials. A screenshot of a key cannot diagnose hook loading alon
 | VS Code hook activity missing | Inspect Chat: Configure Hooks, workspace trust and hook enablement. The ordinary existing VS Code instance is not instrumented. |
 | VS Code focus ambiguous/absent | The isolated user profile sets `window.title`; workspace overrides or OS title suffixes can change it. The launcher terminal must retain its distinct `launcher` suffix. |
 | Installer refuses JSONC/settings | Preserve the file. Manually reconcile comments/format into valid JSON if appropriate; do not delete unrelated configuration. `--dry-run` shows intended entries for valid JSON. |
-| Installer says project moved | Remove the old AgentDeck entries and receipt manually, preserving unrelated hooks, then reinstall at the new location. |
+| Installer says project moved | Remove the old AgentStreamDeck entries and receipt manually, preserving unrelated hooks, then reinstall at the new location. |
 | PowerShell script execution blocked locally | For a trusted downloaded checkout, use the explicit `powershell -NoProfile -ExecutionPolicy Bypass -File ...` invocation shown in FIRST-RUN. Follow managed-device policy if enforced. |
 | OpenCode shim not selected | Check `Get-Command opencode`; aliases or machine PATH can outrank the user shim. Use `oc` or `ocdeck launch`. |
 | Hook command errors after checkout deletion | Restore the source at its recorded path or remove the installed commands manually. Uninstall project hooks before deleting source. |

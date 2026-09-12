@@ -15,7 +15,7 @@ Research citations and architecture evidence are in docs/RESEARCH.md. That repor
 ## Harness icons
 
 Icons identify third-party integrations; their trademarks remain with their owners.
-Bundling an icon does not imply endorsement or relicense it under AgentDeck's
+Bundling an icon does not imply endorsement or relicense it under AgentStreamDeck's
 Apache license. Official app-icon pixels are preserved apart from resizing and
 user-selected whole-button brightness. The Copilot SVG is rendered in white for
 the dark button background; its geometry is unchanged.
@@ -29,7 +29,7 @@ the dark button background; its geometry is unchanged.
 | Copilot CLI / VS Code | [GitHub Primer Octicons Copilot UI icon](https://github.com/primer/octicons/blob/main/icons/copilot-24.svg), MIT; [included license](ocdeck/assets/logos/OCTICONS-LICENSE.txt) |
 
 GitHub's [brand toolkit](https://brand.github.com/brand-identity/copilot) distinguishes
-its current standalone product logo from the Copilot UI icon. AgentDeck uses the
+its current standalone product logo from the Copilot UI icon. AgentStreamDeck uses the
 small UI icon for integration identification, not the deprecated standalone lockup.
 
 Fetched 2026-09-12. Exact source URLs, source SHA-256 hashes, and bundled PNG hashes

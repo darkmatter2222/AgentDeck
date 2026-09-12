@@ -14,7 +14,7 @@ CATALOG = {
     "AD008": ("Broker lock unavailable", "ocdeck status --json"),
     "AD500": ("Unexpected broker error", "ocdeck report --output agentdeck-report.zip"),
 }
-DOC = "https://github.com/darkmatter2222/AgentDeck/blob/main/docs/TROUBLESHOOTING.md"
+DOC = "https://github.com/darkmatter2222/AgentStreamDeck/blob/main/docs/TROUBLESHOOTING.md"
 
 
 def message(code: str, detail: str = "") -> str:
