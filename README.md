@@ -7,13 +7,114 @@ Gemini CLI and Cursor CLI to one local controller. Each managed launch gets a st
 key. A seventh launch waits for a vacancy; closing one does not shuffle the others.
 The controller uses direct USB HID, with no Elgato plugin or MCP server.
 
+## Demo video
+
+[![Watch the AgentDeck demo](https://img.youtube.com/vi/NTWLbLbJiO0/hqdefault.jpg)](https://www.youtube.com/watch?v=NTWLbLbJiO0)
+
+[Watch on YouTube](https://www.youtube.com/watch?v=NTWLbLbJiO0). The original demo
+shows the OpenCode workflow; additional adapters have the coverage described below.
+
+![The deck on the desk](images/root.png)
+
+## Choose your harness
+
+| Harness | Integration / launch | Pending-input coverage |
+|---|---|---|
+| OpenCode | Global server plugin; `opencode` shim or `oc` | Permission and structured-question IDs; SDK reconciliation when available |
+| Claude Code | Project hooks; `Launch-Claude.bat` | Identified `AskUserQuestion` calls; permission hooks show unknown instead of an invented count |
+| GitHub Copilot CLI | Project hooks; `Launch-Copilot.bat` | Activity only; approvals may still appear running |
+| Copilot in VS Code | Project hooks; `Launch-Copilot-VSCode.bat` | Activity only; isolated editor profile, preview integration |
+| Gemini CLI | Project hooks; `Launch-Gemini.bat` | Activity; recognized permission notifications show unknown |
+| Cursor CLI (`agent`) | Project hooks; `Launch-Cursor.bat` | Activity only; Cursor desktop integration is not included |
+
+All five added hook adapters are implemented and fixture-tested. Live loading in
+each native harness, Windows scripts, editor focus and physical hardware still
+need local validation. A non-red key does **not** prove that no approval is waiting.
+See [adapter details](docs/HARNESSES.md) for lifecycle and missed-event limitations.
+Codex CLI, Aider and cloud/remote agents are not implemented in this release.
+
+| Condition | Key appearance |
+|---|---|
+| Device initialized, no registered launches | Cyan **READY** on key 1; five black keys |
+| Reported busy or retry | Green moving ring |
+| Reported idle | Amber breathing glow |
+| Identified unresolved input request | Red pulsing attention icon |
+| Unknown or snapshots stale for more than 10 seconds | Amber **LINK ?** |
+| Empty slot | Black; pressing it does nothing |
+
+A key press requests focus only. It never types, approves a tool, answers a question,
+or changes an agent's state. Windows can deny foreground activation; inspect
+`lastFocus` in `ocdeck status` and verify physical behavior on your desktop.
+
+## Requirements
+
+| Component | Requirement |
+|---|---|
+| Desktop / hardware | Windows 10 or 11, interactive user session, six-key Stream Deck Mini |
+| Terminal | Windows Terminal (`wt.exe`) for dedicated managed windows |
+| Python | 3.11+; 64-bit recommended |
+| Node.js | 20+ on PATH for every new hook adapter and for JavaScript tests |
+| Harness | The desired CLI/editor installed; its native hooks enabled and supported |
+| Elgato | Release the Mini using its per-device Enabled toggle; close other Mini controllers |
+| Installation | Network access for Python dependencies; permanent source directory |
+
+The original `scripts/Install.ps1` requires OpenCode and installs its global plugin,
+command shims and per-user logon task. Other adapters do not require OpenCode:
+use the [foreground broker tutorial](docs/TUTORIALS.md#fresh-install-without-opencode).
+Linux/macOS can run mock/status tests; Windows desktop focus is not implemented there.
+
+The project targets the compact six-key Mini. Full-size Stream Deck models are not
+supported by the current device selection and six-slot layout.
+
+## Get started
+
+**Release the Mini first:** in Elgato's device preferences, turn off Enabled for
+this Mini. Leave other devices enabled if desired. Close any old controller scripts.
+Two applications writing to the same device cause flicker and unreliable input.
+
+Choose the path that matches your setup:
+
+- [Existing AgentDeck installation: add a harness](docs/TUTORIALS.md#existing-install-add-a-harness)
+- [Fresh install with OpenCode and automatic logon startup](docs/TUTORIALS.md#fresh-install-with-opencode)
+- [Fresh install without OpenCode: foreground broker](docs/TUTORIALS.md#fresh-install-without-opencode)
+- [Copilot in VS Code: isolated editor setup](docs/HARNESSES.md#copilot-in-vs-code-preview)
+- [Physical first-run acceptance](docs/FIRST-RUN.md)
+
+For an existing install, keep this checkout at `C:\Tools\AgentDeck` (or substitute
+your actual permanent location). In PowerShell:
+
+```powershell
+C:\Tools\AgentDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp
+C:\Tools\AgentDeck\scripts\Install-Harness.ps1 -Profile copilot-cli -Project C:\Projects\MyApp
+cd C:\Projects\MyApp
+C:\Tools\AgentDeck\scripts\Launch-Claude.bat
+C:\Tools\AgentDeck\scripts\Launch-Copilot.bat
+```
+
+Hooks are installed once **per software project**. The BAT launchers use the current
+working directory; invoking them from the AgentDeck checkout would target that
+checkout. Installation preserves unrelated settings, makes backups before changes,
+and supports `-DryRun` and `-Remove`. Plain `claude` or `copilot` launches do not
+attach to AgentDeck; use its managed launchers.
+
+For AI-assisted setup, give your coding agent this instruction:
+
+```text
+Install AgentDeck from https://github.com/darkmatter2222/AgentDeck in a permanent
+source directory. Read docs/QWEN-HANDOFF.md and docs/TUTORIALS.md. Use the setup path
+for the harnesses I actually use, preserve my existing configuration, and verify
+that the Mini has been released by Elgato before opening it. Run the automated
+checks, then guide me through docs/FIRST-RUN.md and the harness-specific acceptance
+steps. Record observed results separately from unverified hardware/runtime gates.
+```
+
+## Make every key your own
+
 ![AgentDeck animated harness icons with Aurora colors](docs/appearance-preview.gif)
 
 The preview demonstrates several states together. In normal use, READY appears only when no
 agents are registered. Windows hardware and native harness acceptance gates are
 tracked in [the verification record](docs/TEST-RESULTS.md).
-
-## Make every key your own
 
 Three layouts. Five palettes. Two text lines you control. Each button can have its
 own look, brightness, and motion. These examples come directly from AgentDeck's
@@ -216,107 +317,6 @@ ocdeck preview --layout harness --theme ocean --effect glow --output my-deck.gif
 
 [Full appearance guide, settings, and JSON examples](docs/APPEARANCE.md).
 Contributors can regenerate this gallery with `python scripts/render-gallery.py`.
-
-## Demo video
-
-[![Watch the AgentDeck demo](https://img.youtube.com/vi/NTWLbLbJiO0/hqdefault.jpg)](https://www.youtube.com/watch?v=NTWLbLbJiO0)
-
-[Watch on YouTube](https://www.youtube.com/watch?v=NTWLbLbJiO0). The original demo
-shows the OpenCode workflow; additional adapters have the coverage described below.
-
-![The deck on the desk](images/root.png)
-
-## Choose your harness
-
-| Harness | Integration / launch | Pending-input coverage |
-|---|---|---|
-| OpenCode | Global server plugin; `opencode` shim or `oc` | Permission and structured-question IDs; SDK reconciliation when available |
-| Claude Code | Project hooks; `Launch-Claude.bat` | Identified `AskUserQuestion` calls; permission hooks show unknown instead of an invented count |
-| GitHub Copilot CLI | Project hooks; `Launch-Copilot.bat` | Activity only; approvals may still appear running |
-| Copilot in VS Code | Project hooks; `Launch-Copilot-VSCode.bat` | Activity only; isolated editor profile, preview integration |
-| Gemini CLI | Project hooks; `Launch-Gemini.bat` | Activity; recognized permission notifications show unknown |
-| Cursor CLI (`agent`) | Project hooks; `Launch-Cursor.bat` | Activity only; Cursor desktop integration is not included |
-
-All five added hook adapters are implemented and fixture-tested. Live loading in
-each native harness, Windows scripts, editor focus and physical hardware still
-need local validation. A non-red key does **not** prove that no approval is waiting.
-See [adapter details](docs/HARNESSES.md) for lifecycle and missed-event limitations.
-Codex CLI, Aider and cloud/remote agents are not implemented in this release.
-
-| Condition | Key appearance |
-|---|---|
-| Device initialized, no registered launches | Cyan **READY** on key 1; five black keys |
-| Reported busy or retry | Green moving ring |
-| Reported idle | Amber breathing glow |
-| Identified unresolved input request | Red pulsing attention icon |
-| Unknown or snapshots stale for more than 10 seconds | Amber **LINK ?** |
-| Empty slot | Black; pressing it does nothing |
-
-A key press requests focus only. It never types, approves a tool, answers a question,
-or changes an agent's state. Windows can deny foreground activation; inspect
-`lastFocus` in `ocdeck status` and verify physical behavior on your desktop.
-
-## Requirements
-
-| Component | Requirement |
-|---|---|
-| Desktop / hardware | Windows 10 or 11, interactive user session, six-key Stream Deck Mini |
-| Terminal | Windows Terminal (`wt.exe`) for dedicated managed windows |
-| Python | 3.11+; 64-bit recommended |
-| Node.js | 20+ on PATH for every new hook adapter and for JavaScript tests |
-| Harness | The desired CLI/editor installed; its native hooks enabled and supported |
-| Elgato | Release the Mini using its per-device Enabled toggle; close other Mini controllers |
-| Installation | Network access for Python dependencies; permanent source directory |
-
-The original `scripts/Install.ps1` requires OpenCode and installs its global plugin,
-command shims and per-user logon task. Other adapters do not require OpenCode:
-use the [foreground broker tutorial](docs/TUTORIALS.md#fresh-install-without-opencode).
-Linux/macOS can run mock/status tests; Windows desktop focus is not implemented there.
-
-The project targets the compact six-key Mini. Full-size Stream Deck models are not
-supported by the current device selection and six-slot layout.
-
-## Get started
-
-**Release the Mini first:** in Elgato's device preferences, turn off Enabled for
-this Mini. Leave other devices enabled if desired. Close any old controller scripts.
-Two applications writing to the same device cause flicker and unreliable input.
-
-Choose the path that matches your setup:
-
-- [Existing AgentDeck installation: add a harness](docs/TUTORIALS.md#existing-install-add-a-harness)
-- [Fresh install with OpenCode and automatic logon startup](docs/TUTORIALS.md#fresh-install-with-opencode)
-- [Fresh install without OpenCode: foreground broker](docs/TUTORIALS.md#fresh-install-without-opencode)
-- [Copilot in VS Code: isolated editor setup](docs/HARNESSES.md#copilot-in-vs-code-preview)
-- [Physical first-run acceptance](docs/FIRST-RUN.md)
-
-For an existing install, keep this checkout at `C:\Tools\AgentDeck` (or substitute
-your actual permanent location). In PowerShell:
-
-```powershell
-C:\Tools\AgentDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp
-C:\Tools\AgentDeck\scripts\Install-Harness.ps1 -Profile copilot-cli -Project C:\Projects\MyApp
-cd C:\Projects\MyApp
-C:\Tools\AgentDeck\scripts\Launch-Claude.bat
-C:\Tools\AgentDeck\scripts\Launch-Copilot.bat
-```
-
-Hooks are installed once **per software project**. The BAT launchers use the current
-working directory; invoking them from the AgentDeck checkout would target that
-checkout. Installation preserves unrelated settings, makes backups before changes,
-and supports `-DryRun` and `-Remove`. Plain `claude` or `copilot` launches do not
-attach to AgentDeck; use its managed launchers.
-
-For AI-assisted setup, give your coding agent this instruction:
-
-```text
-Install AgentDeck from https://github.com/darkmatter2222/AgentDeck in a permanent
-source directory. Read docs/QWEN-HANDOFF.md and docs/TUTORIALS.md. Use the setup path
-for the harnesses I actually use, preserve my existing configuration, and verify
-that the Mini has been released by Elgato before opening it. Run the automated
-checks, then guide me through docs/FIRST-RUN.md and the harness-specific acceptance
-steps. Record observed results separately from unverified hardware/runtime gates.
-```
 
 ## How it works
 
