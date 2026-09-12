@@ -1,5 +1,8 @@
 # Publish AgentStreamDeck to PyPI
 
+**Published:** [agentstreamdeck 2.1.1](https://pypi.org/project/agentstreamdeck/2.1.1/)
+on 2026-09-12 using trusted publishing. The steps below document setup and future releases.
+
 The repository is prepared for keyless publishing. Account-side PyPI authorization
 must be configured by someone with access to the PyPI account. The previous `agentdeck` name was rejected by PyPI as too similar to an existing
 project. The new distribution name is `agentstreamdeck`; PyPI must still accept

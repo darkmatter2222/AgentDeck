@@ -34,7 +34,7 @@ python -m pip install --upgrade agentstreamdeck==2.1.1
 ocdeck --version
 ```
 
-The install command above requires successful PyPI publication. Until then,
+Version 2.1.1 is published on PyPI. To install from source instead,
 install from this checkout with `python -m pip install .`, after uninstalling the
 old distribution. Restart the broker using your existing launcher/task.
 
@@ -42,7 +42,6 @@ old distribution. Restart the broker using your existing launcher/task.
 
 Follow [the exact trusted publisher setup](PYPI.md) after renaming the repository.
 Use project `agentstreamdeck`, owner `darkmatter2222`, repository
-`AgentStreamDeck`, workflow `pypi.yml`, environment `pypi`. PyPI publication is
-not complete until its workflow succeeds. Pending publishers do not reserve names.
+`AgentStreamDeck`, workflow `pypi.yml`, environment `pypi`. Version 2.1.1 was successfully published on 2026-09-12. Pending publishers do not reserve names.
 
 GitHub reference: https://docs.github.com/en/repositories/creating-and-managing-repositories/renaming-a-repository

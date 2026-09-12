@@ -716,12 +716,18 @@ ocdeck --version
 
 [Exact PyPI setup and publishing steps](docs/PYPI.md).
 
-**PyPI publication is not complete.** Do not assume `pip install agentstreamdeck` retrieves
-this project/version until its PyPI ownership and release are established. Use
-this checkout or its built wheel meanwhile. The original automatic OpenCode task
-and shim setup still uses `scripts/Install.ps1` from a permanent checkout.
+**[AgentStreamDeck 2.1.1 is published on PyPI](https://pypi.org/project/agentstreamdeck/2.1.1/).**
 
-The manual [Signed Python release workflow](.github/workflows/pypi.yml) builds
+```powershell
+python -m pip install --upgrade agentstreamdeck
+ocdeck --version
+```
+
+If upgrading from the old `agentdeck` distribution, uninstall it first; see
+[the migration guide](docs/RENAMING.md). The automatic OpenCode task and shim
+setup still uses `scripts/Install.ps1` from a permanent checkout.
+
+The [Signed Python release workflow](.github/workflows/pypi.yml) builds
 wheel/sdist, SHA-256 checksums and a CycloneDX SBOM. Its publish job is restricted
 to this repository's `main`, the `pypi` environment and configured trusted
 publishing. It creates provenance/PyPI attestations. Maintainers must establish
