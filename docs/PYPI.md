@@ -66,3 +66,6 @@ CLI/module name can remain unchanged. Do not upload to someone else's project.
 
 Official references: [new-project trusted publishing](https://docs.pypi.org/trusted-publishers/creating-a-project-through-oidc/)
 and [adding a publisher to an existing project](https://docs.pypi.org/trusted-publishers/adding-a-publisher/).
+
+The initial v2.1.1 merge also starts this workflow automatically. Check that run
+before dispatching manually to avoid uploading the same version twice.

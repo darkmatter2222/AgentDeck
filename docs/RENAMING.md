@@ -9,7 +9,7 @@ solely for this rename. Historical releases and their media keep their original 
 
 ## Rename the GitHub repository
 
-The connected GitHub tools cannot change repository settings. As the repository
+The owner completed the repository rename on 2026-09-12. For reference, as the repository
 owner, open https://github.com/darkmatter2222/AgentDeck/settings and under
 **General → Repository name**, enter **AgentStreamDeck**, then click **Rename**.
 GitHub redirects old repository URLs. Do not create a new repository at the old
