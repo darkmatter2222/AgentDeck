@@ -147,6 +147,7 @@ class Jelly:
         self.last_mood = "content"
         self.touch_until = 0.0
         self.touch_text = ""
+        self.update_available = False
 
     def tap(self, now):
         """A visible, short reaction, even when ambient thoughts are disabled."""
@@ -273,6 +274,14 @@ class Jelly:
         self.gesture, self.gesture_step, self.rotation = "", 0, 0
         if self.state == "hop":
             self._hop_pose(now)
+            return
+        if self.update_available:
+            # The update UI schedules infrequent hops. Hold a breathing pose
+            # between them so autonomous travel and reactions cannot add hops.
+            self.state = "idle"
+            self.deadline = now + 60
+            self.thoughts.clear()
+            self._idle_pose(now)
             return
         # Reaction bursts are coalesced; only the render thread changes the entity.
         reaction = self.mind.consume_reaction()

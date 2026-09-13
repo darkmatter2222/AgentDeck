@@ -176,7 +176,11 @@ class UpdateTests(unittest.TestCase):
         views = [{"id": None, "state": "off"} for _ in range(6)]
         frames = loop._jelly_frames(10, views)
         self.assertTrue(loop.jelly.thoughts.cleared)
-        self.assertTrue(loop.jelly.hops)
+        self.assertFalse(loop.jelly.hops)
+        loop._jelly_frames(39.9, views)
+        self.assertFalse(loop.jelly.hops)
+        loop._jelly_frames(40, views)
+        self.assertEqual(loop.jelly.hops, [1])
         red_pixels = [pixel for pixel in frames[0].getdata() if pixel[0] > 180 and pixel[1] < 100]
         self.assertTrue(red_pixels)
 

@@ -1,33 +1,40 @@
 """Jelly-facing update UX layered onto the existing broker/device classes."""
 
 import logging
+import math
 import threading
 
-from PIL import ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 from .common import home
+from .coffee import rainbow
 from .jelly import free_keys
 from .updates import CHECK_INTERVAL, UPDATE_LOCK, check, install, schedule_restart
 
 LOG = logging.getLogger(__name__)
-MOVE_INTERVAL = 1.1
+MOVE_INTERVAL = 30.0
 
 
-def _draw_update_badge(loop, key, image):
-    """Draw a red exclamation above Jelly using the same Pillow UI font family."""
-    geometry = loop.jelly.geometry
-    left = geometry.bounds(key)[0]
-    local_x = int(round(loop.jelly.x - left))
-    local_x = max(9, min(image.width - 9, local_x))
-    ImageDraw.Draw(image).text(
-        (local_x, 8),
-        "!",
-        font=ImageFont.load_default(size=14),
-        fill=(255, 45, 65, 255),
-        stroke_width=1,
-        stroke_fill=(70, 0, 8, 255),
-        anchor="mm",
+def _draw_update_badge(loop, key, image, now):
+    """Reserve a footer below Jelly and keep upgrade symbols above his crown."""
+    body = rainbow(image, int(now * 6) % 48)
+    result = Image.new("RGBA", image.size)
+    result.paste(body, (0, -20))
+    draw = ImageDraw.Draw(result)
+    cx = image.width // 2
+    draw.rounded_rectangle((cx - 20, 0, cx + 20, 19), radius=5, fill=(9, 17, 27, 245))
+    draw.text((cx - 10, 10), "!", font=ImageFont.load_default(size=16), fill=(255, 65, 83), anchor="mm")
+    green = round(215 + 35 * math.sin(now * math.pi))
+    draw.polygon(
+        ((cx + 10, 2), (cx + 18, 10), (cx + 13, 10), (cx + 13, 17), (cx + 7, 17), (cx + 7, 10), (cx + 2, 10)),
+        fill=(65, green, 125),
     )
+    draw.rectangle((0, image.height - 20, image.width, image.height), fill=(9, 17, 27, 255))
+    lines = ("Updating", "please wait") if getattr(loop, "_jelly_update_installing", False) else ("Update", "available")
+    font = ImageFont.load_default(size=9 if image.width < 80 else 10)
+    for index, line in enumerate(lines):
+        draw.text((cx, image.height - 15 + index * 10), line, font=font, fill=(229, 247, 244), anchor="mm")
+    return result
 
 
 def _install_worker(loop):
@@ -103,6 +110,10 @@ def install_device_patch(DeviceLoop):
 
     def jelly_frames(self, now, views):
         info = getattr(self, "_jelly_update_info", None)
+        if self.jelly is not None:
+            if info and not getattr(self.jelly, "update_available", False):
+                self._jelly_update_next_move = now + MOVE_INTERVAL
+            self.jelly.update_available = bool(info)
         if info and self.jelly is not None:
             # The update indicator replaces ambient speech so the red signal stays legible.
             self.jelly.thoughts.clear()
@@ -114,15 +125,13 @@ def install_device_patch(DeviceLoop):
                 )
                 if destinations:
                     self.jelly.hop(self.jelly.rng.choice(destinations), now, available)
-                elif current is not None:
-                    self.jelly.start_action("pace", now)
                 self._jelly_update_next_move = now + MOVE_INTERVAL
 
         frames = original_frames(self, now, views)
         if info and self.jelly is not None:
             self._jelly_update_keys = set(frames)
             for key, image in frames.items():
-                _draw_update_badge(self, key, image)
+                frames[key] = _draw_update_badge(self, key, image, now)
                 if hasattr(self, "overlay_actions"):
                     self.overlay_actions[key] = {"_action": "update"}
         else:

@@ -1,4 +1,4 @@
-"""Generate the compact README hero and normalize the README opening."""
+"""Generate the evergreen README hero without changing documentation."""
 
 from pathlib import Path
 import sys
@@ -13,7 +13,6 @@ from ocdeck.art import frame as agent_frame
 from ocdeck.jelly import DeckGeometry, Jelly
 
 OUT = ROOT / "docs" / "jelly" / "readme_hero.gif"
-README = ROOT / "README.md"
 W, H, FPS, SECONDS = 1000, 420, 8, 6
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 BOLD = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
@@ -41,7 +40,7 @@ def background():
     for i in range(8):
         draw.ellipse((655 - i * 12, 20 - i * 8, 1080 + i * 18, 430 + i * 14), fill=(9 + i, 24 + i * 2, 37 + i * 3))
     draw.rectangle((0, 0, 7, H), fill="#61dec3")
-    draw.text((50, 48), "AGENTSTREAMDECK  •  V3.0", font=font(14, True), fill="#70e7cb")
+    draw.text((50, 48), "AGENTSTREAMDECK", font=font(14, True), fill="#70e7cb")
     draw.text((48, 91), "Mission control for", font=font(42, True), fill="#f4f7fb")
     draw.text((48, 141), "AI coding agents.", font=font(42, True), fill="#f4f7fb")
     draw.text((50, 211), "See the session. Press the key. Get back to code.", font=font(16), fill="#b2c0d2")
@@ -104,47 +103,6 @@ def make_frames():
     return frames
 
 
-def rewrite_readme():
-    text = README.read_text(encoding="utf-8")
-    marker = "## New in 3.0 — Meet your coding Jelly"
-    _, rest = text.split(marker, 1)
-    opening = """# AgentStreamDeck
-
-<p align="center">
-  <img src="docs/jelly/readme_hero.gif" alt="AgentStreamDeck mission control with Jelly living across unused Stream Deck keys" width="100%">
-</p>
-
-**Mission control for AI coding agents on your Stream Deck.** See activity at a glance, then press a key to focus the right session. Jelly, the offline coding companion introduced in v3.0, lives in the keys you are not using.
-
-[![Tests](https://github.com/darkmatter2222/AgentStreamDeck/actions/workflows/ci.yml/badge.svg)](https://github.com/darkmatter2222/AgentStreamDeck/actions/workflows/ci.yml)
-[![GitHub stars](https://img.shields.io/github/stars/darkmatter2222/AgentStreamDeck?style=flat-square&logo=github&color=gold)](https://github.com/darkmatter2222/AgentStreamDeck/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/darkmatter2222/AgentStreamDeck?style=flat-square&logo=github)](https://github.com/darkmatter2222/AgentStreamDeck/forks)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue?style=flat-square)](LICENSE)
-[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)](pyproject.toml)
-[![Platform: Windows](https://img.shields.io/badge/Platform-Windows-0078D4?style=flat-square)](#requirements)
-[![Stream Deck Mini, MK.2 and XL](https://img.shields.io/badge/Stream_Deck-Mini%20%7C%20MK.2%20%7C%20XL-8A2BE2?style=flat-square)](#requirements)
-
-> **☕ Support my work**
->
-> If this project has helped you, consider supporting my work on [**Buy Me a Coffee**](https://buymeacoffee.com/j6oiubzfnh). Any one-time or monthly support goes directly back into these open-source projects, the hardware behind them, and the videos and documentation around them.
-
-> ⭐ **If AgentStreamDeck is useful, [star the repo](https://github.com/darkmatter2222/AgentStreamDeck).** It helps other developers find the project.
-
-AgentStreamDeck connects OpenCode, Claude Code, GitHub Copilot CLI, Copilot in VS Code, Gemini CLI, Cursor CLI and Codex CLI to one local controller over direct USB HID. No Elgato plugin or MCP server is required.
-
-> **Upgrading from AgentDeck?** The Python distribution is now `agentstreamdeck`; the `ocdeck` command, existing configuration and hook receipts remain compatible. See [rename and upgrade steps](docs/RENAMING.md).
-
-"""
-    body = marker + rest
-    old_showcase = """![Jelly living on a Stream Deck — AgentStreamDeck 3.0](docs/jelly/jelly_v3_showcase.gif)
-
-*An authored product animation using the actual Jelly and agent renderers;
-a simulated Stream Deck Mini, not filmed hardware.*
-"""
-    body = body.replace(old_showcase, "")
-    README.write_text(opening + body, encoding="utf-8")
-
-
 def main():
     OUT.parent.mkdir(parents=True, exist_ok=True)
     frames = make_frames()
@@ -156,8 +114,7 @@ def main():
         loop=0,
         optimize=True,
     )
-    rewrite_readme()
-    print(f"wrote {OUT.relative_to(ROOT)} and refreshed README opening")
+    print(f"wrote {OUT.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":
