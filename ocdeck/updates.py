@@ -38,7 +38,15 @@ def check(root, config, fetch=None):
         else:
             release = fetch()
 
-        version = str(release["info"]["version"])
+        # Production uses PyPI's JSON shape. Keep support for the old injected
+        # GitHub-release fixture shape so existing tests and offline callers do not break.
+        if isinstance(release.get("info"), dict):
+            version = str(release["info"]["version"])
+            source = "pypi"
+        else:
+            version = str(release["tag_name"]).lstrip("v")
+            source = "legacy-fixture"
+
         candidate = Version(version)
         if candidate.is_prerelease or candidate <= Version(__version__):
             return None
@@ -47,7 +55,7 @@ def check(root, config, fetch=None):
             "version": version,
             "url": RELEASE_URL,
             "package": f"agentstreamdeck=={version}",
-            "source": "pypi",
+            "source": source,
         }
         state = read_json(Path(root) / "update.json", {}) or {}
         if state.get("version") != version:
