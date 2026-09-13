@@ -3,7 +3,6 @@
 import logging
 from pathlib import Path
 import threading
-import time
 
 from PIL import ImageDraw, ImageFont
 
@@ -16,23 +15,18 @@ MOVE_INTERVAL = 1.1
 
 
 def _draw_update_badge(loop, key, image):
-    """Draw a small red exclamation above Jelly using the same Pillow UI font family."""
+    """Draw a red exclamation above Jelly using the same Pillow UI font family."""
     geometry = loop.jelly.geometry
     left = geometry.bounds(key)[0]
     local_x = int(round(loop.jelly.x - left))
     local_x = max(9, min(image.width - 9, local_x))
-    draw = ImageDraw.Draw(image)
-    draw.ellipse(
-        (local_x - 7, 1, local_x + 7, 15),
-        fill=(205, 25, 45, 255),
-        outline=(255, 150, 160, 255),
-        width=1,
-    )
-    draw.text(
+    ImageDraw.Draw(image).text(
         (local_x, 8),
         "!",
-        font=ImageFont.load_default(size=12),
-        fill=(255, 255, 255, 255),
+        font=ImageFont.load_default(size=14),
+        fill=(255, 45, 65, 255),
+        stroke_width=1,
+        stroke_fill=(70, 0, 8, 255),
         anchor="mm",
     )
 
