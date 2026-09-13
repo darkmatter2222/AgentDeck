@@ -1,24 +1,35 @@
-# Documentation index
+# Documentation
 
-| Goal | Start here |
+[AgentStreamDeck overview and quick start](../README.md)
+
+## Set up your deck
+
+| Goal | Guide |
 |---|---|
-| Understand supported harnesses and key states | [Project README](../README.md) |
-| Configure all 20 additions, alerts, Codex, larger decks and release checks | [2.1 feature guide](NEXT.md) |
-| Install, add adapters, upgrade or remove | [Tutorials](TUTORIALS.md) |
-| Compare profiles, hooks and limitations | [Harness adapters](HARNESSES.md) |
-| Validate physical keys and focus on Windows | [First-run acceptance](FIRST-RUN.md) |
-| Diagnose setup, telemetry or focus | [Troubleshooting](TROUBLESHOOTING.md) |
-| Ask a local coding agent to deploy and validate | [Implementation handoff](QWEN-HANDOFF.md) |
-| Understand components and lifetimes | [Architecture](ARCHITECTURE.md) |
-| Implement a snapshot producer | [Broker API](API.md) |
-| Understand WSL, SSH, containers and OS limits | [Environment boundaries](REMOTE-AND-WSL.md) |
-| Inspect what was actually tested | [Verification record](TEST-RESULTS.md) |
-| Set up and run PyPI trusted publishing | [Exact PyPI steps](PYPI.md) |
-| Add or change an adapter | [Contributing](../CONTRIBUTING.md) |
-| Read original OpenCode design research | [Historical research](RESEARCH.md) |
+| Install the broker and launch agents normally | [Plugin-first setup](PLUGIN-FIRST.md) |
+| Connect a specific coding agent | [Supported integrations](HARNESSES.md) |
+| Use remote sessions or WSL | [Remote and WSL](REMOTE-AND-WSL.md) |
+| Change colors, labels, logos or layouts | [Appearance](APPEARANCE.md) |
+| Customize Jelly or disable coffee invitations | [Jelly](JELLY.md) |
+| Configure alerts, update, troubleshoot logs or uninstall | [Configuration and maintenance](CONFIGURATION.md) |
+| Diagnose a problem | [Troubleshooting](TROUBLESHOOTING.md) |
+| Migrate an older AgentDeck installation | [Rename and migration](RENAMING.md) |
 
-Examples use `C:\Tools\AgentStreamDeck` for the permanent controller checkout and
-`C:\Projects\MyApp` for the software project being edited. Substitute real paths.
-Installed compatibility names remain `ocdeck`, `.opencode-deck` and `OpenCode Deck`.
+The pip distribution is `agentstreamdeck`; run the CLI as `python -m ocdeck`.
+A source checkout is needed only for development, not normal installation.
 
-- [Rename and upgrade to AgentStreamDeck](RENAMING.md)
+## Develop and contribute
+
+| Topic | Guide |
+|---|---|
+| Contribution workflow and tests | [Contributing](../CONTRIBUTING.md) |
+| Broker and integration design | [Architecture](ARCHITECTURE.md) |
+| Local broker endpoints | [API](API.md) |
+| Jelly implementation and rendering | [Engineering report](jelly/ENGINEERING.md) |
+| Automated evidence and hardware checks | [Test results](TEST-RESULTS.md) |
+| Package publishing | [PyPI and releases](PYPI.md) |
+| Release history | [GitHub releases](https://github.com/darkmatter2222/AgentStreamDeck/releases) |
+
+Additional references: [extended feature guide](NEXT.md), [tutorials](TUTORIALS.md),
+and [compatibility launchers](LAUNCHERS.md). Some examples in those references
+use a source checkout or older compatibility commands; start with the setup guide above.
