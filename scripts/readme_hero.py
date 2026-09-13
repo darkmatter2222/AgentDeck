@@ -124,6 +124,10 @@ def rewrite_readme():
 [![Platform: Windows](https://img.shields.io/badge/Platform-Windows-0078D4?style=flat-square)](#requirements)
 [![Stream Deck Mini, MK.2 and XL](https://img.shields.io/badge/Stream_Deck-Mini%20%7C%20MK.2%20%7C%20XL-8A2BE2?style=flat-square)](#requirements)
 
+> **☕ Support my work**
+>
+> If this project has helped you, consider supporting my work on [**Buy Me a Coffee**](https://buymeacoffee.com/j6oiubzfnh). Any one-time or monthly support goes directly back into these open-source projects, the hardware behind them, and the videos and documentation around them.
+
 > ⭐ **If AgentStreamDeck is useful, [star the repo](https://github.com/darkmatter2222/AgentStreamDeck).** It helps other developers find the project.
 
 AgentStreamDeck connects OpenCode, Claude Code, GitHub Copilot CLI, Copilot in VS Code, Gemini CLI, Cursor CLI and Codex CLI to one local controller over direct USB HID. No Elgato plugin or MCP server is required.
