@@ -66,6 +66,7 @@ class Broker:
             "animations": True,
             "ready": True,
             "check_updates": not mock,
+            "auto_restart_on_upgrade": not mock,
             **saved,
         }
         if not (self.root / "token").exists():
@@ -261,6 +262,10 @@ class Broker:
             threading.Thread(target=self.alerts.run, args=(self.stop,), daemon=True),
             threading.Thread(target=self.check_update, daemon=True),
         ]
+        if self.config.get("auto_restart_on_upgrade", True):
+            from .upgrade_watch import watch
+
+            threads.append(threading.Thread(target=watch, args=(self,), daemon=True))
         for thread in threads:
             thread.start()
         LOG.info("Broker ready on OS-assigned port %s", self.server.server_address[1])

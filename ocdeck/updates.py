@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import threading
 import urllib.request
 
 from packaging.version import InvalidVersion, Version
@@ -18,6 +19,7 @@ PYPI_URL = "https://pypi.org/pypi/agentstreamdeck/json"
 RELEASE_URL = "https://github.com/darkmatter2222/AgentStreamDeck/releases"
 CHECK_INTERVAL = 300
 LOG = logging.getLogger(__name__)
+UPDATE_LOCK = threading.Lock()
 
 
 def check(root, config, fetch=None):
@@ -95,10 +97,13 @@ def install(version, runner=None):
     return {"ok": True, "version": str(parsed), "package": package}
 
 
-def schedule_restart(root, parent_pid=None, popen=None):
+def schedule_restart(root, parent_pid=None, popen=None, mock=False):
     """Start a tiny detached worker that restarts the broker after this process exits."""
     parent_pid = int(parent_pid or os.getpid())
-    root = str(Path(root))
+    root = str(Path(root).resolve())
+    # The installed systemd service already restarts on a clean exit.
+    if os.environ.get("SYSTEMD_EXEC_PID") == str(os.getpid()) and os.environ.get("INVOCATION_ID"):
+        return {"ok": True, "parentPid": parent_pid, "supervisor": "systemd"}
     code = r"""
 import os
 import subprocess
@@ -108,7 +113,7 @@ import time
 pid = int(sys.argv[1])
 root = sys.argv[2]
 
-for _ in range(150):
+for _ in range(600):
     alive = False
     if os.name == "nt":
         probe = subprocess.run(
@@ -127,8 +132,12 @@ for _ in range(150):
     if not alive:
         break
     time.sleep(0.1)
+else:
+    sys.exit(1)  # Never race a broker that has not exited.
 
 command = [sys.executable, "-m", "ocdeck", "broker"]
+if sys.argv[3] == "1":
+    command.append("--mock")
 kwargs = {
     "cwd": root,
     "stdin": subprocess.DEVNULL,
@@ -145,7 +154,8 @@ subprocess.Popen(command, **kwargs)
     env = os.environ.copy()
     # A permanent source checkout on PYTHONPATH would shadow the newly installed wheel.
     env.pop("PYTHONPATH", None)
-    command = [sys.executable, "-c", code, str(parent_pid), root]
+    env["OCDECK_HOME"] = root
+    command = [sys.executable, "-c", code, str(parent_pid), root, "1" if mock else "0"]
     launch = popen or subprocess.Popen
     kwargs = {
         "env": env,
