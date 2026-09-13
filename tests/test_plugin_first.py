@@ -1,8 +1,5 @@
-\
 import os
-import tempfile
 import unittest
-from pathlib import Path
 from unittest import mock
 
 from ocdeck.device import WheelTransport
@@ -23,7 +20,7 @@ class PluginFirstTests(unittest.TestCase):
     def test_hid_report_without_report_id_is_normalized(self):
         transport = WheelTransport({"path": b"x", "vendor_id": 1, "product_id": 1})
         transport.handle = _Handle([1, 0, 1, 0, 1, 0])
-        self.assertEqual(transport.read(7), b"\\x00\\x01\\x00\\x01\\x00\\x01\\x00")
+        self.assertEqual(transport.read(7), b"\x00\x01\x00\x01\x00\x01\x00")
 
     def test_every_jelly_gesture_stays_blob_sized_and_below_crown(self):
         gestures = ("wave", "point", "up", "down", "scratch", "cheer", "clap")
