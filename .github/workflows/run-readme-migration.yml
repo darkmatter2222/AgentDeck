@@ -5,6 +5,7 @@ on:
       - fix/jelly-buttons-plugin-first-install
     paths:
       - scripts/_patch_readme_plugin_first.py
+      - .github/workflows/run-readme-migration.yml
 permissions:
   contents: write
 jobs:
