@@ -32,12 +32,12 @@ def vocabulary():
 
 
 @lru_cache(maxsize=128)
-def text_bitmap(text):
-    font = ImageFont.load_default(size=8)
+def text_bitmap(text, scale=2):
+    # Same Pillow sans family as agent labels, drawn directly at native size.
+    font = ImageFont.load_default(size=max(10, 6 * scale))
     box = font.getbbox(text)
-    # Drawing into 1-bit pixels suppresses antialiasing; nearest-neighbor is used later.
-    im = Image.new("1", (max(1, int(box[2] - box[0])), 9))
-    ImageDraw.Draw(im).text((-box[0], -box[1]), text, font=font, fill=1)
+    im = Image.new("L", (max(1, int(box[2] - box[0])), max(1, int(box[3] - box[1]))))
+    ImageDraw.Draw(im).text((-box[0], -box[1]), text, font=font, fill=255)
     return im
 
 
@@ -67,8 +67,8 @@ class Thoughts:
         token, self.text = self.rng.choice(choices)
         self.recent.append(token)
         self.category, self.started = category, now
-        pixels = text_bitmap(self.text).width * scale
-        self.until = now + 3.5 + max(0, pixels - width + 8) / 32
+        pixels = text_bitmap(self.text, scale).width
+        self.until = now + 3.5 + (max(0, pixels - width / 2) / 24 if pixels > width - 8 else 0)
         interval = {"quiet": 90, "normal": 35, "chatty": 15}[self.frequency]
         self.next_at = max(self.until + 3, now + (max(12, interval / 2) if event else interval))
         return True
@@ -76,11 +76,19 @@ class Thoughts:
     def active(self, now):
         return bool(self.text) and now < self.until
 
+    def show(self, text, now, width=80, scale=2):
+        self.text, self.category, self.started = text, "interaction", now
+        self.until = now + 3.2
+
     def render(self, width, scale, now):
-        strip = Image.new("RGBA", (width, 9 * scale), (9, 17, 27, 235))
-        mask = text_bitmap(self.text)
-        mask = mask.resize((mask.width * scale, mask.height * scale), Image.Resampling.NEAREST)
-        overflow = max(0, mask.width - width + 8)
-        offset = min(overflow, max(0, int((now - self.started - 1.5) * 32)))
-        strip.paste((230, 249, 247, 255), (4 - offset, 0), mask)
+        mask = text_bitmap(self.text, scale)
+        strip = Image.new("RGBA", (width, max(14, 9 * scale)), (9, 17, 27, 255))
+        if mask.width <= width - 8:
+            x = (width - mask.width) // 2
+        else:
+            # Let the final character reach the midpoint, then hold for two seconds.
+            travel = max(0, mask.width - width / 2)
+            offset = min(travel, max(0, (now - self.started - 1.5) * 24))
+            x = round(4 - offset)
+        strip.paste((230, 249, 247, 255), (x, (strip.height - mask.height) // 2), mask)
         return strip

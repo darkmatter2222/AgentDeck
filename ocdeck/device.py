@@ -142,7 +142,7 @@ class DeviceLoop:
 
     def notify_jelly(self, kind, slot):
         """Metadata-only handoff; workers never touch the animation controller."""
-        if kind == "focus":
+        if kind in ("focus", "touch"):
             try:
                 self.jelly_events.put_nowait({"kind": kind, "slot": slot})
             except queue.Full:
@@ -225,6 +225,9 @@ class DeviceLoop:
             return
         with self.presented_lock:
             view = self.presented[key]
+            if view and view.get("state") == "off" and not view.get("id"):
+                self.notify_jelly("touch", key)
+                return
             if view:
                 try:
                     self.presses.put_nowait(dict(view))

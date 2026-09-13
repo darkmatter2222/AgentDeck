@@ -122,7 +122,10 @@ class JellyTests(unittest.TestCase):
         j.settle(1, 0)
         j.hop(2, 0, {1, 2})
         j.update(0.95, {1, 2})
-        im = sprite(j.pose, j.face, j.gaze, j.gesture, j.gesture_step, g.scale, j.mirror)
+        from ocdeck.jelly_smooth import render
+        from ocdeck.jelly_art import POSES
+
+        im = render(POSES[j.pose], 40 * g.scale, j.now, j.face, j.gaze, j.gesture, j.mirror, "content", "content", 1)
         world = Image.new("RGBA", g.size)
         world.paste(im, (round(j.x - ANCHOR[0] * g.scale), round(j.y - ANCHOR[1] * g.scale)))
         crops = j.crops({1, 2})

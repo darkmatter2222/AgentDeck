@@ -5,7 +5,8 @@ from collections import deque
 import math
 import random
 from PIL import Image
-from .jelly_art import ANCHOR, GRID, colored_sprite
+from .jelly_art import ANCHOR, GRID, POSES
+from .jelly_smooth import render as smooth_sprite, TRICKS, FOODS
 from .jelly_catalog import ACTIONS, HOPS, MOOD_ACTIONS, MOOD_CATEGORY
 from .jelly_mind import Mind, PRESETS
 from .jelly_words import Thoughts
@@ -23,8 +24,8 @@ def settings(config):
         "needs": True,
         "reactions": True,
         "thoughts": "normal",
-        "local_movement": "normal",
-        "travel": "normal",
+        "local_movement": "high",
+        "travel": "frequent",
         "persistent": False,
     }
     if not isinstance(value, dict) or set(value) - set(defaults):
@@ -143,6 +144,11 @@ class Jelly:
         self.look_until = 0.0
         self.pending_speech = None
         self.last_mood = "content"
+        self.shape = tuple(POSES["idle"])
+        self.draw_at = None
+        self.last_touch = -100.0
+        self.trick = ""
+        self.trick_since = 0.0
 
     def close(self):
         self.closed = True
@@ -152,6 +158,7 @@ class Jelly:
         self.state, self.current, self.destination = "hidden", None, None
         self.deadline = None
         self.thoughts.clear()
+        self.trick = ""
         self.pending_speech = None
         self.look_target = None
 
@@ -159,7 +166,7 @@ class Jelly:
         self.current, self.destination = key, None
         self.x, self.y = self.geometry.anchor(key)
         self.state, self.since = "idle", now
-        self.deadline = now + self.rng.uniform(2.0, 4.5)
+        self.deadline = now + self.rng.uniform(1.0, 2.5)
         self.rotation = 0
 
     def hop(self, destination, now, available):
@@ -216,6 +223,34 @@ class Jelly:
         self.mirror = direction < 0
         return True
 
+    def interact(self, key, now, available):
+        """Called only by the render thread; occupied keys and in-flight taps are ignored."""
+        if key != self.current or key not in available or self.state in ("hidden", "hop"):
+            return False
+        if now - self.last_touch < 0.6:
+            return False
+        self.last_touch = now
+        hungry = self.options["needs"] and self.mind.needs["nourishment"] < 45
+        choice = self.rng.choice(FOODS if hungry else tuple(TRICKS) + ("hop",) * 8)
+        neighbors = [k for k in self.geometry.adjacent(key) if k in available]
+        if choice == "hop" and neighbors:
+            self.trick = ""
+            return self.hop(self.rng.choice(neighbors), now, available)
+        self.play(choice if choice != "hop" else "hello", now)
+        return True
+
+    def play(self, trick, now):
+        self.trick, self.trick_since = trick, now
+        self.state, self.since, self.deadline = "idle", now, now + 3.2
+        self.thoughts.show(TRICKS[trick][0], now, self.geometry.width, self.geometry.scale)
+        self.mind.set_mood("playful", now, 5)
+        if self.options["needs"]:
+            needs = self.mind.needs
+            needs["stimulation"] = min(100, needs["stimulation"] + 8)
+            needs["sociability"] = min(100, needs["sociability"] + 5)
+            if trick in FOODS:
+                needs["nourishment"] = min(100, needs["nourishment"] + 18)
+
     def _point(self, target):
         if self.current is None:
             return
@@ -254,6 +289,11 @@ class Jelly:
             elif now >= self.deadline:
                 self.settle(self.rng.choice(sorted(available)), now)
             return
+        for event in events:
+            if event.get("kind") == "touch":
+                self.interact(event.get("slot"), now, available)
+        if self.trick and now - self.trick_since >= 3.2:
+            self.trick = ""
         self.pose, self.face, self.gaze = "idle", "neutral", "center"
         self.gesture, self.gesture_step, self.rotation = "", 0, 0
         if self.state == "hop":
@@ -261,7 +301,7 @@ class Jelly:
             return
         # Reaction bursts are coalesced; only the render thread changes the entity.
         reaction = self.mind.consume_reaction()
-        if reaction and self.options["reactions"]:
+        if reaction and self.options["reactions"] and not self.trick:
             action, category, target = reaction
             self.look_target, self.look_until = target, now + 8
             self.pending_speech = (category, now + 12)
@@ -274,7 +314,7 @@ class Jelly:
         if self.deadline is not None and now >= self.deadline and not self.thoughts.active(now):
             if self.state != "idle":
                 self.state, self.since = "idle", now
-                self.deadline = now + self.rng.uniform(2, 5)
+                self.deadline = now + self.rng.uniform(1, 2.5)
                 self.y = self.geometry.anchor(self.current)[1]
             else:
                 self._choose(now, available)
@@ -304,7 +344,8 @@ class Jelly:
             self._point(self.look_target)
         elif self.look_target is not None:
             self.look_target = None
-        self._talk(now, views)
+        if not self.trick:
+            self._talk(now, views)
 
     def _choose(self, now, available):
         assert self.current is not None
@@ -335,7 +376,9 @@ class Jelly:
             weights[2] = 0
             weights[1] *= 0.2
         group = self.rng.choices(("quiet", "local", "travel"), weights)[0]
-        if group == "travel":
+        if group == "local" and not calm and self.rng.random() < 0.5:
+            self.play(self.rng.choice(tuple(TRICKS)), now)
+        elif group == "travel":
             self.hop(self.rng.choice(neighbors), now, available)
         else:
             pool = quiet + preferred * 2 if group == "quiet" else tuple(ACTIONS) + preferred * 3
@@ -487,21 +530,28 @@ class Jelly:
         mood, previous = (
             (self.mind.mood, self.mind.previous_mood) if self.options["mood_colors"] else ("content", "content")
         )
-        blend = min(3, max(0, int((self.now - self.mind.mood_since) / 0.3)))
-        im = colored_sprite(
-            self.pose,
+        blend = min(1.0, max(0.0, (self.now - self.mind.mood_since) / 0.9))
+        dt = 0 if self.draw_at is None else max(0, self.now - self.draw_at)
+        target = POSES[self.pose]
+        alpha = 1 if self.draw_at is None else 1 - math.exp(-dt * 18)
+        self.shape = tuple(a + (b - a) * alpha for a, b in zip(self.shape, target))
+        self.draw_at = self.now
+        im = smooth_sprite(
+            self.shape,
+            GRID * g.scale,
+            self.now,
             self.face,
             self.gaze,
             self.gesture,
-            self.gesture_step,
-            g.scale,
             self.mirror,
             mood,
             previous,
             blend,
+            self.trick,
+            min(1, (self.now - self.trick_since) / 3.2),
         )
         if self.rotation:
-            rotated = im.rotate(90 * self.rotation, resample=Image.Resampling.NEAREST)
+            rotated = im.rotate(90 * self.rotation, resample=Image.Resampling.BICUBIC)
             box = rotated.getbbox()
             if box:
                 aligned = Image.new("RGBA", im.size)

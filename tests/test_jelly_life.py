@@ -103,19 +103,18 @@ class LifeTests(unittest.TestCase):
             samples.add(image.tobytes())
         self.assertEqual(len(samples), len(MOODS))
 
-    def test_palette_transition_is_quantized_and_off_preserves_original(self):
+    def test_palette_transition_is_smooth_and_off_preserves_color(self):
         j = Jelly(DeckGeometry(), 7, options={"mood_colors": False})
         j.settle(1, 0)
         before = j.crops({1})[1].tobytes()
         j.mind.set_mood("sleepy", 0)
-        j.now = 10
         self.assertEqual(before, j.crops({1})[1].tobytes())
         j.options["mood_colors"] = True
         frames = set()
         for t in (0, 0.1, 0.3, 0.4, 0.6, 0.7, 0.9, 1):
             j.now = t
             frames.add(j.crops({1})[1].tobytes())
-        self.assertEqual(len(frames), 4)
+        self.assertGreater(len(frames), 4)
 
     def test_repeated_snapshots_do_not_feed_as_new_events(self):
         m = Mind(random.Random(7), settings({}))

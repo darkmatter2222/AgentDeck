@@ -639,7 +639,40 @@ his key, and occasionally crosses the bezel to a neighboring free button.
 Version 3.0 includes **33 visible actions** (the original 13 plus 20 local
 actions), **33 body poses**, **14 hop styles**, **23 moods**, **four temperament
 presets**, and **1,040 distinct authored thoughts**. Movement is continuous;
-body poses are held deliberately and scaled with nearest-neighbor pixels.
+body silhouettes now ease between poses with antialiased edges and continuous breathing.
+
+### Living companion refinement (feature branch)
+
+![Smooth Jelly interactions](docs/jelly/jelly_refined.gif)
+
+Tap the unused button Jelly occupies to play. He may hop to a neighboring free
+button, greet you, change color, or perform a little routine. When nourishment
+falls below 45, a tap offers a cookie, pizza, bagel, or donut. Feeding restores
+18 nourishment; play restores stimulation and sociability. Needs remain capped
+at 100, and rapid taps have a 600 ms cooldown. No penalties for taking time away.
+Agent buttons keep their normal focus behavior; touches during a hop are ignored.
+
+**28 new play routines:** hello, kiss, tickle, rainbow, cookie, pizza, bagel,
+donut, pogo, bubbles, juggle, stargaze, confetti, love, magic, rain, sunshine,
+peekaboo, meditate, disco, stretchy, sneeze, proud sign, break sign, thanks,
+rocket, shy hide, and balance. These combine body motion, small props or particle
+effects, and one-word captions; several intentionally share animation primitives.
+Jelly also chooses routines spontaneously while active. Hunger and other needs
+continue using the existing optional persistence setting.
+
+Rounded little arm lobes replace stick elbows; smaller eyes leave more room for
+expression. A supersampled renderer smooths the silhouette, continuously blends
+mood colors, and eases squash/stretch changes at the configured render FPS
+(default 24, maximum 30). Travel now defaults to `frequent` and local movement to
+`high`; explicit existing settings still win. Sleep and heavy workload reduce travel.
+
+Thoughts use the same Pillow sans family as agent labels at native text resolution.
+Short captions are centered. Long thoughts scroll at 24 pixels/second until the
+last character reaches the button midpoint, then hold for two seconds.
+
+Regenerate the preview with `python scripts/preview_jelly_refined.py`.
+The preview uses production rendering; physical USB smoothness still needs a
+real-device check at your configured FPS.
 
 ![Jelly mood palettes](docs/jelly/jelly_moods.png)
 
@@ -692,8 +725,8 @@ folder selected by `OCDECK_HOME`), then restart the broker:
     "needs": true,
     "reactions": true,
     "thoughts": "normal",
-    "local_movement": "normal",
-    "travel": "normal",
+    "local_movement": "high",
+    "travel": "frequent",
     "persistent": false
   }
 }
@@ -710,8 +743,8 @@ folder selected by `OCDECK_HOME`), then restart the broker:
 | `needs` | `true` | Activity-based needs and autonomous moods; false freezes needs. |
 | `reactions` | `true` | Agent-state and successful-focus reactions; false disables these reactions. |
 | `thoughts` | `normal` | `off`, `quiet`, `normal`, `chatty`. Approximate ambient cooldowns: 90/35/15 seconds. |
-| `local_movement` | `normal` | `low`, `normal`, `high` relative local-action frequency. |
-| `travel` | `normal` | `rare`, `normal`, `frequent` relative cross-key travel frequency. |
+| `local_movement` | `high` | `low`, `normal`, `high` relative local-action frequency. |
+| `travel` | `frequent` | `rare`, `normal`, `frequent` relative cross-key travel frequency. |
 | `persistent` | `false` | Save bounded needs/mood/recent phrase IDs in `jelly-state.json`; no session data. |
 
 Existing global `fps` remains authoritative (default 24; range 1–30).

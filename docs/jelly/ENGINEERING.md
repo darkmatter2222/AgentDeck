@@ -1,3 +1,12 @@
+> Current feature branch: runtime artwork now comes from `jelly_smooth.py`.
+> The pixel renderer remains for legacy previews. The historical pixel-grid,
+> quantized palette, and one-bit marquee descriptions below describe v3.0.
+> Current runtime uses supersampling, exponential pose easing (18/s), continuous
+> breathing and palette interpolation, and native grayscale sans text at 24 px/s.
+> Touch events use the bounded metadata queue and execute on the render thread.
+> Current defaults: high local movement, frequent travel. See README for controls
+> and the 28 new routines. No new threads, network calls, or runtime dependencies.
+
 # Living Jelly — expanded companion engineering report
 
 Repository: https://github.com/darkmatter2222/AgentStreamDeck
