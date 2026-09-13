@@ -1,4 +1,3 @@
-\
 """Event-driven native harness hooks that register directly with the local broker."""
 
 import hashlib
