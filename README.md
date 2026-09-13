@@ -24,6 +24,32 @@ AgentStreamDeck connects OpenCode, Claude Code, GitHub Copilot CLI, Copilot in V
 
 > **Upgrading from AgentDeck?** The Python distribution is now `agentstreamdeck`; the `ocdeck` command, existing configuration and hook receipts remain compatible. See [rename and upgrade steps](docs/RENAMING.md).
 
+## Pip upgrades restart the broker automatically
+
+With **v3.0.5 or newer already running**, update using your normal Python environment:
+
+```powershell
+python -m pip install --upgrade agentstreamdeck
+```
+
+The broker notices the newly installed version, waits for pip to finish and the
+installation to remain stable, verifies the package files and a fresh import,
+then restarts itself in the background. Usually this takes **10–20 seconds after
+pip finishes**, plus broker shutdown/startup time. Your configuration folder is
+preserved. No open terminal or separate stop/start commands are needed.
+
+**Moving from v3.0.4 or older?** Use Jelly's red `!` update button for the first
+upgrade; it already installs and restarts for you. If you use pip for that first
+upgrade, restart the broker once to load the new watcher. Afterward, normal pip
+upgrades are enough. The broker must be running, and pip must use its Python
+environment. Pip alone does not start a stopped broker or set up a first install.
+
+This works offline and independently of online update checks. Set
+`"auto_restart_on_upgrade": false` in `config.json` to keep manual restarts.
+Editable installs and source checkouts are excluded. Reinstalling the same
+version does not trigger a restart. Clients reconnect through their normal
+heartbeat or next native hook event.
+
 ## Jelly taps and coffee breaks
 
 **Tap Jelly and he reacts.** A playful wobble, dance or cheer comes with a short

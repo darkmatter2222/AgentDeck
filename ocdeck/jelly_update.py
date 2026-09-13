@@ -7,7 +7,7 @@ from PIL import ImageDraw, ImageFont
 
 from .common import home
 from .jelly import free_keys
-from .updates import CHECK_INTERVAL, check, install, schedule_restart
+from .updates import CHECK_INTERVAL, UPDATE_LOCK, check, install, schedule_restart
 
 LOG = logging.getLogger(__name__)
 MOVE_INTERVAL = 1.1
@@ -31,6 +31,14 @@ def _draw_update_badge(loop, key, image):
 
 
 def _install_worker(loop):
+    with UPDATE_LOCK:
+        if loop.stop.is_set():
+            loop._jelly_update_installing = False
+            return
+        _install_worker_locked(loop)
+
+
+def _install_worker_locked(loop):
     info = getattr(loop, "_jelly_update_info", None)
     if not info:
         return
@@ -38,7 +46,7 @@ def _install_worker(loop):
         loop.status["update"] = {"available": True, "state": "installing", **info}
         install(info["version"])
         loop.status["update"] = {"available": False, "state": "restarting", "version": info["version"]}
-        schedule_restart(loop.jelly_root or home())
+        schedule_restart(loop.jelly_root or home(), mock=getattr(loop, "mock", False))
         loop.stop.set()
     except Exception as error:
         LOG.exception("Jelly self-update failed")

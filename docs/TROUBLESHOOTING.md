@@ -88,3 +88,29 @@ minimized session and the output of `ocdeck status`. A log entry saying
 `Window did not leave minimized state` means the target did not process the
 maximize request within the bounded wait. Run the broker and client under the
 same interactive desktop user and privilege level.
+
+
+## Pip succeeded, but the broker still shows the old version
+
+Starting with v3.0.5, the running broker checks installed package metadata every
+five seconds. It requires ten seconds of stable metadata with no visible pip
+installer, verifies RECORD hashes, and checks that a fresh interpreter imports
+the new version before restarting. Interrupted installs leave the current
+broker running. Jelly self-updates and the local watcher share a restart lock.
+
+Check `python -m ocdeck status`: `device.pip_upgrade` reports `watching`, `waiting`,
+`restarting`, or a source/editable-install exclusion. The log records
+`Pip upgrade ready` when automatic activation begins. A `waiting` status means
+file verification or the fresh import has not succeeded yet.
+
+A broker started before v3.0.5 cannot detect this first upgrade. Use the red `!`
+on Jelly, or stop and start the broker once after pip completes. Ensure pip is
+running in the same Python environment as the broker. This feature does not add
+pip install hooks, change PATH, or start a broker that is already stopped.
+The existing `python -m ocdeck install` command provides background startup for
+first-time installations.
+
+To disable automatic activation, set `auto_restart_on_upgrade` to `false` and
+restart once. This is separate from `check_updates`, which controls online
+PyPI notifications. For the installed Linux systemd service, its existing
+restart policy performs the relaunch; unmanaged brokers use a detached helper.

@@ -12,7 +12,7 @@ def validate_config(config):
     jelly_settings(config)
     if type(config.get("slots", 6)) is not int or config.get("slots", 6) not in (6, 15, 32):
         raise ValueError("slots must be 6, 15 or 32 (mock capacity; physical deck auto-detects)")
-    for name in ("check_updates", "allow_elgato", "animations", "ready"):
+    for name in ("check_updates", "auto_restart_on_upgrade", "allow_elgato", "animations", "ready"):
         if name in config and type(config[name]) is not bool:
             raise ValueError(name + " must be boolean")
     if type(config.get("brightness", 45)) is not int or not 0 <= config.get("brightness", 45) <= 100:

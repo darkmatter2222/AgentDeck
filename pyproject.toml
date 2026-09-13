@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agentstreamdeck"
-version = "3.0.4"
+version = "3.0.5"
 description = "Local AI coding-agent status, alerts and focus for Stream Deck Mini, MK.2 and XL"
 readme = "README.md"
 license = {file = "LICENSE"}
