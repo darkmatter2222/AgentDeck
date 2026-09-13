@@ -3,8 +3,11 @@
 Repository: https://github.com/darkmatter2222/AgentStreamDeck
 
 Branch: `feature/living-jelly-prototype`. This expansion builds on `c0a465f`.
-Use `git rev-parse HEAD` for the final branch SHA. No merge or release is included.
-The feature is still experimental and disabled by default.
+Use `git rev-parse HEAD` for the source SHA. The v3.0.0 release promotes this
+implementation to main with Jelly enabled by default.
+Released in v3.0.0 and enabled by default. Explicit opt-outs and the global
+animations setting remain respected. Physical-device acceptance remains a separate
+manual check; the included showcase is a rendered demonstration.
 
 ## Delivered scope
 

@@ -2,7 +2,7 @@ name: Signed Python release
 on:
   push:
     branches: [main]
-    paths: [docs/releases/v2.1.1.md]
+    paths: [docs/releases/v3.0.0.md]
   workflow_dispatch:
 permissions:
   contents: read

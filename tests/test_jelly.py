@@ -165,7 +165,8 @@ class JellyTests(unittest.TestCase):
         self.assertEqual(set(threading.enumerate()), before)
 
     def test_config_defaults_validation_and_appearance_preservation(self):
-        self.assertFalse(settings({})["enabled"])
+        self.assertTrue(settings({})["enabled"])
+        self.assertFalse(settings({"jelly": {"enabled": False}})["enabled"])
         for value in (
             None,
             [],
@@ -191,11 +192,15 @@ class JellyTests(unittest.TestCase):
                 Registry(lambda _: True, slots=count),
                 queue.Queue(),
                 threading.Event(),
-                {"jelly": {"enabled": True}},
+                {},
                 mock=True,
             )
             loop._start_jelly()
             self.assertEqual(loop.jelly.geometry.count, count)
+            loop.config["jelly"] = {"enabled": False}
+            loop._start_jelly()
+            self.assertIsNone(loop.jelly)
+            loop.config["jelly"]["enabled"] = True
             loop.config["animations"] = False
             loop._start_jelly()
             self.assertIsNone(loop.jelly)

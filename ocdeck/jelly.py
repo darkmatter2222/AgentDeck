@@ -14,7 +14,7 @@ from .jelly_words import Thoughts
 def settings(config):
     value = config.get("jelly", {})
     defaults = {
-        "enabled": False,
+        "enabled": True,
         "virtual_gap": 8,
         "behavior_seed": None,
         "hop_style": "classic",

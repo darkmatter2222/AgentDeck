@@ -23,7 +23,38 @@ Gemini CLI, Cursor CLI and Codex CLI to one local controller. Each managed launc
 key. A launch beyond the connected deck's capacity waits for a vacancy; closing one does not shuffle the others.
 The controller uses direct USB HID, with no Elgato plugin or MCP server.
 
-## What's new in 2.1
+## New in 3.0 — Meet your coding Jelly
+
+**Your Stream Deck has a little life of its own.** Jelly is an offline coding pet,
+**enabled by default**, who makes a home at the bottom of an unused button.
+He scoots, stretches, dances and naps inside his key, then hops across to visit
+another. Keep coding and he stays fed and active; long quiet spells bring out
+his sleepy side. A busy deck can leave him feeling overworked, too.
+
+![Jelly living on a Stream Deck — AgentStreamDeck 3.0](docs/jelly/jelly_v3_showcase.gif)
+
+*An authored product animation using the actual Jelly and agent renderers;
+a simulated Stream Deck Mini, not filmed hardware.*
+[Watch the HD animation](docs/jelly/jelly_v3_showcase.mp4) ·
+[Meet Jelly and customize his personality](#living-jelly-your-coding-pet) ·
+[3.0 release notes](docs/releases/v3.0.0.md)
+
+- **33 actions, 33 poses and 14 hop styles:** a companion who can live within a
+  button, with his resting position anchored to its bottom edge.
+- **23 color-changing moods and four personalities:** playful, curious, proud,
+  sleepy, helpful and more, shaped by six simulated needs.
+- **Agent-aware reactions:** he looks, points or approaches a free button near an
+  agent that needs attention, and celebrates explicit successful outcomes.
+- **1,040 authored thoughts:** occasional scrolling text above his head, generated
+  entirely offline. Activity metadata feeds his needs; source code and prompts
+  are never read to feed him.
+
+Jelly only uses unassigned buttons. Agent controls always take priority. Existing
+`jelly.enabled: false` settings remain respected; to opt out, add
+`"jelly": {"enabled": false}` to your configuration. Global animations off also
+turns Jelly off. [All Jelly settings](#living-jelly-your-coding-pet).
+
+## Features carried forward from 2.1
 
 Version 2.1 adds the following 20 enhancements. The implementation is
 available for testing; physical-device/native-harness acceptance and PyPI
@@ -163,7 +194,7 @@ steps. Record observed results separately from unverified hardware/runtime gates
 
 ### Install or update version 2.1
 
-Use `main` or the v2.1.1 release ZIP in your permanent checkout. Inspect
+Use `main` or the v3.0.0 release ZIP in your permanent checkout. Inspect
 and preserve any local edits before switching. Close managed sessions and stop the
 broker before updating its source and dependencies.
 
@@ -597,15 +628,15 @@ restores reported state; confirmed process death releases a slot.
 
 [Architecture](docs/ARCHITECTURE.md) · [Broker API](docs/API.md) · [Environment boundaries](docs/REMOTE-AND-WSL.md)
 
-## Experimental: Living Jelly
+## Living Jelly: your coding pet
 
-Jelly is an **opt-in offline companion** living on the bottom edge of unused
+Jelly is an **offline companion enabled by default in v3.0** living on the bottom edge of unused
 buttons. He rests three native pixels above the floor, scoots and plays inside
 his key, and occasionally crosses the bezel to a neighboring free button.
 
 ![Jelly's new local actions](docs/jelly/jelly_actions.gif)
 
-This branch now includes **33 visible actions** (the original 13 plus 20 local
+Version 3.0 includes **33 visible actions** (the original 13 plus 20 local
 actions), **33 body poses**, **14 hop styles**, **23 moods**, **four temperament
 presets**, and **1,040 distinct authored thoughts**. Movement is continuous;
 body poses are held deliberately and scaled with nearest-neighbor pixels.
@@ -669,7 +700,7 @@ folder selected by `OCDECK_HOME`), then restart the broker:
 
 | Setting | Default | Options / behavior |
 | --- | --- | --- |
-| `enabled` | `false` | Opt in; false disables Jelly. |
+| `enabled` | `true` | On by default; false disables Jelly. |
 | `virtual_gap` | `8` | Integer 0–40 native pixels between key viewports. |
 | `behavior_seed` | `null` | Optional integer for reproducible event/timing sequences. |
 | `hop_style` | `classic` | One of the 14 styles below, or `mood` for mood-based selection. |
@@ -856,13 +887,13 @@ To build/install locally, use the Python environment intended for AgentStreamDec
 ```powershell
 python -m pip install -e ".[dev]"
 python -m build
-python -m pip install .\dist\agentstreamdeck-2.1.1-py3-none-any.whl
+python -m pip install .\dist\agentstreamdeck-3.0.0-py3-none-any.whl
 ocdeck --version
 ```
 
 [Exact PyPI setup and publishing steps](docs/PYPI.md).
 
-**[AgentStreamDeck 2.1.1 is published on PyPI](https://pypi.org/project/agentstreamdeck/2.1.1/).**
+**[Install AgentStreamDeck from PyPI](https://pypi.org/project/agentstreamdeck/).**
 
 ```powershell
 python -m pip install --upgrade agentstreamdeck
