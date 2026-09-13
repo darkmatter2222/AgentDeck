@@ -20,8 +20,13 @@ class GUIThreadInfo(ctypes.Structure):
     ]
 
 
+def _windll(name):
+    """Resolve the Windows-only ctypes loader without exposing it to non-Windows type stubs."""
+    return getattr(ctypes, "WinDLL")(name, use_last_error=True)
+
+
 def _api():
-    u = ctypes.WinDLL("user32", use_last_error=True)
+    u = _windll("user32")
     u.GetForegroundWindow.restype = wintypes.HWND
     u.IsWindowVisible.argtypes = [wintypes.HWND]
     u.IsIconic.argtypes = [wintypes.HWND]
@@ -151,7 +156,7 @@ def activate(record):
             "reason": "Window mapping ambiguous or absent; keep one harness per OS window for one-touch focus",
             "matches": len(candidates),
         }
-    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel = _windll("kernel32")
     kernel.GetCurrentThreadId.restype = wintypes.DWORD
     return focus_window(u, kernel.GetCurrentThreadId(), candidates[0])
 
