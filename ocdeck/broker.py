@@ -77,7 +77,7 @@ class Broker:
         self.update = None
         self.stop = threading.Event()
         self.presses = queue.Queue(maxsize=64)
-        self.device = DeviceLoop(self.registry, self.presses, self.stop, self.config, mock)
+        self.device = DeviceLoop(self.registry, self.presses, self.stop, self.config, mock, root=self.root)
         self.focus = focus
         self.last_focus = None
         self.last_press = {}
@@ -130,6 +130,8 @@ class Broker:
         if not outcome.get("ok"):
             outcome = {**outcome, "fix": message("AD006")}
         self.last_focus = {**outcome, "id": r["id"], "synthetic": synthetic, "time": time.time()}
+        if outcome.get("ok"):
+            self.device.notify_jelly("focus", r["slot"])
         LOG.info("Focus %s", self.last_focus)
         return self.last_focus
 

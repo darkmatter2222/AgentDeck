@@ -1,0 +1,63 @@
+name: Publish AgentStreamDeck v3.0.0
+on:
+  push:
+    branches: [main]
+    paths: [docs/releases/v3.0.0.md]
+  workflow_dispatch:
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+concurrency:
+  group: agentstreamdeck-release-v3.0.0
+  cancel-in-progress: false
+jobs:
+  release:
+    if: (github.repository == 'darkmatter2222/AgentDeck' || github.repository == 'darkmatter2222/AgentStreamDeck') && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify source and run tests
+        run: |
+          sha256sum --check SHA256SUMS.txt
+          python -m pip install -e ".[dev]" cyclonedx-bom twine
+          python -m unittest discover -s tests -v
+          node --test tests/facts.test.mjs tests/harnesses.test.mjs tests/next.test.mjs
+          ruff check ocdeck tests
+          ruff format --check ocdeck tests
+          pyright
+      - name: Build release assets
+        run: |
+          python -m build
+          python -m twine check dist/*
+          git archive --format=zip --prefix=AgentStreamDeck-v3.0.0/ --output=dist/AgentStreamDeck-v3.0.0.zip HEAD
+          cyclonedx-py environment --of JSON -o dist/sbom.json
+          cp docs/jelly/jelly_v3_showcase.mp4 dist/
+          (cd dist && sha256sum *.whl *.tar.gz *.zip *.mp4 sbom.json > SHA256SUMS.txt)
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: dist/*
+      - name: Publish GitHub release
+        run: |
+          if gh release view v3.0.0 --json isDraft --jq '.isDraft' > "$RUNNER_TEMP/agentstreamdeck-release-draft"; then
+            if [ "$(cat "$RUNNER_TEMP/agentstreamdeck-release-draft")" = false ]; then
+              echo 'Release already published; leaving assets unchanged.'
+              exit 0
+            fi
+            gh release upload v3.0.0 dist/* --clobber
+          else
+            gh release create v3.0.0 dist/* --target "$GITHUB_SHA" \
+              --title 'AgentStreamDeck v3.0.0 — Meet your coding Jelly' \
+              --notes-file docs/releases/v3.0.0.md --draft
+          fi
+          gh release edit v3.0.0 --draft=false --latest

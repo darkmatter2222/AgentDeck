@@ -92,6 +92,15 @@ class Registry:
         known = data.get("pendingKnown", True)
         if type(waiting) is not bool or type(known) is not bool:
             raise ValueError("inputNeeded/pendingKnown must be boolean")
+        outcome = data.get("outcome")
+        outcome_id = data.get("outcomeId")
+        if outcome is not None or outcome_id is not None:
+            if (
+                outcome not in ("success", "failure")
+                or not isinstance(outcome_id, str)
+                or not 1 <= len(outcome_id) <= 128
+            ):
+                raise ValueError("outcome requires success/failure and an outcomeId of 1..128 characters")
         with self.lock:
             r = self.records[key]
             if producer in r["retired"]:
@@ -113,6 +122,8 @@ class Registry:
                 lastState=self.clock(),
                 lastSeen=self.clock(),
             )
+            if outcome is not None:
+                r.update(outcome=outcome, outcomeId=outcome_id)
             return True
 
     def remove(self, key):
@@ -161,6 +172,8 @@ class Registry:
                         "harness": r["harness"] if r else "",
                         "pending": r["pending"] if r and r.get("pendingKnown", True) else None,
                         "requestIds": r.get("requestIds", []) if r else [],
+                        "outcome": r.get("outcome") if r else None,
+                        "outcomeId": r.get("outcomeId") if r else None,
                     }
                 )
             return result
