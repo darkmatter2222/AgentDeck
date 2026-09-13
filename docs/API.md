@@ -1,83 +1,114 @@
 # Local broker protocol
 
-Endpoint: `http://127.0.0.1:<discovery.port>`. `.opencode-deck/discovery.json` is atomically written after socket binding and removed on graceful shutdown. The token is in a separate per-user `token` file. Never print it into logs or commit it.
+Endpoint: `http://127.0.0.1:<discovery.port>`. `.opencode-deck/discovery.json` is atomically written after socket binding and removed on graceful shutdown. The token is stored separately in the per-user `token` file. Never print or commit it.
 
-Every request requires `Authorization: Bearer <token>`. JSON bodies must be objects, at most 64 KiB. Browser Origin headers are refused. This is a trusted local application protocol, not an exposed LAN service. Clients reread discovery and token rather than assuming the port persists.
+Every request requires `Authorization: Bearer <token>`. JSON bodies must be objects at most 64 KiB. Browser Origin headers are refused. This is a trusted local application protocol, not a LAN service. Clients reread discovery/token instead of assuming the port persists.
 
 | Method | Path | Meaning |
 |---|---|---|
-| GET | `/v1/status` | Broker epoch, device health, slots, overflow count, last focus result |
+| GET | `/v1/status` | Broker epoch, device/input health, slots, overflow, last focus, update state |
 | POST | `/v1/register` | Create or renew a matching immutable process identity |
-| PUT | `/v1/instances/{id}` | Newer complete normalized snapshot |
-| DELETE | `/v1/instances/{id}` | Detach; release slot |
+| POST | `/v1/hook` | Deliver one normalized native harness lifecycle event directly to the broker |
+| PUT | `/v1/instances/{id}` | Publish a newer complete conventional snapshot |
+| DELETE | `/v1/instances/{id}` | Detach and release a conventional slot |
 | POST | `/v1/focus` | Synthetic focus request for an existing assignment |
 | POST | `/v1/stop` | Graceful broker shutdown |
 
-Registration:
+## Conventional registration and snapshots
+
+Registration example:
 
 ```json
-{"id":"unique-launch-uuid","process":{"pid":1234,"created":1770000000.123},"label":"HomeAILab","windowToken":"OpenCode [unique-launch-uuid]"}
+{
+  "id": "unique-launch-uuid",
+  "process": {"pid": 1234, "created": 1770000000.123},
+  "label": "HomeAILab",
+  "windowToken": "OpenCode [unique-launch-uuid]",
+  "harness": "opencode"
+}
 ```
 
-The timestamp is `psutil.Process(pid).create_time()`, not a guessed epoch. The broker rejects a process that is not alive locally. Re-registering the same ID with a different identity is rejected. Process presence renewals do not turn stale state into current state.
+The timestamp is `psutil.Process(pid).create_time()`. The broker rejects a process that is not alive locally. Re-registering the same ID with a different process identity is rejected.
 
-Snapshot:
+Snapshot example:
 
 ```json
 {"producer":"fresh-plugin-uuid","seq":42,"status":"busy","pending":1,"detail":""}
 ```
 
-Status accepts idle, busy, retry, unknown. Pending is a nonnegative count of unresolved request IDs maintained in the producer. Monotonic sequences apply within a producer epoch. Superseded producer epochs are retired; their delayed messages are ignored. A new broker starts empty and asks clients to re-register through ordinary retries.
+Status accepts idle, busy, retry, unknown. Pending is a nonnegative count when the producer can prove a complete count. Monotonic sequences apply within a producer epoch. Superseded producer epochs are retired and their delayed messages are ignored.
 
-Focus payload is the assignment returned in `slots`, including `slot` (zero-based), `id`, and `generation`. CLI `ocdeck focus 1` uses user-facing one-based numbering and sends that exact tuple. It marks results `synthetic: true`. Physical callback requests are marked false. This distinction is retained in diagnostics.
+Optional snapshot fields include `pendingKnown`, `inputNeeded`, `requestIds`, `outcome`, and `outcomeId`. Request IDs are SHA-256 identities, not raw prompt/request contents.
 
-HTTP 401 means missing credentials; 403 means a browser Origin was provided; 400 indicates invalid payload/process identity; 404 means unknown route/instance and clients should register again; 413 means excessive body size. State transitions come from snapshots only, not from the focus endpoint.
+## Direct native hook events
 
+The normal Claude/Codex/Copilot/Gemini/Cursor integration does not require a managed launcher or per-launch relay. The short-lived native hook reads broker discovery/token and posts a normalized event directly:
 
-## Producers and hook relay boundary
+```json
+{
+  "profile": "claude",
+  "parentPid": 4321,
+  "cwd": "C:\\Projects\\MyApp",
+  "event": {
+    "event": "PreToolUse",
+    "action": "tool",
+    "session": "native-session-id",
+    "tool": "AskUserQuestion",
+    "request": "native-request-id",
+    "question": true,
+    "failed": false
+  }
+}
+```
 
-OpenCode's plugin and the additional managed hook adapters publish the same
-registration/snapshot schema above. For a hook-managed launch, `process` identifies
-the long-lived Python supervisor, and one Node Bridge maintains `producer`/`seq`.
-Do not register each short-lived hook invocation or allocate a producer per event.
-Only known unresolved request IDs may contribute to `pending`; adapters without
-paired IDs must document their limited coverage rather than fabricate counts.
+The broker:
 
-The hook receiver is a separate, per-launch service, not a new broker endpoint.
-It binds loopback on a random port, has a separate token, accepts only authenticated
-`POST /event` requests, rejects Origin, and caps messages at 8 KiB. Its descriptor
-is passed through `AGENTDECK_HOOK_BINDING`; it must not be committed or shared.
-Normalization strips prompts/tool arguments/results before delivery. Its payload
-and native profiles are internal implementation details in
-`plugins/harnesses/profiles.mjs`; extension authors should use the stable snapshot
-contract above. See [architecture](ARCHITECTURE.md) for lifetime and failure handling.
+1. validates the profile/action/session fields;
+2. resolves the hook's parent PID to an exact PID + creation timestamp;
+3. derives a stable local record from profile + native session ID;
+4. captures the containing Windows window when possible;
+5. reduces the event into idle/running/input/unknown state;
+6. keeps the event-driven record current while the verified process is alive;
+7. removes the record on a delivered session-end event or confirmed process death.
 
-## Optional appearance metadata
+The direct hook path forwards bounded lifecycle metadata only. Prompt text, commands, file contents, tool arguments/results, model responses, and transcripts are not part of `/v1/hook`.
 
-Registration accepts an optional `harness` string (stored up to 40 characters),
-returned in each `/v1/status` slot. This is display metadata only; no sequence,
-state-priority, process identity, or focus-generation invariant changes. Older
-clients can omit it; the renderer recognizes legacy harness-prefixed labels.
-Appearance preferences are local file settings, with no new HTTP endpoints.
+For backward compatibility, an environment containing `AGENTDECK_HOOK_BINDING` may still route through the older per-launch loopback relay. That relay is an implementation compatibility path, not the normal architecture.
 
-Focus results now verify keyboard focus as well as the foreground window.
-Successful activation includes `keyboardFocus: true`. A failed activation may
-include `foreground` (observed HWND), `keyboardFocus`, and `attachmentFailures`
-(GUI thread IDs). Exact window-token matching and registry identity checks remain
-unchanged. Local wrappers do not add broker endpoints; see [launchers](LAUNCHERS.md).
+## Focus requests
 
+The focus payload is the assignment returned in `slots`, including `slot` (zero-based), `id`, and `generation`. CLI `ocdeck focus 1` uses user-facing one-based numbering and sends that exact tuple. Physical callbacks are marked `synthetic: false`; CLI/API checks are marked true.
 
-## 2.1 snapshot extensions
+On Windows, focus resolution prefers a captured HWND. If that is unavailable, it can use the legacy exact window token or a unique visible window belonging to the harness process or nearest process ancestor. This supports normal CLI launches inside Windows Terminal without requiring AgentStreamDeck to own the launch command.
 
-Optional snapshot fields: `pendingKnown` (boolean, default true), `inputNeeded`
-(boolean, default false), `requestIds` (array of SHA-256 hex strings). OpenCode
-sets `pendingKnown: true`; hook adapters use false. No prompt text or raw request
-ID belongs in this list. Public slot `pending` is an integer when known and null
-otherwise. Identified requests drive toast deduplication. Unknown/stale status
-still takes priority over input; input takes priority over busy/idle.
+Focus success verifies keyboard focus as well as foreground activation. A failed activation can include the observed foreground HWND, keyboard-focus state, attachment failures, and an actionable AD error.
 
-Slots dynamically number 0..5, 0..14 or 0..31. Resizing invalidates assignment
-generations. `/v1/status` also includes `recentErrors` and `update` release notes.
-The input-request identity list is a diagnostic/notification field; it cannot be
-used to authorize or answer a request. Error messages include stable AD codes and
-fix/check commands. Known credential strings are scrubbed at the API boundary.
+## Status input telemetry
+
+`GET /v1/status` includes the device status map. Important physical-input fields:
+
+```json
+{
+  "device": {
+    "online": true,
+    "input_events": 14,
+    "last_input": {"key": 2, "pressed": true, "time": 1770000000.123}
+  }
+}
+```
+
+`input_events` increments for physical key down/up reports received by the StreamDeck callback. It is intentionally distinct from `lastFocus`, so diagnostics can tell whether a failure is in USB input or Windows focus.
+
+`/v1/status` also includes `update`, `recentErrors`, `brokerPid`, device render telemetry, slot state, and overflow count.
+
+## HTTP errors and security
+
+HTTP 401 means missing/invalid bearer credentials. 403 means a browser Origin was provided. 400 indicates invalid payload/process identity. 404 means an unknown route/instance. 413 means the body is too large.
+
+The broker binds loopback only, rejects browser Origin requests, limits concurrent HTTP work, caps bodies, scrubs known credentials at the API boundary, and never treats a focus request as authorization to answer an agent prompt.
+
+## Appearance metadata
+
+Registration can include an optional `harness` string for rendering. It is display metadata only and does not change process identity, sequence, slot-generation, or focus invariants. Older clients can omit it.
+
+See [Architecture](ARCHITECTURE.md), [Harnesses](HARNESSES.md), and [Plugin-first setup](PLUGIN-FIRST.md).
