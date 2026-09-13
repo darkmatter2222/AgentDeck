@@ -1,7 +1,6 @@
-"""Jelly-facing update UX layered onto DeviceLoop without changing agent assignment semantics."""
+"""Jelly-facing update UX layered onto the existing broker/device classes."""
 
 import logging
-from pathlib import Path
 import threading
 
 from PIL import ImageDraw, ImageFont
@@ -31,21 +30,6 @@ def _draw_update_badge(loop, key, image):
     )
 
 
-def _watch(loop):
-    """Poll PyPI immediately and every five minutes without blocking rendering."""
-    while not loop.stop.is_set():
-        try:
-            root = Path(loop.jelly_root or home())
-            info = check(root, loop.config)
-            if info:
-                loop._jelly_update_info = info
-                loop.status["update"] = {"available": True, **info}
-        except Exception:
-            LOG.info("Background PyPI update check failed; keeping the current state", exc_info=True)
-        if loop.stop.wait(CHECK_INTERVAL):
-            return
-
-
 def _install_worker(loop):
     info = getattr(loop, "_jelly_update_info", None)
     if not info:
@@ -68,8 +52,30 @@ def _install_worker(loop):
         loop._jelly_update_installing = False
 
 
+def install_broker_patch(Broker):
+    """Turn the broker's existing update worker into a five-minute PyPI watcher."""
+    if getattr(Broker, "_pypi_update_patch", False):
+        return
+
+    def check_update(self):
+        while not self.stop.is_set():
+            try:
+                info = check(self.root, self.config)
+                if info:
+                    self.update = info
+                    self.device._jelly_update_info = info
+                    self.device.status["update"] = {"available": True, **info}
+            except Exception:
+                LOG.info("Background PyPI update check failed; keeping the current state", exc_info=True)
+            if self.stop.wait(CHECK_INTERVAL):
+                return
+
+    Broker.check_update = check_update
+    Broker._pypi_update_patch = True
+
+
 def install_device_patch(DeviceLoop):
-    """Install the PyPI/Jelly integration exactly once."""
+    """Install Jelly's visual update signal and button action exactly once."""
     if getattr(DeviceLoop, "_jelly_update_patch", False):
         return
 
@@ -81,20 +87,12 @@ def install_device_patch(DeviceLoop):
         original_start(self)
         if not hasattr(self, "_jelly_update_info"):
             self._jelly_update_info = None
+        if not hasattr(self, "_jelly_update_keys"):
             self._jelly_update_keys = set()
+        if not hasattr(self, "_jelly_update_next_move"):
             self._jelly_update_next_move = 0.0
+        if not hasattr(self, "_jelly_update_installing"):
             self._jelly_update_installing = False
-            self._jelly_update_thread = None
-        if self.config.get("check_updates", True) and (
-            self._jelly_update_thread is None or not self._jelly_update_thread.is_alive()
-        ):
-            self._jelly_update_thread = threading.Thread(
-                target=_watch,
-                args=(self,),
-                name="agentstreamdeck-update-watch",
-                daemon=True,
-            )
-            self._jelly_update_thread.start()
 
     def jelly_frames(self, now, views):
         info = getattr(self, "_jelly_update_info", None)
