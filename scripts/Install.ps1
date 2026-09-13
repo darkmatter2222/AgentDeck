@@ -1,4 +1,3 @@
-\
 param([string]$Python = 'python')
 $ErrorActionPreference = 'Stop'
 & $Python -c 'import sys; assert sys.version_info >= (3,11), "Python 3.11 or newer required"'
