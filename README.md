@@ -56,9 +56,9 @@ turns Jelly off. [All Jelly settings](#living-jelly-your-coding-pet).
 
 ## Features carried forward from 2.1
 
-Version 2.1 adds the following 20 enhancements. The implementation is
-available for testing; physical-device/native-harness acceptance and PyPI
-publishing setup are still outstanding. See [validation status](#validation-status).
+Version 3.0 retains these 20 enhancements introduced in 2.1.
+Physical-device/native-harness acceptance remains documented in
+[validation status](#validation-status).
 
 | # | Enhancement | What it adds |
 |---|---|---|
@@ -192,7 +192,7 @@ checks, then guide me through docs/FIRST-RUN.md and the harness-specific accepta
 steps. Record observed results separately from unverified hardware/runtime gates.
 ```
 
-### Install or update version 2.1
+### Install or update version 3.0
 
 Use `main` or the v3.0.0 release ZIP in your permanent checkout. Inspect
 and preserve any local edits before switching. Close managed sessions and stop the
@@ -666,15 +666,16 @@ agents receive stable oldest-first attention; he never crosses occupied keys.
 
 ![Agent encounter with Jelly](docs/jelly/jelly_agent_reactions.gif)
 
-Try this branch from a source checkout:
+Jelly starts automatically in v3.0; no configuration is required. To update a source checkout:
 
 ```bash
 git fetch origin
-git switch feature/living-jelly-prototype
+git switch main
+git pull --ff-only
 python -m pip install -e ".[dev]"
 ```
 
-Merge the following into `%USERPROFILE%\.opencode-deck\config.json` (or the
+To customize Jelly, merge the following into `%USERPROFILE%\.opencode-deck\config.json` (or the
 folder selected by `OCDECK_HOME`), then restart the broker:
 
 ```json
