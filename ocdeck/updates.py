@@ -99,7 +99,7 @@ def schedule_restart(root, parent_pid=None, popen=None):
     """Start a tiny detached worker that restarts the broker after this process exits."""
     parent_pid = int(parent_pid or os.getpid())
     root = str(Path(root))
-    code = r'''
+    code = r"""
 import os
 import subprocess
 import sys
@@ -141,7 +141,7 @@ if os.name == "nt":
 else:
     kwargs["start_new_session"] = True
 subprocess.Popen(command, **kwargs)
-'''
+"""
     env = os.environ.copy()
     # A permanent source checkout on PYTHONPATH would shadow the newly installed wheel.
     env.pop("PYTHONPATH", None)

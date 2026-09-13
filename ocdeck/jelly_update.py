@@ -133,11 +133,7 @@ def install_device_patch(DeviceLoop):
         return True
 
     def press(self, key, state):
-        if (
-            state
-            and getattr(self, "_jelly_update_info", None)
-            and key in getattr(self, "_jelly_update_keys", set())
-        ):
+        if state and getattr(self, "_jelly_update_info", None) and key in getattr(self, "_jelly_update_keys", set()):
             self._start_jelly_update()
             return
         original_press(self, key, state)
