@@ -67,3 +67,22 @@ class TouchTests(unittest.TestCase):
         self.assertEqual(loop.presses.get_nowait()["id"], "agent")
         loop.press(0, False)
         self.assertTrue(loop.jelly_events.empty())
+
+    def test_pixel_art_has_crisp_alpha_and_broad_original_base(self):
+        from ocdeck.jelly_smooth import render
+
+        im = render((24, 19, 0), 80, 0.5, "neutral", "center", "", False, "content", "content", 1)
+        self.assertEqual(set(im.getchannel("A").tobytes()), {0, 255})
+        # The original blob has a broad floor, unlike the rejected oval silhouette.
+        floor = [x for x in range(80) if im.getpixel((x, 66))[3]]
+        self.assertGreater(max(floor) - min(floor), 32)
+        self.assertLessEqual(im.getbbox()[2], 64)  # No permanent side ears/arms.
+
+    def test_wave_is_a_small_attached_lobe(self):
+        from ocdeck.jelly_smooth import render
+
+        args = ((24, 19, 0), 80, 0.5, "neutral", "center")
+        idle = render(*args, "", False, "content", "content", 1)
+        wave = render(*args, "wave", False, "content", "content", 1)
+        self.assertGreater(wave.getbbox()[2], idle.getbbox()[2])
+        self.assertLessEqual(wave.getbbox()[2] - idle.getbbox()[2], 7)

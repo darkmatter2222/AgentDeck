@@ -639,11 +639,14 @@ his key, and occasionally crosses the bezel to a neighboring free button.
 Version 3.0 includes **33 visible actions** (the original 13 plus 20 local
 actions), **33 body poses**, **14 hop styles**, **23 moods**, **four temperament
 presets**, and **1,040 distinct authored thoughts**. Movement is continuous;
-body silhouettes now ease between poses with antialiased edges and continuous breathing.
+the original pixel-blob silhouette now eases between poses with continuous breathing.
 
 ### Living companion refinement (feature branch)
 
-![Smooth Jelly interactions](docs/jelly/jelly_refined.gif)
+![Original Jelly restored with finer pixel animation](docs/jelly/jelly_pixel_return.gif)
+
+The original turquoise pixel-art blob is back. The comparison shows the original,
+restored idle, tiny wave, and actual travel rendered by the controller.
 
 Tap the unused button Jelly occupies to play. He may hop to a neighboring free
 button, greet you, change color, or perform a little routine. When nourishment
@@ -660,9 +663,10 @@ effects, and one-word captions; several intentionally share animation primitives
 Jelly also chooses routines spontaneously while active. Hunger and other needs
 continue using the existing optional persistence setting.
 
-Rounded little arm lobes replace stick elbows; smaller eyes leave more room for
-expression. A supersampled renderer smooths the silhouette, continuously blends
-mood colors, and eases squash/stretch changes at the configured render FPS
+Tiny temporary pseudopods replace stick elbows; no arms or ears show at rest.
+The original square eyes, smile, broad base, stepped crown and turquoise identity
+are preserved. Native-pixel inbetweens use finer pixels on 80px keys, gently tint
+mood colors, and ease squash/stretch changes at the configured render FPS
 (default 24, maximum 30). Travel now defaults to `frequent` and local movement to
 `high`; explicit existing settings still win. Sleep and heavy workload reduce travel.
 
@@ -670,7 +674,8 @@ Thoughts use the same Pillow sans family as agent labels at native text resoluti
 Short captions are centered. Long thoughts scroll at 24 pixels/second until the
 last character reaches the button midpoint, then hold for two seconds.
 
-Regenerate the preview with `python scripts/preview_jelly_refined.py`.
+Regenerate the comparison with `python scripts/preview_jelly_pixel.py`, or the
+interaction sampler with `python scripts/preview_jelly_refined.py`.
 The preview uses production rendering; physical USB smoothness still needs a
 real-device check at your configured FPS.
 

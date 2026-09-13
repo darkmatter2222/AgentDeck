@@ -551,7 +551,7 @@ class Jelly:
             min(1, (self.now - self.trick_since) / 3.2),
         )
         if self.rotation:
-            rotated = im.rotate(90 * self.rotation, resample=Image.Resampling.BICUBIC)
+            rotated = im.rotate(90 * self.rotation, resample=Image.Resampling.NEAREST)
             box = rotated.getbbox()
             if box:
                 aligned = Image.new("RGBA", im.size)

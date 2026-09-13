@@ -1,4 +1,4 @@
-"""Supersampled, continuously deforming Jelly and pocket-sized play props."""
+"""Original pixel-blob silhouette, with native-pixel inbetweens and tiny pseudopods."""
 
 import math
 from PIL import Image, ImageDraw
@@ -39,10 +39,11 @@ FOODS = ("cookie", "pizza", "bagel", "donut")
 
 
 def render(dimensions, size, now, face, gaze, gesture, mirror, mood, previous, blend, trick="", progress=0.0):
-    # Draw at 3x native resolution, then filter once. Geometry is in logical units.
+    # Draw crisp pixels at output resolution: half-sized pixels on an 80px key.
+    # Smoothness comes from time-based shape inbetweens, never a blur filter.
     unit = size / 40
-    s = unit * 3
-    im = Image.new("RGBA", (size * 3, size * 3))
+    s = unit
+    im = Image.new("RGBA", (size, size))
     d = ImageDraw.Draw(im)
 
     def ellipse(box, fill):
@@ -59,46 +60,94 @@ def render(dimensions, size, now, face, gaze, gesture, mirror, mood, previous, b
     pulse = math.sin(progress * math.pi * 6)
     if motion == "wiggle":
         lean += pulse * 1.8
+    if motion == "sway":
+        lean += math.sin(progress * math.tau * 2) * 0.8
     if motion == "chew":
         w += pulse * 0.9
     if motion == "stretch":
         h += math.sin(progress * math.pi) * 4
     if motion == "duck":
         h -= math.sin(progress * math.pi) * 5
-    cx, base = 20 + lean * 0.45, 33.5
+    cx, base = 20 + lean * 0.4, 34 - 1 / unit
     if motion == "bounce":
         base -= abs(pulse) * 4
     old, new = bytes.fromhex(MOOD_COLORS[previous]), bytes.fromhex(MOOD_COLORS[mood])
-    color = tuple(round(a + (b - a) * blend) for a, b in zip(old, new))
+    tint = tuple(round(a + (b - a) * blend) for a, b in zip(old, new))
+    # Keep the familiar turquoise identity; moods gently tint rather than replace it.
+    color = tuple(round(a * 0.7 + b * 0.3) for a, b in zip((64, 190, 192), tint))
     if trick == "rainbow":
         import colorsys
 
         color = tuple(round(v * 255) for v in colorsys.hsv_to_rgb((now * 0.2) % 1, 0.48, 0.95))
     shade = tuple(round(v * 0.66) for v in color)
     light = tuple(round(v + (255 - v) * 0.55) for v in color)
-    left, right, top = cx - w / 2, cx + w / 2, base - h
-    # Rounded domed body with a broad, floor-anchored jelly skirt.
-    ellipse((left, top, right, base), "#193849")
-    ellipse((left + 0.6, top + 0.6, right - 0.6, base - 0.5), color)
-    ellipse((left + 2, base - 3, right - 2, base - 0.6), shade)
-    ellipse((left + 3, top + 2, left + 7, top + 4), light)
-    # Small rounded lobes merge with the body; no stick elbows.
-    wave = gesture or motion == "wave"
-    for side in (-1, 1):
-        lift = (1 + math.sin(now * 7)) * 1.2 if wave and side == 1 else 0.3 * math.sin(now * 3 + side)
-        ax = cx + side * (w / 2 - 1)
-        ay = top + h * 0.65 - lift
-        ellipse((ax - 2.4, ay - 2, ax + 2.4, ay + 2.3), shade)
-        ellipse((ax - 1.9, ay - 1.7, ax + 1.9, ay + 1.7), color)
-    fy = top + h * 0.52
-    dx = {"left": -0.6, "right": 0.6}.get(gaze, 0)
-    for ex in (cx - 4, cx + 4):
-        if face in ("closed", "sleepy", "half") or now % 4.7 < 0.13:
-            line([(ex - 1, fy), (ex + 1, fy)], "#122b3e", 0.7)
+    left, right, top = 20 - w / 2, 20 + w / 2 - 0.5, base - h + 1
+    crown = 20 + lean
+    outline, ink, shine = "#193849", "#122b3e", "#dbfff1"
+
+    def polygon(points, fill, edge=None):
+        d.polygon(
+            [(round(x * s), round(y * s)) for x, y in points], fill=fill, outline=edge, width=max(1, round(0.75 * s))
+        )
+
+    # A tiny tapered lobe grows out of the flank only when gesturing.
+    # No permanent ears, detached hands, long bones or angular elbows.
+    wave = bool(gesture) or motion == "wave"
+    if wave:
+        lift = 1.5 + math.sin(now * 6) * 1.2
+        sides = (-1, 1) if gesture in ("cheer", "clap") else (1,)
+        for side in sides:
+            root = right - 1 if side == 1 else left + 1
+            ay = base - 5
+            tipx, tipy = root + side * 3, ay - lift - 1
+            ellipse((min(root, tipx) - 1, tipy - 1, max(root, tipx) + 1, ay + 2), outline)
+            ellipse((min(root, tipx) - 0.4, tipy - 0.4, max(root, tipx) + 0.4, ay + 1.3), color)
+
+    # Preserve the original broad floor, stepped shoulders and flattened crown.
+    polygon(
+        [
+            (left, base - 3),
+            (left + 1, top + h / 2),
+            (left + 4, top + 3),
+            (crown - 5, top),
+            (crown + 4, top),
+            (right - 3, top + 3),
+            (right - 1, top + h / 2),
+            (right, base - 2),
+            (right - 2, base),
+            (left + 2, base),
+        ],
+        color,
+        outline,
+    )
+    line([(left + 2, base - 4), (left + 4, base - 2), (right - 3, base - 2), (right - 1, base - 4)], shade, 1.5)
+    line([(left + 4, top + h / 2), (left + 5, top + 5), (crown - 4, top + 2), (crown + 2, top + 2)], light, 1.5)
+    line([(crown - 4, top + 3), (crown - 1, top + 3)], shine, 0.5)
+
+    # Original square eyes and little smile, slightly finer than the 40px art.
+    fy = min(base - 5, top + max(3, h * 0.5))
+    fy += {"up": -1, "down": 1}.get(gaze, 0)
+    dx = {"left": -0.5, "right": 0.5}.get(gaze, 0)
+
+    def rect(box, fill):
+        d.rectangle(tuple(round(v * s) for v in box), fill=fill)
+
+    blink = now % 4.7 < 0.12
+    for ex in (cx - 4.5, cx + 4):
+        if face in ("closed", "sleepy") or blink:
+            line([(ex - 1, fy + 1), (ex + 1.5, fy + 1)], ink, 0.75)
         else:
-            ellipse((ex - 1.25, fy - 1.7, ex + 1.25, fy + 1.5), "#eafff8")
-            ellipse((ex - 0.65 + dx, fy - 1.1, ex + 0.65 + dx, fy + 1.2), "#122b3e")
-    line([(cx - 1.4, fy + 3), (cx, fy + 3.7), (cx + 1.4, fy + 3)], "#122b3e", 0.65)
+            eh = 1 if face == "half" else 3
+            rect((ex - 1.5, fy - 0.5, ex + 1.8, fy + eh), shine)
+            rect((ex - 0.5 + dx, fy, ex + 0.8 + dx, fy + eh - 0.5), ink)
+    my = min(base - 3, fy + 5)
+    if face in ("jump", "surprised"):
+        rect((cx - 0.75, my - 1, cx + 0.75, my + 0.5), ink)
+    else:
+        line([(cx - 1.8, my - 1), (cx - 0.8, my), (cx + 0.8, my), (cx + 1.8, my - 1)], ink, 0.75)
+    if face in ("happy", "landing") or trick in ("hello", "love", "shy_hide"):
+        line([(cx - 7, fy + 4), (cx - 5.5, fy + 4)], "#f1a5c0", 0.5)
+        line([(cx + 5.5, fy + 4), (cx + 7, fy + 4)], "#f1a5c0", 0.5)
     if prop in FOODS:
         px, py = cx + 4, base - 4 + abs(pulse) * 0.5
         if prop == "pizza":
@@ -130,7 +179,5 @@ def render(dimensions, size, now, face, gaze, gesture, mirror, mood, previous, b
                 ellipse((px - 1, py - 1, px + 1, py + 1), c)
     if mirror:
         im = im.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
-    out = im.resize((size, size), Image.Resampling.LANCZOS)
-    # Filtering must never put stray alpha below the floor contact anchor.
-    out.paste((0, 0, 0, 0), (0, round(34 * unit), size, size))
-    return out
+    im.paste((0, 0, 0, 0), (0, round(34 * unit), size, size))
+    return im
