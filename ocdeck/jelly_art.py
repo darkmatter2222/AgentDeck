@@ -120,25 +120,42 @@ def logical_sprite(pose="idle", face="neutral", gaze="center", gesture="", step=
     if pose == "double_arch" and not gesture:
         gesture, step = "cheer", 3
     if gesture and step:
-        # A growing, thick pseudopod shares the outline and fill of the body.
-        length = (2, 4, 7, 8)[min(step, 4) - 1]
-        root = (right - 3, base - 7)
-        tip = (min(38, root[0] + length), root[1] - (length if gesture == "wave" else 2))
-        elbow = (min(36, root[0] + length - 1), root[1] - 2)
-        if gesture == "wave" and step == 4:
-            tip = (tip[0] - 2, tip[1] - 1)
-        if gesture in ("up", "scratch", "cheer", "clap"):
-            tip = (30 if gesture != "scratch" else 24, max(2, top - 2))
-            if gesture == "clap":
-                tip = (22 if step % 2 else 27, max(2, top - 2))
-        elif gesture == "down":
-            tip = (min(38, right + 1), base - 1)
-        d.line([root, elbow, tip], fill=outline, width=5)
-        d.line([root, elbow, tip], fill=body, width=3)
-        d.point(tip, fill=light)
+        # Jelly has short, rounded flippers, never line-drawn stick arms. Keep every
+        # gesture attached to the silhouette and at/below the crown so even cheer,
+        # scratch, clap and point poses still read as one soft blob.
+        reach = min(4, max(2, int(step) + 1))
+
+        def nub(side, center_y, lift=0):
+            y = max(top + 2, min(base - 3, center_y - lift))
+            if side < 0:
+                box = (max(0, left - reach), y - 2, left + 2, y + 2)
+                highlight = (max(0, left - reach + 1), y - 1)
+            else:
+                box = (right - 2, y - 2, min(GRID - 1, right + reach), y + 2)
+                highlight = (min(GRID - 1, right + reach - 1), y - 1)
+            d.ellipse(box, fill=outline)
+            inner = (box[0] + 1, box[1] + 1, box[2] - 1, box[3] - 1)
+            if inner[0] <= inner[2] and inner[1] <= inner[3]:
+                d.ellipse(inner, fill=body)
+            d.point(highlight, fill=light)
+
+        upper = top + max(4, h // 3)
+        middle = top + max(5, h // 2)
         if gesture in ("cheer", "clap"):
-            d.line([(40 - root[0], root[1]), (40 - elbow[0], elbow[1]), (40 - tip[0], tip[1])], fill=outline, width=5)
-            d.line([(40 - root[0], root[1]), (40 - elbow[0], elbow[1]), (40 - tip[0], tip[1])], fill=body, width=3)
+            # Two happy shoulder-flippers. Clap changes their height rather than
+            # extending them toward the top of the key.
+            lift = 1 if gesture == "clap" and step % 2 else 0
+            nub(-1, upper, lift)
+            nub(1, upper, lift)
+        elif gesture in ("up", "scratch"):
+            nub(1, upper, 1 if gesture == "scratch" else 0)
+        elif gesture == "down":
+            nub(1, base - 5)
+        else:
+            # wave and point remain side gestures. Mirroring is applied later by
+            # sprite(), so point-left and point-right share the same safe art.
+            wave_lift = 1 if gesture == "wave" and step in (2, 4) else 0
+            nub(1, middle, wave_lift)
     return im
 
 

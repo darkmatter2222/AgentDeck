@@ -1,70 +1,10 @@
-"""Focus existing Windows top-level windows; never launch from a press."""
+\
+"""Focus an existing Windows window associated with a registered harness process."""
 
 import ctypes
 from ctypes import wintypes
 import os
 import time
-
-
-def activate(record):
-    if os.name != "nt":
-        return {"ok": False, "reason": "Windows host required"}
-    u = ctypes.WinDLL("user32", use_last_error=True)
-    u.GetForegroundWindow.restype = wintypes.HWND
-    u.IsWindowVisible.argtypes = [wintypes.HWND]
-    u.IsIconic.argtypes = [wintypes.HWND]
-    u.ShowWindow.argtypes = [wintypes.HWND, ctypes.c_int]
-    u.SetForegroundWindow.argtypes = [wintypes.HWND]
-    u.GetWindowTextLengthW.argtypes = [wintypes.HWND]
-    u.GetWindowTextW.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
-    u.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
-    u.GetWindowThreadProcessId.restype = wintypes.DWORD
-    callback_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
-    u.EnumWindows.argtypes = [callback_type, wintypes.LPARAM]
-    # Declare every HWND argument/result explicitly for 64-bit Python.
-    for name in ("IsWindow", "IsHungAppWindow"):
-        getattr(u, name).argtypes = [wintypes.HWND]
-        getattr(u, name).restype = wintypes.BOOL
-    u.IsChild.argtypes = [wintypes.HWND, wintypes.HWND]
-    u.IsChild.restype = wintypes.BOOL
-    u.ShowWindowAsync.argtypes = [wintypes.HWND, ctypes.c_int]
-    u.ShowWindowAsync.restype = wintypes.BOOL
-    u.GetGUIThreadInfo.argtypes = [wintypes.DWORD, ctypes.POINTER(GUIThreadInfo)]
-    u.GetGUIThreadInfo.restype = wintypes.BOOL
-    u.PeekMessageW.argtypes = [ctypes.POINTER(wintypes.MSG), wintypes.HWND, wintypes.UINT, wintypes.UINT, wintypes.UINT]
-    u.PeekMessageW.restype = wintypes.BOOL
-    u.AttachThreadInput.argtypes = [wintypes.DWORD, wintypes.DWORD, wintypes.BOOL]
-    u.AttachThreadInput.restype = wintypes.BOOL
-    u.BringWindowToTop.argtypes = [wintypes.HWND]
-    u.BringWindowToTop.restype = wintypes.BOOL
-    for name in ("SetFocus", "SetActiveWindow"):
-        getattr(u, name).argtypes = [wintypes.HWND]
-        getattr(u, name).restype = wintypes.HWND
-    token = record.get("windowToken", "")
-    candidates = []
-
-    @callback_type
-    def collect(hwnd, _):
-        if not u.IsWindowVisible(hwnd):
-            return True
-        text = ctypes.create_unicode_buffer(u.GetWindowTextLengthW(hwnd) + 1)
-        u.GetWindowTextW(hwnd, text, len(text))
-        pid = wintypes.DWORD()
-        u.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
-        if (token and text.value == token) or (not token and pid.value == record["process"]["pid"]):
-            candidates.append(hwnd)
-        return True
-
-    u.EnumWindows(collect, 0)
-    if len(candidates) != 1:
-        return {
-            "ok": False,
-            "reason": "Window mapping ambiguous or absent; use ocdeck launch for a dedicated window",
-            "matches": len(candidates),
-        }
-    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
-    kernel.GetCurrentThreadId.restype = wintypes.DWORD
-    return focus_window(u, kernel.GetCurrentThreadId(), candidates[0])
 
 
 class GUIThreadInfo(ctypes.Structure):
@@ -79,6 +19,142 @@ class GUIThreadInfo(ctypes.Structure):
         ("hwndCaret", wintypes.HWND),
         ("rcCaret", wintypes.RECT),
     ]
+
+
+def _api():
+    u = ctypes.WinDLL("user32", use_last_error=True)
+    u.GetForegroundWindow.restype = wintypes.HWND
+    u.IsWindowVisible.argtypes = [wintypes.HWND]
+    u.IsIconic.argtypes = [wintypes.HWND]
+    u.SetForegroundWindow.argtypes = [wintypes.HWND]
+    u.GetWindowTextLengthW.argtypes = [wintypes.HWND]
+    u.GetWindowTextW.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
+    u.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
+    u.GetWindowThreadProcessId.restype = wintypes.DWORD
+    u.IsChild.argtypes = [wintypes.HWND, wintypes.HWND]
+    u.IsChild.restype = wintypes.BOOL
+    u.ShowWindowAsync.argtypes = [wintypes.HWND, ctypes.c_int]
+    u.ShowWindowAsync.restype = wintypes.BOOL
+    u.GetGUIThreadInfo.argtypes = [wintypes.DWORD, ctypes.POINTER(GUIThreadInfo)]
+    u.GetGUIThreadInfo.restype = wintypes.BOOL
+    u.PeekMessageW.argtypes = [ctypes.POINTER(wintypes.MSG), wintypes.HWND, wintypes.UINT, wintypes.UINT, wintypes.UINT]
+    u.PeekMessageW.restype = wintypes.BOOL
+    u.AttachThreadInput.argtypes = [wintypes.DWORD, wintypes.DWORD, wintypes.BOOL]
+    u.AttachThreadInput.restype = wintypes.BOOL
+    u.BringWindowToTop.argtypes = [wintypes.HWND]
+    u.BringWindowToTop.restype = wintypes.BOOL
+    for name in ("IsWindow", "IsHungAppWindow"):
+        getattr(u, name).argtypes = [wintypes.HWND]
+        getattr(u, name).restype = wintypes.BOOL
+    for name in ("SetFocus", "SetActiveWindow"):
+        getattr(u, name).argtypes = [wintypes.HWND]
+        getattr(u, name).restype = wintypes.HWND
+    return u
+
+
+def _pid_chain(pid):
+    try:
+        import psutil
+
+        process = psutil.Process(int(pid))
+        result = [process.pid]
+        for parent in process.parents()[:12]:
+            result.append(parent.pid)
+        return result
+    except (ValueError, TypeError, Exception):
+        return [int(pid)] if str(pid).isdigit() else []
+
+
+def _owner_pid(u, hwnd):
+    pid = wintypes.DWORD()
+    u.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+    return int(pid.value)
+
+
+def capture_window(pid):
+    """Capture the visible ancestor window for a native hook's harness process."""
+    if os.name != "nt":
+        return {}
+    u = _api()
+    chain = _pid_chain(pid)
+    if not chain:
+        return {}
+    distance = {value: index for index, value in enumerate(chain)}
+    foreground = u.GetForegroundWindow()
+    if foreground and u.IsWindowVisible(foreground):
+        owner = _owner_pid(u, foreground)
+        if owner in distance:
+            return {"windowHwnd": int(foreground), "windowPid": owner}
+    callback_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    candidates = []
+
+    @callback_type
+    def collect(hwnd, _):
+        if u.IsWindowVisible(hwnd):
+            owner = _owner_pid(u, hwnd)
+            if owner in distance:
+                candidates.append((distance[owner], int(hwnd), owner))
+        return True
+
+    u.EnumWindows(collect, 0)
+    if not candidates:
+        return {}
+    best = min(item[0] for item in candidates)
+    nearest = [item for item in candidates if item[0] == best]
+    if len(nearest) != 1:
+        return {}
+    _, hwnd, owner = nearest[0]
+    return {"windowHwnd": hwnd, "windowPid": owner}
+
+
+def activate(record):
+    if os.name != "nt":
+        return {"ok": False, "reason": "Windows host required"}
+    u = _api()
+    stored = int(record.get("windowHwnd", 0) or 0)
+    if stored and u.IsWindow(stored) and u.IsWindowVisible(stored):
+        candidates = [stored]
+    else:
+        token = record.get("windowToken", "")
+        chain = _pid_chain(record.get("process", {}).get("pid", 0))
+        if record.get("windowPid") and int(record["windowPid"]) not in chain:
+            chain.insert(0, int(record["windowPid"]))
+        distance = {value: index for index, value in enumerate(chain)}
+        token_candidates = []
+        process_candidates = []
+        callback_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+
+        @callback_type
+        def collect(hwnd, _):
+            if not u.IsWindowVisible(hwnd):
+                return True
+            length = u.GetWindowTextLengthW(hwnd)
+            title = ctypes.create_unicode_buffer(length + 1)
+            u.GetWindowTextW(hwnd, title, len(title))
+            owner = _owner_pid(u, hwnd)
+            if token and title.value == token:
+                token_candidates.append(int(hwnd))
+            elif not token and owner in distance:
+                process_candidates.append((distance[owner], int(hwnd)))
+            return True
+
+        u.EnumWindows(collect, 0)
+        if token:
+            candidates = token_candidates
+        elif process_candidates:
+            best = min(item[0] for item in process_candidates)
+            candidates = [hwnd for dist, hwnd in process_candidates if dist == best]
+        else:
+            candidates = []
+    if len(candidates) != 1:
+        return {
+            "ok": False,
+            "reason": "Window mapping ambiguous or absent; keep one harness per OS window for one-touch focus",
+            "matches": len(candidates),
+        }
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel.GetCurrentThreadId.restype = wintypes.DWORD
+    return focus_window(u, kernel.GetCurrentThreadId(), candidates[0])
 
 
 def focus_window(u, current, hwnd, sleep=time.sleep):
@@ -101,21 +177,17 @@ def focus_window(u, current, hwnd, sleep=time.sleep):
     def confirmed():
         return u.GetForegroundWindow() == hwnd and not u.IsIconic(hwnd) and bool(focused_child())
 
-    # Remember the editor/terminal input child before activation, rather than
-    # unconditionally moving keyboard focus to its top-level frame.
     child = focused_child()
     if u.IsIconic(hwnd):
-        u.ShowWindowAsync(hwnd, 9)  # SW_RESTORE
+        u.ShowWindowAsync(hwnd, 9)
     accepted = bool(u.SetForegroundWindow(hwnd))
     for _ in range(5):
         if confirmed():
             return {"ok": True, "hwnd": int(hwnd), "method": "SetForegroundWindow", "keyboardFocus": True}
         sleep(0.04)
 
-    # A broker worker is not a GUI thread. Explicitly create its message queue
-    # before attaching, and attach BOTH the foreground and destination threads.
     message = wintypes.MSG()
-    u.PeekMessageW(ctypes.byref(message), None, 0, 0, 0)  # PM_NOREMOVE
+    u.PeekMessageW(ctypes.byref(message), None, 0, 0, 0)
     foreground = u.GetForegroundWindow()
     other = u.GetWindowThreadProcessId(foreground, None) if foreground else 0
     attached, failed = [], []
@@ -132,8 +204,6 @@ def focus_window(u, current, hwnd, sleep=time.sleep):
             u.SetForegroundWindow(hwnd)
             if target == current or target in attached:
                 u.SetActiveWindow(hwnd)
-                # Prefer the application's current focus after activation, then
-                # its previously focused child if it still belongs to this frame.
                 focus = focused_child()
                 if not focus and child and u.IsWindow(child) and u.IsChild(hwnd, child):
                     focus = child

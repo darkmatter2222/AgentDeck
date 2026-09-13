@@ -54,6 +54,9 @@ class Registry:
                     "label": scrub_text(str(data.get("label", "OpenCode")), self.secrets)[:100],
                     "harness": scrub_text(str(data.get("harness", "")), self.secrets)[:40],
                     "windowToken": str(data.get("windowToken", ""))[:128],
+                    "windowHwnd": int(data.get("windowHwnd", 0) or 0),
+                    "windowPid": int(data.get("windowPid", 0) or 0),
+                    "eventDriven": bool(data.get("eventDriven", False)),
                     "seq": -1,
                     "producer": None,
                     "retired": [],
@@ -66,6 +69,12 @@ class Registry:
                 self.records[key] = record
             elif data.get("process") != record["process"]:
                 raise ValueError("instance process identity cannot change")
+            if data.get("windowHwnd"):
+                record["windowHwnd"] = int(data["windowHwnd"])
+            if data.get("windowPid"):
+                record["windowPid"] = int(data["windowPid"])
+            if data.get("eventDriven"):
+                record["eventDriven"] = True
             record["lastSeen"] = self.clock()
             return copy.deepcopy(record)
 
@@ -153,7 +162,11 @@ class Registry:
                 r = self.records.get(key)
                 state = "off"
                 if r:
-                    if self.clock() - r["lastState"] > self.stale_after or r["status"] == "unknown":
+                    if (
+                        not r.get("eventDriven")
+                        and self.clock() - r["lastState"] > self.stale_after
+                        or r["status"] == "unknown"
+                    ):
                         state = "unknown"
                     elif r["pending"] or r.get("inputNeeded"):
                         state = "input"

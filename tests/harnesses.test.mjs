@@ -111,3 +111,11 @@ test('real hook processes -> authenticated relay; concurrent events; silent fail
     const value=await service.bridge.readSnapshot(); assert.equal(value.status,'unknown');
   } finally { await service.close(); await fs.rm(dir,{recursive:true,force:true}); }
 });
+
+
+test('direct-delivery metadata includes action and question classification', () => {
+  const event = normalize('claude', 'PreToolUse', {session_id:'s1', tool_name:'AskUserQuestion', tool_use_id:'r1'});
+  assert.equal(event.action, 'tool');
+  assert.equal(event.question, true);
+  assert.equal(event.session, 's1');
+});

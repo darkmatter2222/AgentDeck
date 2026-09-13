@@ -20,6 +20,7 @@ from .focus import activate
 from .model import Registry
 from .errors import message
 from .settings import validate_config
+from .direct_hooks import DirectHooks
 
 LOG = logging.getLogger(__name__)
 
@@ -73,6 +74,7 @@ class Broker:
                 f.write(secrets.token_hex(32))
         self.token = (self.root / "token").read_text(encoding="ascii").strip()
         self.registry = Registry(probe, slots=self.config.get("slots", 6), secrets=(self.token,))
+        self.direct_hooks = DirectHooks(self.registry)
         self.alerts = Alerts(self.config)
         self.update = None
         self.stop = threading.Event()
@@ -100,6 +102,8 @@ class Broker:
         if method == "POST" and path == "/v1/register":
             record = self.registry.upsert(body)
             return {"epoch": self.registry.epoch, "slot": record["slot"]}
+        if method == "POST" and path == "/v1/hook":
+            return self.direct_hooks.event(body)
         if path.startswith("/v1/instances/"):
             key = urllib.parse.unquote(path[len("/v1/instances/") :])
             if method == "PUT":

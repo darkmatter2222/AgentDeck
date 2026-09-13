@@ -1,5 +1,8 @@
 # Agent harness adapters
 
+> **Current architecture:** launchers are optional. Install the broker with `ocdeck install`, install a native harness hook, then start the harness normally. See [Plugin-first setup](PLUGIN-FIRST.md).
+
+
 Implemented for Claude Code, GitHub Copilot CLI, GitHub Copilot in VS Code,
 Gemini CLI, Cursor CLI (`agent`), and Codex CLI. OpenCode's existing plugins continue to work.
 These are native lifecycle-hook integrations, not model prompts, MCP tools, or

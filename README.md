@@ -99,13 +99,13 @@ shows the OpenCode workflow; additional adapters have the coverage described bel
 
 | Harness | Integration / launch | Pending-input coverage |
 |---|---|---|
-| OpenCode | Global server plugin; `opencode` shim or `oc` | Permission and structured-question IDs; SDK reconciliation when available |
-| Claude Code | Project hooks; `Launch-Claude.bat` | Identified `AskUserQuestion` calls; permission hooks show unknown instead of an invented count |
-| GitHub Copilot CLI | Project hooks; `Launch-Copilot.bat` | Activity only; approvals may still appear running |
-| Copilot in VS Code | Project hooks; `Launch-Copilot-VSCode.bat` | Activity only; isolated editor profile, preview integration |
-| Gemini CLI | Project hooks; `Launch-Gemini.bat` | Activity; recognized permission notifications show unknown |
-| Codex CLI | Project hooks; `Launch-Codex.bat` | Observed approval state with unknown count; review hooks using `/hooks` |
-| Cursor CLI (`agent`) | Project hooks; `Launch-Cursor.bat` | Activity only; Cursor desktop integration is not included |
+| OpenCode | Global server plugin; launch `opencode` normally | Permission and structured-question IDs; SDK reconciliation when available |
+| Claude Code | Project native hooks; launch `claude` normally | Identified `AskUserQuestion` calls; permission hooks show unknown instead of an invented count |
+| GitHub Copilot CLI | Project native hooks; launch `copilot` normally | Activity only; approvals may still appear running |
+| Copilot in VS Code | Project native hooks; launch VS Code normally | Activity only; isolated editor profile, preview integration |
+| Gemini CLI | Project native hooks; launch `gemini` normally | Activity; recognized permission notifications show unknown |
+| Codex CLI | Project native hooks; launch `codex` normally | Observed approval state with unknown count; review hooks using `/hooks` |
+| Cursor CLI (`agent`) | Project native hooks; launch `agent` normally | Activity only; Cursor desktop integration is not included |
 
 All six hook adapters are implemented and fixture-tested. Windows/Ubuntu CI
 exercises mocked hardware and subprocess transport. Live native-hook loading,
@@ -130,110 +130,62 @@ or changes an agent's state. Windows can deny foreground activation; inspect
 
 | Component | Requirement |
 |---|---|
-| Desktop / hardware | Windows 10 or 11, interactive user session, Stream Deck Mini (6), Original/MK.2 (15), or XL (32) |
-| Terminal | Windows Terminal (`wt.exe`) for dedicated managed windows |
-| Python | 3.11+; 64-bit recommended |
-| Node.js | 20+ on PATH for every new hook adapter and for JavaScript tests |
-| Harness | The desired CLI/editor installed; its native hooks enabled and supported |
-| Elgato | Quit Elgato Stream Deck and other HID controllers |
-| Installation | Network access for Python dependencies; permanent source directory |
-
-The original `scripts/Install.ps1` requires OpenCode and installs its global plugin,
-command shims and per-user logon task. Other adapters do not require OpenCode:
-use the [foreground broker tutorial](docs/TUTORIALS.md#fresh-install-without-opencode).
-Linux/macOS can run mock/status tests; Windows desktop focus is not implemented there.
-
-The connected device determines slot capacity. Mock tests cover 6, 15 and 32 keys;
-physical acceptance remains required on each device model.
+| Hardware | Stream Deck Mini (6), Original/MK.2 (15), or XL (32) |
+| Python | 3.11+ |
+| Node.js | 20+ for native JavaScript hook adapters |
+| Windows | Full USB control and one-touch window focus; Elgato Stream Deck must release the device |
+| Linux | Broker auto-start via a per-user systemd service; desktop focus is not currently implemented |
 
 ## Get started
 
-**Release the deck first:** quit Elgato Stream Deck from the tray and close old
-controller scripts. See [advanced coexistence](docs/NEXT.md#larger-decks) if needed.
-Two applications writing to the same device cause flicker and unreliable input.
-
-Choose the path that matches your setup:
-
-- [Existing AgentStreamDeck installation: add a harness](docs/TUTORIALS.md#existing-install-add-a-harness)
-- [Fresh install with OpenCode and automatic logon startup](docs/TUTORIALS.md#fresh-install-with-opencode)
-- [Fresh install without OpenCode: foreground broker](docs/TUTORIALS.md#fresh-install-without-opencode)
-- [Copilot in VS Code: isolated editor setup](docs/HARNESSES.md#copilot-in-vs-code-preview)
-- [Physical first-run acceptance](docs/FIRST-RUN.md)
-
-For an existing install, keep this checkout at `C:\Tools\AgentStreamDeck` (or substitute
-your actual permanent location). In PowerShell:
+The normal installation is intentionally launcher-free. Install the Python package once, then let AgentStreamDeck register its per-user broker at login:
 
 ```powershell
-C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp
-C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile copilot-cli -Project C:\Projects\MyApp
-cd C:\Projects\MyApp
-C:\Tools\AgentStreamDeck\scripts\Launch-Claude.bat
-C:\Tools\AgentStreamDeck\scripts\Launch-Copilot.bat
+python -m pip install --upgrade agentstreamdeck
+ocdeck install
 ```
 
-Hooks are installed once **per software project**. The BAT launchers use the current
-working directory; invoking them from the AgentStreamDeck checkout would target that
-checkout. Installation preserves unrelated settings, makes backups before changes,
-and supports `-DryRun` and `-Remove`. Plain `claude` or `copilot` launches do not
-attach to AgentStreamDeck; use its managed launchers.
+On **Windows**, `ocdeck install` creates and starts the per-user **AgentStreamDeck Broker** Scheduled Task. On **Linux**, it creates and enables `agentstreamdeck.service` as a systemd user service. The broker owns the Stream Deck and starts automatically for future sessions. `ocdeck install` also installs the OpenCode server plugin automatically when `opencode` is already on PATH.
 
-For AI-assisted setup, give your coding agent this instruction:
+Then install the native observer hook for each harness/project you want on the deck:
+
+```powershell
+cd C:\Projects\MyApp
+ocdeck harness-install claude
+ocdeck harness-install codex
+ocdeck harness-install copilot-cli
+ocdeck harness-install gemini
+ocdeck harness-install cursor
+```
+
+After that, start the harness **the way you normally do**: `claude`, `codex`, `copilot`, `gemini`, `agent`, your own BAT file, a local-model launcher, or an IDE shortcut. The installed plugin/hook talks directly to the local broker. `ocdeck start`, `harness-launch`, and the legacy `Launch-*.bat` files remain compatibility helpers, not requirements.
+
+For Copilot in VS Code, install the `copilot-vscode` profile instead. OpenCode uses its global plugin rather than a per-project native hook. Hook installation preserves unrelated configuration and writes a receipt/backups before changes.
+
+If you want an AI coding agent to set this up for you, give it this instruction:
 
 ```text
-Install AgentStreamDeck from https://github.com/darkmatter2222/AgentStreamDeck in a permanent
-source directory. Read docs/QWEN-HANDOFF.md and docs/TUTORIALS.md. Use the setup path
-for the harnesses I actually use, preserve my existing configuration, and verify
-that Elgato Stream Deck is closed before opening the device. Read docs/NEXT.md
-for 2.1 commands, supported deck sizes, Codex trust and current limitations. Run the automated
-checks, then guide me through docs/FIRST-RUN.md and the harness-specific acceptance
-steps. Record observed results separately from unverified hardware/runtime gates.
+Go to https://github.com/darkmatter2222/AgentStreamDeck and follow the current README and docs/HARNESSES.md. Install AgentStreamDeck from PyPI, run `ocdeck install` so the broker starts automatically, then install the native AgentStreamDeck plugin/hook for the harnesses I use. Preserve my existing harness configuration. Do not require an AgentStreamDeck launcher; I want to start each harness normally. Verify with `ocdeck status` and the physical button test.
 ```
 
-### Install or update version 3.0
-
-Use `main` or the v3.0.0 release ZIP in your permanent checkout. Inspect
-and preserve any local edits before switching. Close managed sessions and stop the
-broker before updating its source and dependencies.
+### Install/update AgentStreamDeck
 
 ```powershell
-cd C:\Tools\AgentStreamDeck
-git fetch origin
-git switch main
-git pull --ff-only
+python -m pip install --upgrade agentstreamdeck
+ocdeck install
 ```
 
-For an original OpenCode/task installation, rerun
-`powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Install.ps1`.
-For a foreground setup, run `python -m pip install -e .` using its existing Python
-environment and restart `python -m ocdeck broker`. Reinstall the affected project
-hooks so receipts point to the current scripts, then relaunch managed sessions.
-Existing config is retained; sound/toasts remain off until enabled. See
-[the installation tutorials](docs/TUTORIALS.md) for fresh setups and custom paths.
+The broker checks PyPI for updates. When Jelly carries a red `!`, press the button Jelly occupies to approve the exact detected update. No package is installed merely because an update was found.
 
 ### Set up Codex CLI
 
-Install and authenticate Codex normally, then install its observer hooks in the
-software project you will work on:
-
 ```powershell
-ocdeck harness-install codex --project C:\Projects\MyApp --dry-run
-ocdeck harness-install codex --project C:\Projects\MyApp
 cd C:\Projects\MyApp
-ocdeck start --profile codex
-# Equivalent checkout launcher:
-# C:\Tools\AgentStreamDeck\scripts\Launch-Codex.bat
+ocdeck harness-install codex
+codex
 ```
 
-Open `/hooks` in Codex to review and trust the exact installed hooks. AgentStreamDeck
-merges `.codex/hooks.json`, preserves unrelated settings, creates a receipt and
-backs up changes. It never grants hook trust or emits approval decisions.
-
-Prompt/tool events map to RUNNING; Stop/Interrupt map to IDLE; an observed
-PermissionRequest maps to INPUT with an unknown count until a result, new turn,
-stop or interrupt. This is observed lifecycle state, not confirmation that an
-approval dialog remains open. Missing hooks remain UNKNOWN. Paired
-`request_user_input` tool IDs can also establish pending input. Exiting the
-managed child removes its slot. [Codex coverage and live checks](docs/NEXT.md#codex-cli).
+Open `/hooks` in Codex to review and trust the installed observer hooks. AgentStreamDeck never grants trust or approval decisions.
 
 ### Supported decks and slot capacity
 
@@ -258,34 +210,7 @@ requires Elgato to be closed. For mock capacity only, configure `"slots": 15` or
 
 ### Using HomeAILab or another local-model launcher?
 
-**Start it through AgentStreamDeck to make button focus work.** A directly launched CLI
-can report status without a usable window mapping, because Windows Terminal owns
-the window. The wrapper creates a dedicated window and keeps your existing model
-configuration inside it.
-
-```powershell
-cd C:\Projects\MyApp
-C:\Tools\AgentStreamDeck\scripts\Launch-Agent.bat --profile opencode --launcher "C:\Tools\HomeAILab\harness\opencode\opencode-5090.bat" --
-C:\Tools\AgentStreamDeck\scripts\Launch-Agent.bat --profile claude --launcher "C:\Tools\HomeAILab\harness\claude\claude-5090.bat" --
-```
-
-Complete the OpenCode installation or the corresponding project hook setup above
-first. After updating, **restart the broker and relaunch your old sessions through
-these wrappers**. Existing unmanaged windows cannot be retroactively mapped.
-
-| Ready-to-use example in `scripts/examples/` | Purpose |
-|---|---|
-| `HomeAILab-OpenCode-5090.bat` / `HomeAILab-OpenCode-Spark.bat` | Wrap your existing local OpenCode scripts |
-| `HomeAILab-Claude-5090.bat` / `HomeAILab-Claude-Cluster.bat` | Wrap your existing direct/router Claude scripts |
-| `Claude-Local.bat` | Small local Anthropic-compatible endpoint example |
-| `Claude-Cloud.bat` | Normal Anthropic login/API-key route |
-| `OpenCode-Cloud.bat` | Normal OpenCode provider configuration |
-
-HomeAILab examples use `HOMEAILAB_ROOT`; local Claude uses `AGENTDECK_LOCAL_URL`
-and `AGENTDECK_LOCAL_MODEL`. No model credentials are bundled. The original
-HomeAILab scripts retain their own tuning and permission flags.
-
-[Full launcher setup, local/cloud examples, and focus troubleshooting](docs/LAUNCHERS.md).
+Use it normally. Once the native hook/plugin is installed, AgentStreamDeck does not need to own the launch command. The hook reports lifecycle metadata straight to the broker. On Windows, the broker captures the containing visible window when the session starts so a physical key can restore/focus it. For deterministic focus, keep one monitored harness per OS window; multiple tabs owned by one Windows Terminal process can be inherently ambiguous.
 
 ## Make every key your own
 
