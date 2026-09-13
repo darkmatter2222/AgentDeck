@@ -1,4 +1,3 @@
-\
 // Short-lived observer. It never makes approval decisions and always exits zero.
 import fs from 'node:fs/promises';
 import os from 'node:os';
