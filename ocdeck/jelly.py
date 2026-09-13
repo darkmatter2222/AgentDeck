@@ -26,11 +26,13 @@ def settings(config):
         "local_movement": "normal",
         "travel": "normal",
         "persistent": False,
+        "coffee": True,
+        "coffee_rainbow": True,
     }
     if not isinstance(value, dict) or set(value) - set(defaults):
         raise ValueError("Unknown or invalid jelly configuration")
     result = {**defaults, **value}
-    for name in ("enabled", "mood_colors", "needs", "reactions", "persistent"):
+    for name in ("enabled", "mood_colors", "needs", "reactions", "persistent", "coffee", "coffee_rainbow"):
         if type(result[name]) is not bool:
             raise ValueError(f"jelly.{name} must be boolean")
     if type(result["virtual_gap"]) is not int or not 0 <= result["virtual_gap"] <= 40:
@@ -143,6 +145,18 @@ class Jelly:
         self.look_until = 0.0
         self.pending_speech = None
         self.last_mood = "content"
+        self.touch_until = 0.0
+        self.touch_text = ""
+
+    def tap(self, now):
+        """A visible, short reaction, even when ambient thoughts are disabled."""
+        if self.current is None or now < self.touch_until - 1.7:
+            return
+        self.settle(self.current, now)
+        self.start_action(self.rng.choice(("reform", "cheer", "dance")), now)
+        self.touch_text = self.rng.choice(("Ouch!", "Hehe!", "Boop!", "Hey!", "Tickles!"))
+        self.touch_until = now + 2
+        self.thoughts.clear()
 
     def close(self):
         self.closed = True
@@ -154,6 +168,7 @@ class Jelly:
         self.thoughts.clear()
         self.pending_speech = None
         self.look_target = None
+        self.touch_until = 0.0
 
     def settle(self, key, now):
         self.current, self.destination = key, None
@@ -518,6 +533,10 @@ class Jelly:
             viewport.paste(im, (x - l, y - t))
             if viewport.getbbox():
                 result[key] = viewport
-        if self.state != "hop" and self.thoughts.active(self.now) and self.current in result:
+        if self.current in result and self.now < self.touch_until:
+            from .coffee import caption
+
+            caption(result[self.current], self.touch_text)
+        elif self.state != "hop" and self.thoughts.active(self.now) and self.current in result:
             result[self.current].paste(self.thoughts.render(g.width, g.scale, self.now), (0, 2))
         return result

@@ -123,6 +123,30 @@ class Broker:
         raise KeyError("Unknown route")
 
     def handle_press(self, view, synthetic=False):
+        # Only the physical/render queues can request these local actions.
+        if not synthetic and view.get("_action") == "open_coffee":
+            import webbrowser
+            from .coffee import SUPPORT_URL
+
+            try:
+                opened = bool(webbrowser.open(SUPPORT_URL, new=2))
+                self.device.status["coffee_browser"] = {"ok": opened}
+                LOG.info("Coffee browser opened=%s", opened)
+                return {"ok": opened}
+            except Exception:
+                LOG.exception("Could not open coffee page")
+                return {"ok": False}
+        if not synthetic and view.get("_action") == "update" and not view.get("id"):
+            slot = view.get("slot")
+            current = self.registry.view()
+            if (
+                type(slot) is int
+                and 0 <= slot < len(current)
+                and not current[slot].get("id")
+                and current[slot].get("generation") == view.get("generation")
+            ):
+                return {"ok": getattr(self.device, "_start_jelly_update")()}
+            return {"ok": False, "reason": "Empty or stale slot"}
         r = self.registry.resolve(view.get("slot"), view.get("generation"), view.get("id"))
         if not r:
             return {"ok": False, "reason": "Empty or stale slot"}
