@@ -31,7 +31,7 @@ class Desktop:
         return self.minimized
 
     def ShowWindowAsync(self, hwnd, mode):
-        self.events.append(("restore", hwnd))
+        self.events.append(("restore", hwnd, mode))
         self.minimized = False
         return True
 
@@ -91,7 +91,7 @@ class FocusTests(unittest.TestCase):
         u = Desktop()
         u.minimized = True
         self.assertTrue(focus_window(u, 30, 200, sleep=lambda _: None)["ok"])
-        self.assertEqual(u.events[0], ("restore", 200))
+        self.assertEqual(u.events[0], ("restore", 200, 3))
 
     def test_direct_success_requires_keyboard_focus(self):
         u = Desktop()
@@ -121,3 +121,38 @@ class FocusTests(unittest.TestCase):
         u.foreground = 200
         self.assertTrue(focus_window(u, 30, 200, sleep=lambda _: None)["ok"])
         self.assertFalse(u.events)
+
+
+class AsyncMaximizeTests(unittest.TestCase):
+    def test_focus_waits_for_async_maximize_to_complete(self):
+        u = Desktop()
+        u.minimized = True
+
+        def maximize(hwnd, mode):
+            u.events.append(("maximize", hwnd, mode))
+
+        u.ShowWindowAsync = maximize
+        sleeps = []
+
+        def tick(delay):
+            sleeps.append(delay)
+            if len(sleeps) == 3:
+                u.minimized = False
+
+        self.assertTrue(focus_window(u, 30, 200, sleep=tick)["ok"])
+        self.assertEqual(u.events[0], ("maximize", 200, 3))
+        self.assertEqual(sleeps[:3], [0.025] * 3)
+
+    def test_unresponsive_restore_reports_failure_instead_of_false_success(self):
+        u = Desktop()
+        u.minimized = True
+        u.ShowWindowAsync = lambda *args: True
+        result = focus_window(u, 30, 200, sleep=lambda _: None)
+        self.assertFalse(result["ok"])
+        self.assertIn("minimized", result["reason"])
+        self.assertFalse(u.attached)
+
+    def test_existing_nonminimized_window_keeps_its_size(self):
+        u = Desktop()
+        self.assertTrue(focus_window(u, 30, 200, sleep=lambda _: None)["ok"])
+        self.assertFalse(any(event[0] == "restore" for event in u.events))

@@ -157,6 +157,7 @@ class UpdateTests(unittest.TestCase):
                 self.status = {}
                 self.jelly_root = None
                 self.original_presses = []
+                self.overlay_actions = {}
                 self.jelly = None
 
             def _start_jelly(self):
@@ -179,11 +180,10 @@ class UpdateTests(unittest.TestCase):
         red_pixels = [pixel for pixel in frames[0].getdata() if pixel[0] > 180 and pixel[1] < 100]
         self.assertTrue(red_pixels)
 
-        called = []
-        loop._start_jelly_update = lambda: called.append(True)
+        self.assertEqual(loop.overlay_actions[0], {"_action": "update"})
+        # The rendering patch must never replace the HID callback's routing.
         loop.press(0, True)
-        self.assertEqual(called, [True])
-        self.assertEqual(loop.original_presses, [])
+        self.assertEqual(loop.original_presses, [(0, True)])
 
     def test_update_check_interval_is_five_minutes(self):
         self.assertEqual(CHECK_INTERVAL, 300)

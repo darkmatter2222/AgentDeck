@@ -1,4 +1,4 @@
-__version__ = "3.0.0"
+__version__ = "3.0.4"
 
 from . import jelly_art as _jelly_art
 from .jelly_cute import install as _install_jelly_cute

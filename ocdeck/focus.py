@@ -183,7 +183,15 @@ def focus_window(u, current, hwnd, sleep=time.sleep):
 
     child = focused_child()
     if u.IsIconic(hwnd):
-        u.ShowWindowAsync(hwnd, 9)
+        # ShowWindowAsync only queues the request. Wait for the target to leave
+        # its minimized state before attempting foreground/keyboard activation.
+        u.ShowWindowAsync(hwnd, 3)  # SW_MAXIMIZE, explicitly requested on key press.
+        for _ in range(20):
+            if not u.IsIconic(hwnd):
+                break
+            sleep(0.025)
+        if u.IsIconic(hwnd):
+            return {"ok": False, "reason": "Window did not leave minimized state", "hwnd": int(hwnd)}
     accepted = bool(u.SetForegroundWindow(hwnd))
     for _ in range(5):
         if confirmed():

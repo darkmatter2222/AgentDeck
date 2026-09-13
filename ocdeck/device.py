@@ -5,6 +5,7 @@ import queue
 import threading
 import time
 from .art import frame
+from .coffee import CoffeeBreak
 from .errors import message
 from .appearance import appearance, animation_phase, harness_id
 from collections import OrderedDict
@@ -158,6 +159,8 @@ class DeviceLoop:
         self.jelly_events = queue.Queue(maxsize=32)
         self.jelly_root = root
         self.jelly_saved_at = 0.0
+        self.coffee = None
+        self.overlay_actions: dict[int, dict] = {}
 
     def notify_jelly(self, kind, slot):
         """Metadata-only handoff; workers never touch the animation controller."""
@@ -182,6 +185,8 @@ class DeviceLoop:
     def _start_jelly(self):
         self.jelly = None
         self.status["jelly"] = "disabled"
+        self.coffee = None
+        self.overlay_actions = {}
         try:
             options = jelly_settings(self.config)
             if not options["enabled"] or not self.config.get("animations", True):
@@ -194,6 +199,7 @@ class DeviceLoop:
                 width = height = 80
             geometry = DeckGeometry(rows, columns, width, height, options["virtual_gap"])
             self.jelly = Jelly(geometry, options["behavior_seed"], options["hop_style"], options)
+            self.coffee = CoffeeBreak(time.monotonic())
             self.jelly.thoughts.next_at = time.monotonic() + 20
             if options["persistent"] and self.jelly_root:
                 from pathlib import Path
@@ -207,6 +213,7 @@ class DeviceLoop:
             self._fail_jelly()
 
     def _fail_jelly(self):
+        self.overlay_actions = {}
         LOG.exception("Experimental Jelly disabled; agent rendering continues")
         if self.jelly:
             self.jelly.close()
@@ -214,6 +221,7 @@ class DeviceLoop:
         self.status["jelly"] = "failed"
 
     def _jelly_frames(self, now, views):
+        self.overlay_actions = {}
         if self.jelly is None:
             return {}
         try:
@@ -224,7 +232,49 @@ class DeviceLoop:
                     events.append(self.jelly_events.get_nowait())
                 except queue.Empty:
                     break
-            self.jelly.update(now, available, views, events)
+            for event in events:
+                slot = event.get("slot")
+                if event.get("kind") not in ("tap", "coffee") or slot not in available:
+                    continue
+                if event.get("generation") != views[slot].get("generation"):
+                    continue
+                if event["kind"] == "coffee":
+                    if (
+                        self.coffee
+                        and self.coffee.key == slot
+                        and self.coffee.jelly_key in available
+                        and now < self.coffee.until
+                        and event.get("serial") == self.coffee.serial
+                    ):
+                        self.coffee.finish(now)
+                        if self.jelly.current in available:
+                            self.jelly.settle(self.jelly.current, now)
+                        try:
+                            self.presses.put_nowait({"_action": "open_coffee"})
+                        except queue.Full:
+                            LOG.warning("Press queue full; coffee browser request dropped")
+                else:
+                    self.jelly.tap(now)
+            if self.coffee:
+                self.coffee.update(
+                    now,
+                    available,
+                    self.jelly,
+                    blocked=not self.jelly.options["coffee"] or bool(getattr(self, "_jelly_update_info", None)),
+                )
+            coffee_key = self.coffee.key if self.coffee else None
+            self.jelly.update(now, available - {coffee_key}, views, [e for e in events if e.get("kind") == "focus"])
+            if coffee_key is not None and self.coffee:
+                # Ambient reactions cannot move Jelly away from the coffee pair.
+                self.jelly.settle(self.coffee.jelly_key, now)
+                self.jelly.deadline = self.coffee.until + 1
+                self.jelly._idle_pose(now)
+                self.jelly._point(coffee_key)
+                self.jelly.gesture_step = 2 + int(now * 3) % 2
+                self.jelly.thoughts.clear()
+                if now < self.jelly.touch_until:
+                    self.jelly.pose = ("squash", "jiggle", "rebound", "idle")[int(now * 12) % 4]
+                    self.jelly.face = "happy"
             self.status["jelly_life"] = {
                 "mood": self.jelly.mind.mood,
                 "action": self.jelly.state,
@@ -234,21 +284,39 @@ class DeviceLoop:
             if now - self.jelly_saved_at >= 60:
                 self._save_jelly()
                 self.jelly_saved_at = now
-            return self.jelly.crops(available)
+            frames = self.jelly.crops(available - {coffee_key})
+            self.overlay_actions = {k: {"_action": "tap"} for k in frames}
+            if self.coffee:
+                frames = self.coffee.decorate(now, self.jelly, frames)
+                if coffee_key is not None:
+                    self.overlay_actions[coffee_key] = {"_action": "coffee", "serial": self.coffee.serial}
+            return frames
         except Exception:
             self._fail_jelly()
             return {}
 
     def press(self, key, state):
+        """Route the action actually displayed; keep HID callbacks free of I/O."""
         if not state or not 0 <= key < len(self.presented):
             return
         with self.presented_lock:
-            view = self.presented[key]
-            if view:
-                try:
-                    self.presses.put_nowait(dict(view))
-                except queue.Full:
-                    LOG.warning("Press queue full; dropping press")
+            view = dict(self.presented[key] or {})
+        if not view:
+            return
+        action = view.get("_action") if not view.get("id") else None
+        LOG.info("Button down key=%s action=%s", key + 1, action or "focus")
+        try:
+            if action in ("tap", "coffee"):
+                self.jelly_events.put_nowait({**view, "kind": action, "slot": key})
+            else:
+                self.presses.put_nowait(view)
+        except queue.Full:
+            LOG.warning("Press queue full; dropping press")
+
+    def _presented_view(self, key, view):
+        if view.get("id"):
+            return dict(view)
+        return {**view, **self.overlay_actions.get(key, {})}
 
     def run(self):
         from PIL import Image
@@ -342,7 +410,7 @@ class DeviceLoop:
                         # Assignment identity must refresh even when the pixels are identical.
                         if last.get(k) == key:
                             with self.presented_lock:
-                                self.presented[k] = dict(v)
+                                self.presented[k] = self._presented_view(k, v)
                             continue
                         if not self.mock:
                             assert self.deck is not None
@@ -368,7 +436,7 @@ class DeviceLoop:
                             self.deck.set_key_image(k, native[key])
                             metrics["write_ms"] += (time.monotonic() - write_start) * 1000
                         with self.presented_lock:
-                            self.presented[k] = dict(v)
+                            self.presented[k] = self._presented_view(k, v)
                         last[k] = key
                         self.status["frames"] += 1
                     metrics["ticks"] += 1

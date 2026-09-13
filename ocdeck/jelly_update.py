@@ -81,7 +81,6 @@ def install_device_patch(DeviceLoop):
 
     original_start = DeviceLoop._start_jelly
     original_frames = DeviceLoop._jelly_frames
-    original_press = DeviceLoop.press
 
     def start_jelly(self):
         original_start(self)
@@ -116,6 +115,8 @@ def install_device_patch(DeviceLoop):
             self._jelly_update_keys = set(frames)
             for key, image in frames.items():
                 _draw_update_badge(self, key, image)
+                if hasattr(self, "overlay_actions"):
+                    self.overlay_actions[key] = {"_action": "update"}
         else:
             self._jelly_update_keys = set()
         return frames
@@ -132,14 +133,7 @@ def install_device_patch(DeviceLoop):
         ).start()
         return True
 
-    def press(self, key, state):
-        if state and getattr(self, "_jelly_update_info", None) and key in getattr(self, "_jelly_update_keys", set()):
-            self._start_jelly_update()
-            return
-        original_press(self, key, state)
-
     DeviceLoop._start_jelly = start_jelly
     DeviceLoop._jelly_frames = jelly_frames
     DeviceLoop._start_jelly_update = start_update
-    DeviceLoop.press = press
     DeviceLoop._jelly_update_patch = True

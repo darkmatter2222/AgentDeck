@@ -64,3 +64,27 @@ as foreground ownership. Restart the broker after updating its source code.
 
 See [the 2.1 feature guide](NEXT.md) for larger decks, Codex, alerts, doctor/report,
 appearance import/export, dry-run and complete integration uninstall.
+
+
+## Jelly presses and minimized agent windows
+
+An ordinary Jelly button responds with a two-second playful reaction. A red `!`
+means an update is available, so that button retains its update-install action.
+A coffee cup opens the support page only while the invitation is visible.
+Agent keys always focus their registered session. If that window is minimized,
+the key requests **maximize**, waits briefly for the asynchronous Windows state
+change, then brings the window forward. Non-minimized windows retain their size.
+
+After upgrading, restart the broker and restart existing coding clients so they
+register fresh window mappings. The broker log is normally
+`%USERPROFILE%\.opencode-deck\broker.log` on Windows, or
+`$OCDECK_HOME/broker.log` if that override is configured. `ocdeck status` shows
+`device.input_events`, `device.last_input`, and `lastFocus`; `ocdeck doctor` and
+`ocdeck focus 1` help distinguish input delivery from window activation.
+The log now records each button-down action without capturing window titles.
+
+If Windows still refuses activation, attach the latest log after one press on a
+minimized session and the output of `ocdeck status`. A log entry saying
+`Window did not leave minimized state` means the target did not process the
+maximize request within the bounded wait. Run the broker and client under the
+same interactive desktop user and privilege level.

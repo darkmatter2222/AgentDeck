@@ -24,6 +24,31 @@ AgentStreamDeck connects OpenCode, Claude Code, GitHub Copilot CLI, Copilot in V
 
 > **Upgrading from AgentDeck?** The Python distribution is now `agentstreamdeck`; the `ocdeck` command, existing configuration and hook receipts remain compatible. See [rename and upgrade steps](docs/RENAMING.md).
 
+## Jelly taps and coffee breaks
+
+**Tap Jelly and he reacts.** A playful wobble, dance or cheer comes with a short
+“Boop!”, “Ouch!” or another little response, even when ambient thoughts are off.
+Pressing a minimized agent's key now maximizes its window and brings it forward.
+
+![Jelly reacts to a tap, then points to a steaming coffee on another free key](docs/jelly/coffee_break.gif)
+
+Every **random 1–3 hours**, when **at least two buttons are unassigned**, Jelly
+settles on one and points toward a steaming Buy Me a Coffee cup on the other.
+He cycles through rainbow colors with **“Coffee?”** above his head. The pair can
+be anywhere on the deck. After **60 seconds**, the invitation disappears.
+Tap the cup to open [Ryan's support page](https://buymeacoffee.com/j6oiubzfnh)
+in your default browser and dismiss the invitation immediately.
+
+Agent controls always take priority: if an agent needs either key, the coffee
+break ends. Each completed or dismissed break schedules a fresh 1–3 hour delay;
+restarting the broker starts a new delay. Nothing opens without a cup press.
+The cup artwork is bundled, so the animation needs no network access.
+
+Set `"jelly": {"coffee": false}` to disable invitations, or
+`"jelly": {"coffee_rainbow": false}` to keep Jelly's normal mood colors.
+An available update's red `!` takes priority; tapping that marked Jelly still
+installs the update. Preview timing above is compressed.
+
 ## New in 3.0 — Meet your coding Jelly
 
 **Your Stream Deck has a little life of its own.** Jelly is an offline coding pet,
@@ -613,7 +638,9 @@ folder selected by `OCDECK_HOME`), then restart the broker:
     "thoughts": "normal",
     "local_movement": "normal",
     "travel": "normal",
-    "persistent": false
+    "persistent": false,
+    "coffee": true,
+    "coffee_rainbow": true
   }
 }
 ```
@@ -631,6 +658,8 @@ folder selected by `OCDECK_HOME`), then restart the broker:
 | `thoughts` | `normal` | `off`, `quiet`, `normal`, `chatty`. Approximate ambient cooldowns: 90/35/15 seconds. |
 | `local_movement` | `normal` | `low`, `normal`, `high` relative local-action frequency. |
 | `travel` | `normal` | `rare`, `normal`, `frequent` relative cross-key travel frequency. |
+| `coffee` | `true` | Random 1–3 hour support invitation on two free keys, lasting up to 60 seconds. |
+| `coffee_rainbow` | `true` | Cycle Jelly’s body colors during the coffee invitation. |
 | `persistent` | `false` | Save bounded needs/mood/recent phrase IDs in `jelly-state.json`; no session data. |
 
 Existing global `fps` remains authoritative (default 24; range 1–30).
