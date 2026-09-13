@@ -1,5 +1,6 @@
 """Offline coffee interlude. Scheduling and animation belong to the render thread."""
 
+from collections import deque
 import colorsys
 from functools import lru_cache
 import math
@@ -74,8 +75,24 @@ class CoffeeBreak:
         self.key = self.jelly_key = None
         self.until = 0.0
         self.serial = 0
+        self.taps = deque(maxlen=5)
+        self.requested = False
+
+    def tap(self, now, available, blocked=False):
+        """Request an interlude after five taps in a rolling sixty-second window."""
+        if blocked or len(available) < 2 or self.key is not None:
+            self.taps.clear()
+            return
+        while self.taps and now - self.taps[0] > DURATION:
+            self.taps.popleft()
+        self.taps.append(now)
+        if len(self.taps) == 5:
+            self.requested = True
+            self.taps.clear()
 
     def finish(self, now):
+        self.taps.clear()
+        self.requested = False
         self.key = self.jelly_key = None
         self.until = 0.0
         self.next_at = now + self.rng.uniform(MIN_INTERVAL, MAX_INTERVAL)
@@ -87,11 +104,14 @@ class CoffeeBreak:
                 if jelly.current in available:
                     jelly.settle(jelly.current, now)
                 return
-        elif not blocked and now >= self.next_at and len(available) >= 2 and jelly.state != "hop":
+        elif not blocked and len(available) >= 2 and (self.requested or (now >= self.next_at and jelly.state != "hop")):
             self.jelly_key = jelly.current if jelly.current in available else min(available)
             self.key = self.rng.choice(sorted(available - {self.jelly_key}))
             self.until = now + DURATION
             self.serial += 1
+            self.requested = False
+            self.taps.clear()
+            jelly.touch_until = 0.0
             jelly.settle(self.jelly_key, now)
         if self.key is not None:
             # Keep the pair fixed even when the two keys are not adjacent.
