@@ -140,9 +140,7 @@ class DirectHooks:
             state["pending"].clear()
             state["input"] = False
             state["detail"] = "Harness error; inspect terminal"
-        request_ids = [
-            hashlib.sha256(f"{session}\0{value}".encode()).hexdigest() for value in sorted(state["pending"])
-        ]
+        request_ids = [hashlib.sha256(f"{session}\0{value}".encode()).hexdigest() for value in sorted(state["pending"])]
         snapshot = {
             "status": state["status"],
             "pending": len(state["pending"]),

@@ -41,8 +41,9 @@ class PluginFirstTests(unittest.TestCase):
         process = {"pid": os.getpid(), "created": 1.0}
         registry = Registry(lambda value: value == process, clock=lambda: clock[0], stale_after=10)
         hooks = DirectHooks(registry)
-        with mock.patch("ocdeck.direct_hooks._identity", return_value=process), mock.patch(
-            "ocdeck.direct_hooks.capture_window", return_value={}
+        with (
+            mock.patch("ocdeck.direct_hooks._identity", return_value=process),
+            mock.patch("ocdeck.direct_hooks.capture_window", return_value={}),
         ):
             result = hooks.event(
                 {
@@ -68,8 +69,9 @@ class PluginFirstTests(unittest.TestCase):
         registry = Registry(lambda value: value == process)
         hooks = DirectHooks(registry)
         base = {"profile": "claude", "parentPid": os.getpid(), "cwd": "/tmp/project"}
-        with mock.patch("ocdeck.direct_hooks._identity", return_value=process), mock.patch(
-            "ocdeck.direct_hooks.capture_window", return_value={}
+        with (
+            mock.patch("ocdeck.direct_hooks._identity", return_value=process),
+            mock.patch("ocdeck.direct_hooks.capture_window", return_value={}),
         ):
             hooks.event(
                 {

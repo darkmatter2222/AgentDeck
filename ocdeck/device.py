@@ -280,6 +280,7 @@ class DeviceLoop:
                     blank = PILHelper.to_native_key_format(self.deck, Image.new("RGB", (80, 80), "black"))
                     for k in range(len(self.registry.slots)):
                         self.deck.set_key_image(k, blank)
+
                     def on_key(_deck, key, state):
                         self.status["input_events"] = int(self.status.get("input_events", 0)) + 1
                         self.status["last_input"] = {"key": int(key), "pressed": bool(state), "time": time.time()}
