@@ -16,6 +16,8 @@ import unittest
 import urllib.request
 import zipfile
 
+import psutil
+
 
 def wheel(destination, version):
     package = Path(__file__).resolve().parents[1] / "ocdeck"
@@ -141,6 +143,13 @@ class PipRestartIntegrationTests(unittest.TestCase):
                 self.assertTrue(after["device"]["mock"])
                 process.wait(timeout=10)
             finally:
+                # Windows venv launchers can outlive the broker briefly and keep
+                # its working directory open. Wait for every test-owned process
+                # in this unique temporary home, not merely discovery removal.
+                cleanup_processes = []
+                for child in psutil.process_iter(["cwd"]):
+                    if child.info.get("cwd") and Path(child.info["cwd"]).resolve() == root.resolve():
+                        cleanup_processes.append(child)
                 try:
                     request(root, "stop")
                 except (OSError, ValueError, KeyError):
@@ -153,3 +162,5 @@ class PipRestartIntegrationTests(unittest.TestCase):
                 deadline = time.monotonic() + 8
                 while (root / "discovery.json").exists() and time.monotonic() < deadline:
                     time.sleep(0.1)
+                _, remaining = psutil.wait_procs(cleanup_processes, timeout=10)
+                self.assertFalse(remaining, "Test broker processes did not exit after stop")
