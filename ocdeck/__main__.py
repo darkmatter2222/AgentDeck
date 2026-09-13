@@ -13,6 +13,9 @@ def main():
     sub = parser.add_subparsers(dest="command", required=True)
     broker = sub.add_parser("broker")
     broker.add_argument("--mock", action="store_true")
+    install_cmd = sub.add_parser("install", help="Install the per-user broker startup service/task")
+    install_cmd.add_argument("--no-start", action="store_true")
+    install_cmd.add_argument("--no-opencode-plugin", action="store_true")
     sub.add_parser("status").add_argument("--json", action="store_true")
     sub.add_parser("stop")
     sub.add_parser("devices")
@@ -118,6 +121,10 @@ def main():
             from .broker import run
 
             run(mock=args.mock)
+        elif args.command == "install":
+            from .bootstrap import install
+
+            install(start=not args.no_start, install_opencode=not args.no_opencode_plugin)
         elif args.command in ("status", "stop"):
             print(json.dumps(request("GET" if args.command == "status" else "POST", "/v1/" + args.command), indent=2))
         elif args.command == "identity":

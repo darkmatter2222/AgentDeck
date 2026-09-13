@@ -45,7 +45,8 @@ export function normalize(profile, event, input) {
   const str = x => typeof x === 'string' && x.length <= 512 ? x : '';
   const session = str(input.session_id || input.sessionId || input.conversation_id);
   if (!session) return null; // Never guess identity from cwd or hook PID.
-  return {event, session, tool: str(input.tool_name || input.toolName),
+  const tool = str(input.tool_name || input.toolName);
+  return {event, action:p.events[event], session, tool, question:p.questions.includes(tool),
     request: str(input.tool_use_id || input.toolUseId),
     notification: str(input.notification_type), failed: input.status === 'error' || input.status === 'aborted',
     // Only explicit terminal success; an ordinary idle/Stop is never a success claim.

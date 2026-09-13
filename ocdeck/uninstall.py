@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import time
 from .common import home, read_json, request
 from .harness import install, PROFILES, SOURCE
@@ -29,6 +30,29 @@ def discover(roots):
     return sorted(found)
 
 
+def _remove_startup(root):
+    if os.name == "nt":
+        script = SOURCE / "scripts" / "Remove-Integration.ps1"
+        subprocess.run(["powershell.exe", "-NoProfile", "-File", str(script), "-Data", str(root)], check=True)
+        return
+    if sys.platform.startswith("linux"):
+        unit = Path.home() / ".config" / "systemd" / "user" / "agentstreamdeck.service"
+        if unit.exists():
+            subprocess.run(
+                ["systemctl", "--user", "disable", "--now", "agentstreamdeck.service"],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            unit.unlink(missing_ok=True)
+            subprocess.run(
+                ["systemctl", "--user", "daemon-reload"],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+
 def uninstall(scan=(), dry_run=False):
     root = home().resolve()
     registered = read_json(root / "projects.json", []) or []
@@ -42,7 +66,7 @@ def uninstall(scan=(), dry_run=False):
         json.dumps(
             {
                 "projects": plans,
-                "local": ["scheduled task", "managed OpenCode plugin", "managed shims", "configuration"],
+                "local": ["broker startup task/service", "OpenCode plugin", "legacy managed shims", "configuration"],
                 "backups": "Retained under " + str(root / "backups"),
                 "dryRun": dry_run,
             },
@@ -61,14 +85,12 @@ def uninstall(scan=(), dry_run=False):
     except Exception:
         status = {}
     if any(v.get("id") for v in status.get("slots", [])) or status.get("overflow"):
-        raise RuntimeError("Close managed agent sessions before uninstalling; run ocdeck status")
+        raise RuntimeError("Close monitored agent sessions before uninstalling; run ocdeck status")
     for profile, project in plans:
         if install(profile, project, remove=True):
             raise RuntimeError("Project hook removal failed; local installation retained")
     metadata = read_json(root / "install.json", {}) or {}
-    if os.name == "nt":
-        script = SOURCE / "scripts" / "Remove-Integration.ps1"
-        subprocess.run(["powershell.exe", "-NoProfile", "-File", str(script), "-Data", str(root)], check=True)
+    _remove_startup(root)
     try:
         request("POST", "/v1/stop")
     except Exception:
@@ -96,5 +118,5 @@ def uninstall(scan=(), dry_run=False):
             text = path.read_text(errors="replace")
             if runtime in text and " -m ocdeck " in text:
                 shutil.move(str(path), str(backup / name))
-    print("Uninstalled managed hooks, integration and configuration. Backups and Python environment retained.")
+    print("Uninstalled native hooks, startup integration and configuration. Backups and Python environment retained.")
     return 0

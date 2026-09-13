@@ -1,117 +1,110 @@
 # Implementation architecture
 
-The chosen backend is direct USB HID. No Elgato plugin or MCP connection is necessary. Elgato must release the Mini through its per-device setting.
+AgentStreamDeck uses direct USB HID for the Stream Deck and native harness plugins/hooks for lifecycle metadata. No Elgato plugin, MCP server, or AgentStreamDeck-owned harness launcher is required for the normal path.
 
 ```mermaid
 flowchart TD
-    L["Global launcher"] -->|"UUID and terminal title"| W["Dedicated terminal window"]
-    W --> O["OpenCode with global plugin"]
-    O -->|"Authenticated snapshots"| B["Python broker"]
-    L -->|"Process presence"| B
-    B <-->|"Images and key events"| D["Stream Deck Mini"]
-    B -->|"Validate and focus"| W
+    S["Per-user startup\nWindows Scheduled Task / Linux systemd"] --> B["Python broker"]
+    U["Harness launched normally"] --> P["Native plugin / hooks"]
+    P -->|"Authenticated bounded lifecycle metadata"| B
+    B <-->|"Images + physical key events"| D["Stream Deck"]
+    B -->|"Restore / focus captured window"| U
 ```
 
-`common.py` implements atomic files, endpoint discovery, authenticated requests, and PID + process-creation identity. `model.py` owns assignments behind a reentrant lock. `broker.py` uses a bounded threaded HTTP server, a separate USB render thread, and a focus queue. The main loop checks process existence every 500 ms. Live process identity is rechecked at focus time.
+## Broker lifetime
 
-`launcher.py` records a unique launch JSON, opens a Windows Terminal window with a unique fixed title and suppresses application title changes. Its worker runs the original OpenCode via a PowerShell script that reads arguments from JSON. It publishes its own verified process identity, watches the foreground command end, and unregisters. The plugin reads the worker binding. First runtime claims that binding to avoid nested inherited launches impersonating the parent.
+`ocdeck install` is the explicit one-time operating-system setup step. A plain `pip install` does not silently create startup entries.
 
-The conventional OpenCode server plugin aggregates sessions in the independently owned runtime. It keeps unresolved permission/question ID sets, treats busy and retry as running, and gives pending requests priority over idle. It periodically reconciles through SDK snapshot methods when exposed. Each producer sends a complete state snapshot every two seconds and on relevant events. Registration is idempotent. A broker restart is recovered by re-registering and sending the full snapshot, including pending requests retained in the plugin.
+- Windows: a per-user **AgentStreamDeck Broker** Scheduled Task starts at interactive logon with limited privilege and restart settings.
+- Linux: `agentstreamdeck.service` is installed as a systemd user service and enabled for the user's default target.
+- Other platforms: the CLI reports the manual broker command rather than inventing an unsupported startup mechanism.
 
-The optional TUI plugin reads the current route and synced runtime state. Its source is based on the inspected newer API; installation is explicit through `-PluginMode tui`, updates `tui.json`, and removes the owned conventional server-plugin entry. It does not rewrite JSONC. Do not run both adapters at once. Current compatibility with your installed runtime must be verified; the default adapter is conventional server mode.
+The broker writes `~/.opencode-deck/discovery.json` atomically after binding a loopback port. A separate per-user token authenticates local API clients. `common.py` implements discovery, authenticated requests, atomic state files, and PID + process-creation identity. `model.py` owns slot assignments behind a reentrant lock.
 
-The broker's states are off, idle, running, input, and unknown. READY is a device-level appearance only when every slot is empty. It never exists in the registry or steals a slot. Amber LINK ? appears if no trustworthy snapshot arrived in ten seconds. Live but disconnected processes retain their positions; confirmed dead processes are removed. Process IDs are paired with creation timestamps to prevent reuse mistakes.
+## Producer paths
 
-Each reassignment increments a slot generation. A physical press captures the last submitted assignment and generation; if the slot has since changed, the broker rejects the press. Presses do not change colors or answer prompts. Key-down edges are debounced over 200 ms. Empty and READY keys do nothing.
+### OpenCode
 
-The USB adapter uses the pinned StreamDeck Mini protocol implementation with a custom transport backed by the pip `hidapi` wheel. This avoids manually downloading a separate hidapi.dll. The original transport implements library methods rather than rewriting the Mini's packet protocol. Images use the library's native conversion including rotation/flip. Device reads and writes share a lock, animation writes are serialized, and cached frames are bounded. Reconnection clears previous render assumptions and redraws the full frame.
+OpenCode uses the global AgentStreamDeck server plugin. It aggregates live session state, keeps unresolved permission/question IDs, and sends complete snapshots through the authenticated broker protocol. SDK reconciliation is used when the installed OpenCode API exposes the required snapshot methods.
 
-`art.py` renders the visual states procedurally with Pillow and a bundled Pillow font. Frames are smooth gradients of brightness rather than rapid on/off flashing. Green includes rotation, idle a subtle glow, input a stronger pulse, READY a cyan checkmark ring. The preview is illustrative: it places all states on the six keys simultaneously to show the artwork; normal READY appears only with zero instances.
+### Native hook harnesses
 
-The focus adapter uses exact managed-window title matching, restores minimized windows, and tries SetForegroundWindow. A bounded AttachThreadInput fallback always detaches in finally. Success requires GetForegroundWindow to equal the resolved target. There is no fallback that launches a process, cycles states, sends Enter, approves tools, or matches ambiguous project titles. Windows can still deny activation, and this remains a local acceptance gate.
+Claude Code, Codex CLI, Copilot CLI, Copilot in VS Code, Gemini CLI, and Cursor CLI use project-native hook configurations installed with `ocdeck harness-install <profile>`.
 
-**Known boundaries:** conventional server mode assumes one independent OpenCode runtime per managed terminal; it cannot identify several attached TUIs sharing one server. Pending snapshot method availability varies by SDK, so hot reload during an already pending request needs particular verification. The app is a native Windows desktop installation, not a Docker service. Raw SSH/WSL/container sessions need the explicit host relay described in REMOTE-AND-WSL.md before they are supported.
-
-Snapshot RPC errors or timeouts mark the conventional adapter unknown until a successful reconciliation. Optional snapshot methods absent from an SDK fall back to live event tracking; full hot-reload recovery of preexisting pending requests is then unverified. See the Qwen handoff for version-specific validation.
-
-
-## Native hook adapters
-
-Claude Code, Copilot CLI, Copilot in VS Code, Gemini CLI and Cursor CLI use a second
-producer path without changing the broker contract:
+The normal native-hook path is launcher-free:
 
 ```mermaid
 flowchart TD
-    S["Python supervisor"] --> A["Harness process"]
-    S --> R["Persistent Node relay"]
-    A --> H["Short-lived hook commands"]
-    H -->|"Filtered metadata"| R
-    R --> C["Shared Bridge"]
-    C --> B["Existing broker"]
+    A["Harness process"] --> H["Short-lived native hook command"]
+    H -->|"profile + lifecycle event + parent PID"| B["Broker /v1/hook"]
+    B --> R["Event-driven registry record"]
 ```
 
-`ocdeck/harness.py` registers the supervisor's exact identity through the Node
-Bridge, inherits a per-launch connection path into the harness, and watches child
-exit. The hook PID is never registered as an agent. Descendant sessions inheriting
-that binding aggregate into one slot. This differs from the OpenCode runtime's
-first-claim binding rule; both preserve a single owner for each managed launch.
+`plugins/harnesses/profiles.mjs` maps native event names into a bounded normalized event. `hook.mjs` reads broker discovery/token files and posts the normalized event directly to `/v1/hook`. The broker derives a stable record from profile + native session ID, verifies the hook's parent process identity, and retains the last trustworthy event-driven state while that process remains alive.
 
-`plugins/harnesses/profiles.mjs` owns native event mappings and metadata filtering.
-The observer `hook.mjs` sends a small authenticated loopback request to `bridge.mjs`.
-The relay keeps the state machine and reuses `Bridge` from `core.mjs` for the broker's
-discovery, bearer authentication, complete snapshots and sequence/producer epochs.
-It has no authoritative SDK reconciliation: undetected missing hooks can leave the
-last observed state. Detected delivery loss latches unknown until the launch restarts.
+Direct hook payloads do **not** forward prompts, commands, tool arguments, file contents, tool results, model responses, or transcripts.
 
-The supervisor waits for relay readiness before starting the harness. Its stdin
-pipe remains open to the relay; EOF terminates the relay after parent exit. Normal
-cleanup removes connection state and registration. Abrupt supervisor death is
-handled by the broker's existing process sweep. Broker restart alone retains the
-relay's in-memory state and producer identity.
+The older `harness-launch`, `ocdeck start`, BAT launchers, and per-launch Node relay remain compatibility/testing paths. When `AGENTDECK_HOOK_BINDING` exists, the hook may still use that relay. They are not required for normal monitoring.
 
-VS Code starts with a new user-data directory per launch to avoid reusing a process
-with an old environment. Its isolated user settings specify the exact focus title;
-the launcher terminal gets a distinct suffix. Workspace title overrides can defeat
-this mapping, so Windows acceptance remains necessary. No existing editor settings
-or provider configuration is changed by the launcher.
+## Registry and state
 
-The project-hook installer merges entries and saves timestamped backups plus a
-receipt of installed entries. Uninstall removes only matching entries; it does
-not restore a whole backup over later changes. Profile config locations, transport
-limits and lifecycle caveats are documented in [HARNESSES.md](HARNESSES.md).
+The broker's functional states are off, idle, running, input, and unknown. READY is device-level appearance when every slot is empty; it never occupies a registry slot.
 
-## Button rendering
+Process IDs are paired with creation timestamps to prevent PID-reuse mistakes. Conventional snapshot producers can become stale when no trustworthy snapshot arrives. Native direct-hook records are event-driven, so they do not become stale merely because no heartbeat arrived; confirmed process death still releases the record. Session-end hooks remove the record immediately when delivered.
 
-`appearance.py` validates global and per-slot display preferences shared by the
-CLI preview and device renderer. Immutable styles participate in bounded frame
-and native-image caches. Motion uses 96 phases derived from monotonic time; the
-loop targets 24 FPS by default (1–30 configurable), dropping missed time rather
-than accumulating frames. Unchanged pixels skip USB writes but still refresh
-the presented assignment, preserving focus correctness when a slot is reused.
-Harness metadata is decorative; the registry state and identity rules remain
-unchanged. See [appearance](APPEARANCE.md) for hardware limits and settings.
+Each slot reassignment increments its generation. Physical and synthetic focus requests include the last rendered assignment and generation. A stale assignment is rejected instead of focusing the wrong process.
 
+## Physical Stream Deck input
 
-### Official icons and text rendering
+The USB adapter uses the pinned `streamdeck` library with a custom transport backed by the pip `hidapi` wheel. It keeps the library's device-specific protocol, image conversion, rotation, and flip behavior rather than reimplementing packet formats.
 
-Harness icons are packaged local PNGs, loaded once per icon/size and never fetched
-at runtime. Registration names `copilot-cli` and `copilot-vscode` share the Copilot
-asset. Unknown explicit harness identifiers receive a neutral terminal marker.
-Only display preferences use aliases; registry labels, normalized snapshots, and
-focus identity remain unchanged. Text renders into bounded 140×28 intermediate
-layers so scrolling and shimmer cannot overwrite icons or neighboring lines.
-Presets expand to ordinary validated appearance fields in the CLI; the same fields
-and renderer drive previews and device images. `steady` and disabled animations
-freeze the shared phase for both artwork and text. All caches remain bounded.
+Some Windows HID stacks return an unnumbered input report without the leading zero report-ID byte. The transport normalizes a report that is exactly one byte short by restoring that `0x00` prefix before handing it to the StreamDeck library. Unexpected report sizes are rejected instead of silently shifting key-state bytes.
 
+The broker also monitors the StreamDeck library's input reader thread. If the reader dies or the deck disconnects, the device loop reconnects instead of continuing to render with a dead input path.
 
-### Managed external launchers and foreground activation
+`ocdeck status` exposes `device.input_events` and `device.last_input`. These fields make the troubleshooting boundary explicit:
 
-`ocdeck start` dispatches to the existing OpenCode or hook supervisor. An optional
-external executable/BAT lives in the launch specification; the worker runs it
-under the same binding and unique title. The OpenCode shim preserves an existing
-binding when resolving nested CLI calls. No HomeAILab backend logic enters the broker.
-Focus still resolves exact titles / process identity. Activation temporarily joins
-both destination and foreground GUI input threads after creating a message queue,
-preserves a valid focused child, and verifies both foreground and input focus after
-detaching. Window mapping and activation failure remain distinct diagnostics.
+- counter does not move on a physical press: USB/HID input path problem;
+- counter moves but focus fails: window mapping or Windows foreground-policy problem.
+
+## Window mapping and focus
+
+On Windows, native hook registration captures a visible top-level window owned by the harness process **or its nearest process ancestor**. This is important for Windows Terminal and wrapper scripts, because the CLI child process usually does not own the terminal HWND.
+
+On key press, focus resolution prefers the captured HWND, then the legacy exact window token, then a unique nearest ancestor-owned visible window. The activation path restores minimized windows, tries `SetForegroundWindow`, and uses a bounded `AttachThreadInput` fallback that always detaches in `finally`. Success requires both foreground activation and keyboard focus.
+
+There is no fallback that launches a process, sends Enter, approves tools, or guesses between ambiguous windows. Several tabs sharing one Windows Terminal process can be inherently ambiguous; for deterministic one-touch focus, keep one monitored harness per OS window.
+
+Linux currently supports broker auto-start and monitoring but not desktop-window focus.
+
+## Jelly rendering
+
+`jelly_art.py` renders Jelly procedurally with Pillow. Gesture appendages are short rounded flippers attached to the body silhouette. Wave, point, up, down, scratch, cheer, and clap are bounded so they do not turn into long line-drawn stick arms or extend above the intended crown.
+
+A regression renders every Jelly body pose across every gesture and animation step and checks the occupied bounds. The thought strip uses the clean antialiased UI font path introduced in v3.0.2.
+
+Jelly only uses unassigned keys. Functional agent/system UI always wins. A slot assignment immediately evicts Jelly from that key on the next render tick.
+
+## Updates
+
+The broker's update worker checks the published `agentstreamdeck` package on PyPI at startup and every five minutes. A newer stable version places Jelly in update-alert mode with a persistent red `!`. Pressing the free key Jelly currently occupies is explicit approval to install that exact version. Detection alone never installs a package.
+
+The update installer runs pip in the broker's current Python environment, then starts a detached broker restart after the old process exits. `check_updates: false` disables update checks.
+
+## Appearance and rendering
+
+`appearance.py` validates global and per-slot preferences shared by the CLI preview and device renderer. Motion uses bounded phases derived from monotonic time. Unchanged pixels skip USB writes but the presented slot assignment is still refreshed so focus remains correct when a slot is reused.
+
+Harness icons are packaged locally. Registration names such as `copilot-cli` and `copilot-vscode` share the Copilot asset. Unknown harness identifiers receive a neutral terminal marker. Appearance aliases never change registry identity.
+
+## Security boundaries
+
+- Broker and optional legacy relay bind loopback only.
+- Broker API uses a per-user bearer token.
+- Browser Origin requests are refused.
+- Native hook payloads are normalized and bounded before broker delivery.
+- Hooks are observers and never make approval decisions.
+- No prompt/model transcript is required for monitoring.
+- Physical key presses request focus or explicit Jelly update approval only; they never answer an agent request.
+
+See [API](API.md), [Harnesses](HARNESSES.md), [Plugin-first setup](PLUGIN-FIRST.md), and [Remote/WSL boundaries](REMOTE-AND-WSL.md).

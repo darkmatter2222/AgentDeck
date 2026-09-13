@@ -81,7 +81,19 @@ class WheelTransport:
 
     def read(self, length):
         value = self._call("read", length)
-        return bytes(value) if value else None
+        if not value:
+            return None
+        data = bytes(value)
+        if len(data) == length:
+            return data
+        # cython-hidapi returns the number of bytes physically read, while the
+        # StreamDeck transport contract expects a report-id byte at index zero.
+        # Some Windows HID paths omit that zero report id for unnumbered reports.
+        if len(data) == length - 1:
+            return b"\x00" + data
+        from StreamDeck.Transport.Transport import TransportError
+
+        raise TransportError(f"Unexpected HID input report length: {len(data)}/{length}")
 
 
 def device_types():
@@ -131,7 +143,14 @@ def enumerate_minis():
 class DeviceLoop:
     def __init__(self, registry, presses, stop, config, mock=False, root=None):
         self.registry, self.presses, self.stop, self.config, self.mock = registry, presses, stop, config, mock
-        self.status = {"online": False, "mock": mock, "error": "Not connected", "frames": 0}
+        self.status = {
+            "online": False,
+            "mock": mock,
+            "error": "Not connected",
+            "frames": 0,
+            "input_events": 0,
+            "last_input": None,
+        }
         self.presented: list[dict | None] = [None] * len(self.registry.slots)
         self.presented_lock = threading.Lock()
         self.deck = None
@@ -253,13 +272,21 @@ class DeviceLoop:
                         )
                     self.deck = device_types()[devices[0]["product_id"]](WheelTransport(devices[0]))
                     self.deck.open()
+                    if hasattr(self.deck, "set_poll_frequency"):
+                        self.deck.set_poll_frequency(60)
                     self.registry.resize(self.deck.key_count())
                     self.presented = [None] * self.deck.key_count()
                     self.deck.set_brightness(int(self.config.get("brightness", 45)))
                     blank = PILHelper.to_native_key_format(self.deck, Image.new("RGB", (80, 80), "black"))
                     for k in range(len(self.registry.slots)):
                         self.deck.set_key_image(k, blank)
-                    self.deck.set_key_callback(lambda deck, key, state: self.press(key, state))
+
+                    def on_key(_deck, key, state):
+                        self.status["input_events"] = int(self.status.get("input_events", 0)) + 1
+                        self.status["last_input"] = {"key": int(key), "pressed": bool(state), "time": time.time()}
+                        self.press(key, state)
+
+                    self.deck.set_key_callback(on_key)
                     self.status.update(serial=devices[0].get("serial_number"), productId=devices[0]["product_id"])
                 self.status.update(online=True, error="", keys=len(self.registry.slots))
                 last, native = {}, OrderedDict()
@@ -281,7 +308,10 @@ class DeviceLoop:
                     if not self.mock and start >= next_probe:
                         assert self.deck is not None
                         if not self.deck.is_open() or not self.deck.connected():
-                            raise OSError("Mini disconnected")
+                            raise OSError("Stream Deck disconnected")
+                        reader = getattr(self.deck, "read_thread", None) or getattr(self.deck, "_read_thread", None)
+                        if reader is not None and not reader.is_alive():
+                            raise OSError("Stream Deck input reader stopped")
                         next_probe = start + 2
                     views = self.registry.view()
                     if not any(v["id"] for v in views) and self.config.get("ready", True):
