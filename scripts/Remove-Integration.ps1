@@ -1,10 +1,17 @@
 param([Parameter(Mandatory=$true)][string]$Data)
 $ErrorActionPreference = 'Stop'
-$task = Get-ScheduledTask -TaskName 'OpenCode Deck' -TaskPath '\' -ErrorAction SilentlyContinue
-if ($task) {
-    if ($task.Description -notlike 'OpenCode Deck*') { throw 'Unrelated scheduled task; refusing removal.' }
-    Stop-ScheduledTask -TaskName 'OpenCode Deck' -TaskPath '\'
-    Unregister-ScheduledTask -TaskName 'OpenCode Deck' -TaskPath '\' -Confirm:$false
+
+$ownedTasks = @(
+    @{ Name = 'AgentStreamDeck Broker'; Description = 'AgentStreamDeck per-user broker*' },
+    @{ Name = 'OpenCode Deck'; Description = 'OpenCode Deck*' }
+)
+foreach ($owned in $ownedTasks) {
+    $task = Get-ScheduledTask -TaskName $owned.Name -TaskPath '\' -ErrorAction SilentlyContinue
+    if ($task) {
+        if ($task.Description -notlike $owned.Description) { throw "Unrelated scheduled task '$($owned.Name)'; refusing removal." }
+        Stop-ScheduledTask -TaskName $owned.Name -TaskPath '\' -ErrorAction SilentlyContinue
+        Unregister-ScheduledTask -TaskName $owned.Name -TaskPath '\' -Confirm:$false
+    }
 }
 $env:OCDECK_HOME = $Data
 
