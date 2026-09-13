@@ -1,0 +1,35 @@
+name: Build polished README hero
+
+on:
+  push:
+    branches: [feature/cuter-jelly-readme-hero]
+    paths: [.github/workflows/readme-polish.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  build-hero:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/cuter-jelly-readme-hero
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install project tooling
+        run: python -m pip install -e ".[dev]"
+      - name: Format polish layer and render hero
+        run: |
+          ruff format ocdeck/jelly_cute.py
+          python scripts/readme_hero.py
+      - name: Commit generated README assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md docs/jelly/readme_hero.gif ocdeck/jelly_cute.py
+          git diff --cached --quiet && exit 0
+          git commit -m "Refresh README with animated Jelly hero"
+          git push origin HEAD:feature/cuter-jelly-readme-hero
