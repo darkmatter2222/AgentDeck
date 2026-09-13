@@ -1,4 +1,3 @@
-\
 """Focus an existing Windows window associated with a registered harness process."""
 
 import ctypes
@@ -61,7 +60,7 @@ def _pid_chain(pid):
         for parent in process.parents()[:12]:
             result.append(parent.pid)
         return result
-    except (ValueError, TypeError, Exception):
+    except Exception:
         return [int(pid)] if str(pid).isdigit() else []
 
 
