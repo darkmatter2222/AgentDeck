@@ -1,9 +1,10 @@
-"""Curated offline thoughts, bounded repetition history and a crisp one-pass marquee."""
+"""Curated offline thoughts, bounded repetition history and a clean one-pass marquee."""
 
 from collections import deque
 from functools import lru_cache
 import json
 from pathlib import Path
+
 from PIL import Image, ImageDraw, ImageFont
 
 # Metadata is per category, so every authored line inherits contextual constraints.
@@ -31,14 +32,22 @@ def vocabulary():
     return value
 
 
-@lru_cache(maxsize=128)
-def text_bitmap(text):
-    font = ImageFont.load_default(size=8)
+def _font_size(scale):
+    # Match the small clean Pillow UI font used by agent status labels. Render at
+    # final device resolution instead of enlarging a tiny bitmap with NEAREST.
+    return 7 if scale <= 1 else 9
+
+
+@lru_cache(maxsize=256)
+def text_bitmap(text, scale=2):
+    font = ImageFont.load_default(size=_font_size(scale))
     box = font.getbbox(text)
-    # Drawing into 1-bit pixels suppresses antialiasing; nearest-neighbor is used later.
-    im = Image.new("1", (max(1, int(box[2] - box[0])), 9))
-    ImageDraw.Draw(im).text((-box[0], -box[1]), text, font=font, fill=1)
-    return im
+    width = max(1, int(box[2] - box[0]))
+    height = max(1, int(box[3] - box[1]))
+    # L-mode keeps Pillow's antialiasing. This is intentionally not a 1-bit mask.
+    image = Image.new("L", (width, height), 0)
+    ImageDraw.Draw(image).text((-box[0], -box[1]), text, font=font, fill=255)
+    return image
 
 
 class Thoughts:
@@ -67,8 +76,8 @@ class Thoughts:
         token, self.text = self.rng.choice(choices)
         self.recent.append(token)
         self.category, self.started = category, now
-        pixels = text_bitmap(self.text).width * scale
-        self.until = now + 3.5 + max(0, pixels - width + 8) / 32
+        pixels = text_bitmap(self.text, scale).width
+        self.until = now + 3.5 + max(0, pixels - width + 8) / 24
         interval = {"quiet": 90, "normal": 35, "chatty": 15}[self.frequency]
         self.next_at = max(self.until + 3, now + (max(12, interval / 2) if event else interval))
         return True
@@ -77,10 +86,11 @@ class Thoughts:
         return bool(self.text) and now < self.until
 
     def render(self, width, scale, now):
-        strip = Image.new("RGBA", (width, 9 * scale), (9, 17, 27, 235))
-        mask = text_bitmap(self.text)
-        mask = mask.resize((mask.width * scale, mask.height * scale), Image.Resampling.NEAREST)
+        strip_height = 9 * scale
+        strip = Image.new("RGBA", (width, strip_height), (9, 17, 27, 235))
+        mask = text_bitmap(self.text, scale)
         overflow = max(0, mask.width - width + 8)
-        offset = min(overflow, max(0, int((now - self.started - 1.5) * 32)))
-        strip.paste((230, 249, 247, 255), (4 - offset, 0), mask)
+        offset = min(overflow, max(0, int((now - self.started - 1.5) * 24)))
+        y = max(0, (strip_height - mask.height) // 2)
+        strip.paste((230, 249, 247, 255), (4 - offset, y), mask)
         return strip
