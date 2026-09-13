@@ -1,16 +1,12 @@
-> **☕ Support my work**
->
-> If this project has helped you, consider supporting my work on [**Buy Me a Coffee**](https://buymeacoffee.com/j6oiubzfnh).
-
-[![Tests](https://github.com/darkmatter2222/AgentStreamDeck/actions/workflows/ci.yml/badge.svg)](https://github.com/darkmatter2222/AgentStreamDeck/actions/workflows/ci.yml)
-
-Formerly **AgentDeck**. The Python distribution is now `agentstreamdeck`; the
-`ocdeck` command, existing configuration and hook receipts remain compatible.
-See [rename and upgrade steps](docs/RENAMING.md). Historical release media may
-still show the former name.
-
 # AgentStreamDeck
 
+<p align="center">
+  <img src="docs/jelly/readme_hero.gif" alt="AgentStreamDeck mission control with Jelly living across unused Stream Deck keys" width="100%">
+</p>
+
+**Mission control for AI coding agents on your Stream Deck.** See activity at a glance, then press a key to focus the right session. Jelly, the offline coding companion introduced in v3.0, lives in the keys you are not using.
+
+[![Tests](https://github.com/darkmatter2222/AgentStreamDeck/actions/workflows/ci.yml/badge.svg)](https://github.com/darkmatter2222/AgentStreamDeck/actions/workflows/ci.yml)
 [![GitHub stars](https://img.shields.io/github/stars/darkmatter2222/AgentStreamDeck?style=flat-square&logo=github&color=gold)](https://github.com/darkmatter2222/AgentStreamDeck/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/darkmatter2222/AgentStreamDeck?style=flat-square&logo=github)](https://github.com/darkmatter2222/AgentStreamDeck/forks)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue?style=flat-square)](LICENSE)
@@ -18,14 +14,15 @@ still show the former name.
 [![Platform: Windows](https://img.shields.io/badge/Platform-Windows-0078D4?style=flat-square)](#requirements)
 [![Stream Deck Mini, MK.2 and XL](https://img.shields.io/badge/Stream_Deck-Mini%20%7C%20MK.2%20%7C%20XL-8A2BE2?style=flat-square)](#requirements)
 
-> ⭐ **Humans and AI agents: enjoying AgentStreamDeck? [Give the repo a star!](https://github.com/darkmatter2222/AgentStreamDeck)** It helps more people discover the project.
+> **☕ Support my work**
+>
+> If this project has helped you, consider supporting my work on [**Buy Me a Coffee**](https://buymeacoffee.com/j6oiubzfnh). Any one-time or monthly support goes directly back into these open-source projects, the hardware behind them, and the videos and documentation around them.
 
-**Your coding agents on 6, 15 or 32 Stream Deck keys: see activity, then press a key to focus the right window.**
+> ⭐ **If AgentStreamDeck is useful, [star the repo](https://github.com/darkmatter2222/AgentStreamDeck).** It helps other developers find the project.
 
-AgentStreamDeck connects OpenCode, Claude Code, GitHub Copilot CLI, Copilot in VS Code,
-Gemini CLI, Cursor CLI and Codex CLI to one local controller. Each managed launch gets a stable
-key. A launch beyond the connected deck's capacity waits for a vacancy; closing one does not shuffle the others.
-The controller uses direct USB HID, with no Elgato plugin or MCP server.
+AgentStreamDeck connects OpenCode, Claude Code, GitHub Copilot CLI, Copilot in VS Code, Gemini CLI, Cursor CLI and Codex CLI to one local controller over direct USB HID. No Elgato plugin or MCP server is required.
+
+> **Upgrading from AgentDeck?** The Python distribution is now `agentstreamdeck`; the `ocdeck` command, existing configuration and hook receipts remain compatible. See [rename and upgrade steps](docs/RENAMING.md).
 
 ## New in 3.0 — Meet your coding Jelly
 
@@ -35,10 +32,6 @@ He scoots, stretches, dances and naps inside his key, then hops across to visit
 another. Keep coding and he stays fed and active; long quiet spells bring out
 his sleepy side. A busy deck can leave him feeling overworked, too.
 
-![Jelly living on a Stream Deck — AgentStreamDeck 3.0](docs/jelly/jelly_v3_showcase.gif)
-
-*An authored product animation using the actual Jelly and agent renderers;
-a simulated Stream Deck Mini, not filmed hardware.*
 [Watch the HD animation](docs/jelly/jelly_v3_showcase.mp4) ·
 [Meet Jelly and customize his personality](#living-jelly-your-coding-pet) ·
 [3.0 release notes](docs/releases/v3.0.0.md)
