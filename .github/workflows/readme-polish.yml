@@ -16,6 +16,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: feature/cuter-jelly-readme-hero
+          fetch-depth: 0
+      - name: Reconcile latest main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git merge --no-commit origin/main || true
+          conflicts="$(git diff --name-only --diff-filter=U)"
+          if [ -n "$conflicts" ] && [ "$conflicts" != "README.md" ]; then
+            echo "Unexpected merge conflicts: $conflicts"
+            exit 1
+          fi
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -27,9 +39,7 @@ jobs:
           python scripts/readme_hero.py
       - name: Commit generated README assets
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add README.md docs/jelly/readme_hero.gif ocdeck/jelly_cute.py
           git diff --cached --quiet && exit 0
-          git commit -m "Refresh README with animated Jelly hero"
+          git commit -m "Merge latest main and refresh animated Jelly hero"
           git push origin HEAD:feature/cuter-jelly-readme-hero
