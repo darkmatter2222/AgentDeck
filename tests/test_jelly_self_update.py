@@ -1,13 +1,15 @@
 import os
 from pathlib import Path
 import random
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
 
 from PIL import Image, ImageFont
 
-from ocdeck.jelly_update import CHECK_INTERVAL, install_device_patch
+from ocdeck import jelly_update
+from ocdeck.jelly_update import CHECK_INTERVAL, install_broker_patch, install_device_patch
 from ocdeck.jelly_words import Thoughts, text_bitmap
 from ocdeck.updates import check, install, schedule_restart
 
@@ -77,7 +79,41 @@ class UpdateTests(unittest.TestCase):
             result = schedule_restart(Path("."), parent_pid=123, popen=popen)
         self.assertTrue(result["ok"])
         self.assertNotIn("PYTHONPATH", calls[0][1]["env"])
-        self.assertEqual(calls[0][0][0], os.sys.executable)
+        self.assertEqual(calls[0][0][0], sys.executable)
+
+    def test_broker_polls_and_hands_update_to_device(self):
+        class Stop:
+            def is_set(self):
+                return False
+
+            def wait(self, seconds):
+                self.seconds = seconds
+                return True
+
+        class Device:
+            def __init__(self):
+                self.status = {}
+
+        class BrokerStub:
+            def __init__(self):
+                self.root = Path(".")
+                self.config = {"check_updates": True}
+                self.stop = Stop()
+                self.update = None
+                self.device = Device()
+
+            def check_update(self):
+                raise AssertionError("patch did not install")
+
+        install_broker_patch(BrokerStub)
+        broker = BrokerStub()
+        info = {"version": "9.9.9", "source": "pypi"}
+        with patch.object(jelly_update, "check", return_value=info) as checker:
+            broker.check_update()
+        checker.assert_called_once()
+        self.assertEqual(broker.update, info)
+        self.assertEqual(broker.device._jelly_update_info, info)
+        self.assertEqual(broker.stop.seconds, 300)
 
     def test_update_mode_marks_jelly_and_intercepts_its_button(self):
         class Geometry:
