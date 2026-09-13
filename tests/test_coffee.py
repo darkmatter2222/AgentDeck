@@ -98,6 +98,81 @@ class ButtonRoutingTests(unittest.TestCase):
         self.assertIn(self.loop.jelly.touch_text, ("Ouch!", "Hehe!", "Boop!", "Hey!", "Tickles!"))
         self.assertTrue(self.presses.empty())
 
+    def tap_jelly(self, now):
+        key = next(k for k, action in self.loop.overlay_actions.items() if action["_action"] == "tap")
+        with patch("ocdeck.device.time.monotonic", return_value=now):
+            self.loop.press(key, True)
+        self.render(now)
+
+    def test_fifth_tap_spawns_then_either_button_opens_once(self):
+        for target in ("jelly_key", "key"):
+            with self.subTest(target=target):
+                self.setUp()
+                self.render(1)
+                for now in (2, 3, 4, 5):
+                    self.tap_jelly(now)
+                    self.assertIsNone(self.loop.coffee.key)
+                self.tap_jelly(6)
+                self.assertIsNotNone(self.loop.coffee.key)
+                self.assertEqual(self.loop.coffee.until, 66)
+                self.assertTrue(self.presses.empty())
+                key = getattr(self.loop.coffee, target)
+                self.loop.press(key, True)
+                self.loop.press(key, True)
+                self.render(7)
+                self.assertIsNone(self.loop.coffee.key)
+                self.assertEqual(self.presses.get_nowait(), {"_action": "open_coffee"})
+                self.assertTrue(self.presses.empty())
+                self.assertGreaterEqual(self.loop.coffee.next_at, 3607)
+
+    def test_taps_use_rolling_window_and_reset_after_invitation(self):
+        self.loop.coffee.next_at = 10000
+        self.render(1)
+        for now in (2, 10, 20, 30, 63):
+            self.tap_jelly(now)
+        self.assertIsNone(self.loop.coffee.key)
+        self.tap_jelly(64)
+        self.assertIsNotNone(self.loop.coffee.key)
+        self.render(124)
+        self.tap_jelly(125)
+        self.assertIsNone(self.loop.coffee.key)
+
+    def test_five_taps_require_two_free_keys_and_respect_disable(self):
+        for blocked in (False, True):
+            with self.subTest(disabled=blocked):
+                self.setUp()
+                self.loop.jelly.options["coffee"] = not blocked
+                views = self.registry.view()
+                if not blocked:
+                    for i in range(1, len(views)):
+                        views[i] = {**views[i], "id": str(i), "state": "running"}
+                self.render(1, views)
+                for now in range(2, 7):
+                    self.loop.press(0, True)
+                    self.render(now, views)
+                self.assertIsNone(self.loop.coffee.key)
+                self.assertTrue(self.presses.empty())
+
+    def test_scheduled_coffee_jelly_press_opens_and_stale_pair_cannot(self):
+        self.render(100)
+        self.loop.press(self.loop.coffee.jelly_key, True)
+        self.render(101)
+        self.assertEqual(self.presses.get_nowait(), {"_action": "open_coffee"})
+        self.assertIsNone(self.loop.coffee.key)
+        for invalid in ("expired", "reassigned", "update"):
+            self.setUp()
+            self.render(100)
+            self.loop.press(self.loop.coffee.jelly_key, True)
+            views = self.registry.view()
+            if invalid == "reassigned":
+                key = self.loop.coffee.key
+                views[key] = {**views[key], "id": "agent", "state": "running"}
+            if invalid == "update":
+                self.loop._jelly_update_info = {"version": "99.0.0"}
+            self.render(160 if invalid == "expired" else 101, views)
+            self.assertTrue(self.presses.empty())
+            self.assertIsNone(self.loop.coffee.key)
+
     def test_coffee_press_is_one_browser_request_and_dismisses(self):
         self.render(100)
         key = self.loop.coffee.key

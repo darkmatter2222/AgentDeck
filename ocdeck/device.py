@@ -226,6 +226,7 @@ class DeviceLoop:
             return {}
         try:
             available = free_keys(views)
+            coffee_blocked = not self.jelly.options["coffee"] or bool(getattr(self, "_jelly_update_info", None))
             events = []
             for _ in range(32):
                 try:
@@ -241,8 +242,9 @@ class DeviceLoop:
                 if event["kind"] == "coffee":
                     if (
                         self.coffee
-                        and self.coffee.key == slot
-                        and self.coffee.jelly_key in available
+                        and not coffee_blocked
+                        and slot in (self.coffee.key, self.coffee.jelly_key)
+                        and {self.coffee.key, self.coffee.jelly_key} <= available
                         and now < self.coffee.until
                         and event.get("serial") == self.coffee.serial
                     ):
@@ -255,12 +257,14 @@ class DeviceLoop:
                             LOG.warning("Press queue full; coffee browser request dropped")
                 else:
                     self.jelly.tap(now)
+                    if self.coffee:
+                        self.coffee.tap(event.get("pressed_at", now), available, blocked=coffee_blocked)
             if self.coffee:
                 self.coffee.update(
                     now,
                     available,
                     self.jelly,
-                    blocked=not self.jelly.options["coffee"] or bool(getattr(self, "_jelly_update_info", None)),
+                    blocked=coffee_blocked,
                 )
             coffee_key = self.coffee.key if self.coffee else None
             self.jelly.update(now, available - {coffee_key}, views, [e for e in events if e.get("kind") == "focus"])
@@ -289,7 +293,9 @@ class DeviceLoop:
             if self.coffee:
                 frames = self.coffee.decorate(now, self.jelly, frames)
                 if coffee_key is not None:
-                    self.overlay_actions[coffee_key] = {"_action": "coffee", "serial": self.coffee.serial}
+                    for key in (coffee_key, self.coffee.jelly_key):
+                        if key is not None:
+                            self.overlay_actions[key] = {"_action": "coffee", "serial": self.coffee.serial}
             return frames
         except Exception:
             self._fail_jelly()
@@ -307,7 +313,7 @@ class DeviceLoop:
         LOG.info("Button down key=%s action=%s", key + 1, action or "focus")
         try:
             if action in ("tap", "coffee"):
-                self.jelly_events.put_nowait({**view, "kind": action, "slot": key})
+                self.jelly_events.put_nowait({**view, "kind": action, "slot": key, "pressed_at": time.monotonic()})
             else:
                 self.presses.put_nowait(view)
         except queue.Full:

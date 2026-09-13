@@ -13,7 +13,11 @@ Every **random 1–3 hours**, when **at least two buttons are unassigned**, Jell
 settles on one and points toward a steaming Buy Me a Coffee cup on the other.
 He cycles through rainbow colors with **“Coffee?”** above his head. The pair can
 be anywhere on the deck. After **60 seconds**, the invitation disappears.
-Tap the cup to open [Ryan's support page](https://buymeacoffee.com/j6oiubzfnh)
+Tap Jelly five times within a rolling 60-second window to start a coffee break
+early, provided two keys are free and coffee invitations are enabled. The fifth
+tap starts the invitation; it does not open a browser.
+
+During any coffee invitation, tap Jelly or the cup to open [Ryan's support page](https://buymeacoffee.com/j6oiubzfnh)
 in your default browser and dismiss the invitation immediately.
 
 Agent controls always take priority: if an agent needs either key, the coffee

@@ -117,7 +117,7 @@ Jelly makes a home on your spare buttons. He stretches, dances, naps and changes
 
 ![Jelly reacts to a tap and points toward a steaming coffee cup](docs/jelly/coffee_break.gif)
 
-With **two free keys**, Jelly can point to a steaming coffee cup and ask “Coffee?” at a random interval of **1–3 hours**. The invitation lasts **60 seconds**; pressing the cup opens [Ryan's Buy Me a Coffee page](https://buymeacoffee.com/j6oiubzfnh) and dismisses it. The preview speeds up the wait. Agent controls always take priority.
+With **two free keys**, Jelly can point to a steaming coffee cup and ask “Coffee?” at a random interval of **1–3 hours**. Tap Jelly **five times within one minute** to start the same routine early when two keys are free. The invitation lasts **60 seconds**; pressing **Jelly or the cup** opens [Ryan's Buy Me a Coffee page](https://buymeacoffee.com/j6oiubzfnh) and dismisses it. The preview speeds up the wait. Agent controls always take priority.
 
 Prefer a quieter deck? Set `"jelly": {"coffee": false}` to disable coffee invitations or `"jelly": {"enabled": false}` to turn Jelly off. Merge these preferences into your existing configuration and restart the broker.
 
