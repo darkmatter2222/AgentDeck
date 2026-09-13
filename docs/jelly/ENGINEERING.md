@@ -1,204 +1,283 @@
-# Living Jelly prototype — engineering report
+# Living Jelly — expanded companion engineering report
 
 Repository: https://github.com/darkmatter2222/AgentStreamDeck
 
-Branch: `feature/living-jelly-prototype`, based on main commit
-`804531a` (Document successful AgentStreamDeck PyPI publication).
-Run `git rev-parse HEAD` for the final branch commit. This report is committed
-with the implementation; it does not embed its own self-referential commit hash.
-No release or main-branch merge is part of this experiment.
+Branch: `feature/living-jelly-prototype`. This expansion builds on `c0a465f`.
+Use `git rev-parse HEAD` for the final branch SHA. No merge or release is included.
+The feature is still experimental and disabled by default.
 
-## Implementation
+## Delivered scope
 
-| Concern | Implementation |
+| Component | Implemented |
 | --- | --- |
-| Architecture | One `Jelly` controller, one continuous `(x,y)` bottom-center anchor, rectangular `DeckGeometry` viewports. |
-| Logical art | Original 40×40 RGBA, seven colors plus transparency, integer-coordinate polygons and face details. No borrowed game artwork. |
-| Scale | Integer nearest-neighbor only: 80px keys use 2×; 72px keys use 1×. |
-| Contact anchor | `(20,34)` logical pixels; bottom contour ends at y=33. Blinks leave silhouette and anchor unchanged. Mirroring preserves x=20. |
-| Physical FPS | Existing device-loop `fps`: default 24, supported 1–30; this experiment evaluates 24 and 30. |
-| Pose rate | Classic airborne sequence: 7 holds over 0.7s (10Hz); fluid: 9 holds over 0.7s (~12.9Hz). Preparation/landing 10Hz; gestures/blink 12Hz. Idle holds are longer. |
-| Geometry | Live `key_layout()` and `key_image_format()`; mock geometry 2×3, 3×5, 4×8. Orthogonal adjacency never wraps rows. |
-| Bezel | Default 8 native pixels between viewports; configurable 0–40. Gap has no display surface. Physical calibration remains pending. |
-| Clipping | One scaled world sprite, pasted at relative coordinates into intersecting free-key RGBA viewports. Negative paste offsets clip it; source/destination crops derive from identical pose and position. No special exit/entry sprites. |
-| Trajectory | Smoothstep interpolation plus a parabolic upward offset; smaller arc for vertical travel. Position advances at device FPS independently of held artwork. |
-| Jump timing | 600ms look/bob/compress/hold, 700ms flight, 500ms impact/rebound/jiggle/recovery. |
-| Occupancy | Only `state == off` with no assignment ID is free. READY/system/error/agent UI takes priority. |
-| Eviction | On the next ordinary render tick, invalidated source or destination hides the entire entity immediately. No animation completion delay. |
-| Reappearance | Randomized 0.5–1.3s delay after free space exists. Hiding/respawning is allowed for eviction; normal travel is always adjacent. |
-| Threading | No new timers, threads, connections, writer or busy loop. Existing stop-event wait drives all updates; close clears the entity. |
-| Failure handling | Initialization/update/crop/native Jelly conversion errors are logged once and disable the entity. Existing agent render path continues. Reconnection or restart reconstructs it. Hardware write errors retain normal device reconnect behavior. |
-| Configuration | Validated `jelly.enabled`, `virtual_gap`, `behavior_seed`, `hop_style`; enabled defaults false. Existing global `fps` is authoritative. `animations=false` disables Jelly. |
-| Appearance I/O | Version-1 appearance exports stay compatible and omit broker-level Jelly options. Imports preserve existing Jelly configuration. |
+| Visible actions | Original 13 plus 20 new local actions: **33 total** (directional hops counted separately). |
+| Logical body poses | Original 13 plus 20 new distinct shapes: **33 total**. |
+| Hop styles | Original classic/fluid plus 12 variants: **14**, with optional mood-based selection. |
+| Mood states | **23** moods, including the proposed 20 plus peckish, overworked and recovering. |
+| Temperament presets | Balanced, mellow, curious, playful. |
+| Needs | Energy, nourishment, stimulation, workload, confidence, sociability. |
+| Thoughts | **1,040 unique authored lines** in 15 contextual categories; no generated word salad or network service. |
+| Persistence | Optional bounded state, no session identifiers/content, restorative resume. |
 
-Controller actions: hidden, idle/breathing, blink (half/closed/open), look left,
-right and up, wave, point left/right, and rest/sleep/wake. Hopping contains distinct
-preparation, squash, launch/stretch, airborne/apex/fall and landing/recovery phases
-in all four directions. Pseudopods extend, reach, wave/point, then retract. Facial
-recipes cover neutral, happy, curious, focused, surprised, sleepy, jump and
-landing; some share base eye geometry with gaze or body deformation providing
-the expression. `surprised` is available in the art/sprite sheet, not a separate
-randomly scheduled behavior.
+Catalogs are machine-readable in [`catalog.json`](catalog.json). Original artwork,
+all animation recipes, metadata handling and phrase selection run locally.
 
-Behavior uses a local seeded `random.Random`, quiet 2–5s action intervals, and
-weighted choices. With only one free key, all non-travel behavior remains
-available. With no free keys, no crops or behavior actions are produced.
+## Floor, artwork, movement and animation
 
-## Caching and integration
+`DeckGeometry.anchor()` now places the contact anchor exactly **three native
+pixels above the bottom of each button**. The artwork is on one 40×40 logical
+grid with stable `(20,34)` bottom-center anchor. Integer nearest-neighbor scaling
+keeps crisp pixels: 80/96px keys use 2×, 72px keys use smaller 1× artwork.
+No interpolated scaling, game engine, or additional runtime dependency is added.
 
-`logical_sprite` has a bounded 384-entry cache; scaled/mirrored sprites have a
-512-entry cache. Images are immutable by convention. Per-key crop bytes form
-the changed-image identity and reuse the existing bounded 768-entry native
-frame LRU. There is no unbounded per-timestamp cache. Only intersecting free
-keys are composed; held crops do not trigger a device write, and departed keys
-are cleared through the ordinary off-state path. Normal agent frames retain
-their existing cache and appearance behavior.
+Local actions use continuous floor coordinates, with left/center/right resting
+positions. The horizontal span leaves room for the widest pose. Local artwork
+and thoughts are restricted to the current key. Scoot, crawl, roll, tiptoe, pace,
+edge peek, retreat and somersault move horizontally; bounce/dance/cheer provide
+local vertical motion. Turn, spin, scratch, applause, nod and head shake use
+expressive poses/gestures. Yawn, melt and reform provide quieter activity.
+Roll/spin/somersault use crisp quarter-turns, reanchored after rotation.
 
-Native conversion is not a CPU bottleneck in this simulation, so no separate
-precomputed native animation bank was added. The main render loop exposes
-`render_timing`: requested FPS, effective loop FPS, over-budget ticks, and mean
-composition/conversion/device-write ms per tick. These are cumulative since
-connection, not USB delivery acknowledgements or a physical display FPS counter.
-`frames` remains the existing changed-key write count, not deck FPS.
+Twenty new pose names: `puddle`, `sleep_curl`, `slump`, `proud`, `curious_lean`,
+`lean_back`, `scoot_front`, `drag_tail`, `crawl_bridge`, `tiptoe`, `rolling_ball`,
+`side_flop`, `twisted`, `spiral`, `diagonal_smear`, `horizontal_smear`,
+`vertical_noodle`, `asym_impact`, `crown_ripple`, `double_arch`.
 
-## Visual review
+Across keys, one entity moves through continuous world coordinates. Key
+rectangles are viewports, separated by an adjustable default 8px virtual bezel.
+Pillow crops the same world sprite into intersecting free keys. The current
+local x-offset is retained at takeoff, preventing a snap back to center.
+Positions use elapsed time; deliberate poses are held independently.
 
-Inspected original sprite sheet and sampled horizontal and vertical GIF frames:
-anticipation, elongated launch, split crops behind the bezel, full emergence,
-impact compression and recovery. Both horizontal and vertical flights intersect
-two viewports. Logical-grid and alpha-bound tests protect anchor/palette behavior
-without brittle full-image goldens. The idle GIF's first and last RGB frames are
-identical, avoiding a loop seam. Individual directional demo GIFs deliberately
-restart their one-way demonstration; the four-direction full-deck demo returns
-to its starting key.
+Styles: classic, fluid, tiny, bunny, heavy, floaty, nervous, excited, sleepy,
+running, sideways, tuck_roll, vault, careful_drop. Each has its own timing,
+arc and pose sequence. Bunny/excited add anticipatory bounces; running adds a
+run-up; vault uses a tendril; tuck_roll rotates and lands asymmetrically; sideways
+keeps the face toward the viewer. Careful drop uses a downward-oriented peek
+and fall (upward requests use classic). Tiny is a low arc; `bounce` is the
+separate same-button hop action. `mood` chooses an appropriate travel style.
 
-The side-by-side `jelly_hop_comparison.gif` uses the same path and timing for both
-styles. Classic's longer, distinct launch/apex/fall holds make the silhouette
-easier to read at key size; fluid adds intermediate shape changes. Classic is
-the provisional default. Neither style is claimed hardware-validated. No
-bilinear, bicubic or LANCZOS scaling is used for Jelly. Existing agent UI retains
-its own renderer. The simulated key outlines are illustrative, not a measured
-Mini chassis model.
+Normal movement remains in the existing 24 FPS device loop, configurable up to
+30 FPS. Local pose time is quantized at 12Hz before applying the authored holds;
+hop pose rates vary with style and phase. Stillness remains part of the design.
+Global `animations=false` disables the companion, including text motion.
 
-## Validation
+## Moods, color and needs
 
-Baseline (before source edits, after installing declared project dependencies):
-**61/61 Python tests**, **25/25 Node tests**. The initial Python attempt in the
-bare environment failed because project dependencies, including psutil, were
-missing; installing `.[dev]` resolved that baseline setup issue.
+Moods: content, curious, playful, sleepy, asleep, waking, attentive, thinking,
+focused, excited, proud, helpful, concerned, startled, cautious, shy, bored,
+restless, mischievous, overwhelmed, peckish, overworked and recovering.
 
-Final local validation: **79/79 Python tests**, including **18/18 new Jelly tests**;
-**25/25 Node tests**. Ruff lint/format and Pyright pass. Wheel and source package
-build successfully. The wheel's Jelly imports and bundled preview script are
-checked from outside the source checkout. Host: Linux, Python 3.12.
+Each mood has a distinct body palette. Shade/body/highlight transition in four
+quantized steps over about 0.9s, preserving alpha, dark outlines and contrasting
+eyes. Palette changes affect Jelly only; functional UI colors are unchanged.
 
-New tests cover adjacency/corners/edges/multiple grids; filtering functional UI;
-zero/one/multiple free keys; seeded behavior; destination selection; immediate
-eviction in idle/gesture/rest; mid-flight source/destination invalidation;
-continuous movement and two-key intersections in all directions; full-world
-reference clipping and missing bezel pixels; stable anchors and nearest-neighbor
-scaling; distinct pose/position frequencies; close/no-new-thread lifecycle;
-config rejection and appearance preservation; animation toggle; graceful
-cosmetic exceptions; and the actual device writer with a fake transport/clock,
-checking changed-key writes, exact agent replacement pixels, and shutdown.
+A local seeded RNG selects mood-biased actions with quiet/local/travel group
+weights initially 70/20/10. These are selection weights, not guaranteed time
+percentages; mood and preset modify them. Calm/busy moods suppress travel.
+Low stimulation adds exploratory or idle actions; low confidence favors cautious
+movement; high sociability adds greetings and glances.
+
+`Mind.observe()` consumes only IDs, state, optional explicit outcome IDs and
+successful-focus notifications, never labels, source code, prompts, commands,
+transcripts or keystrokes. Duplicate snapshots do not count as new activity.
+Meaningful event feeding is limited to once per five seconds. Continuous
+running activity nourishes and stimulates Jelly but gradually reduces energy.
+Energy recovers during quiet/rest. Every need is bounded to 0–100, and elapsed
+updates are capped at two seconds so suspension does not apply hours of decay.
+
+After roughly two minutes without activity Jelly becomes sleepy, and after five
+minutes he can sleep. New activity wakes him; explicit errors can startle him
+before concern. Sustained work with low energy becomes overworked; many changes
+or high workload become overwhelmed. Reduced workload allows recovery. These
+are deliberately lightweight simulated needs, not biological or productivity
+measurements. Ordinary coding outside connected sessions is not observed.
+
+No death, streaks, guilt, feeding obligation, or neglect penalty exists. Quiet
+time is valid activity for this companion.
+
+## Agent events and priority
+
+Only unassigned `off` keys are free. READY/system/error/agent buttons always win.
+Loss of either source or destination hides the whole entity on the next ordinary
+render tick, canceling the thought. Zero free keys stay hidden; one free key
+still supports local life. Free space permits delayed reappearance.
+
+Input requests receive oldest-first stable attention. A breadth-first search
+finds the shortest route through free keys to a free neighbor of the target.
+It never enters the agent key or crosses occupied cells. Routes are recomputed
+from current occupancy; blocked targets get a directional look/point from the
+current location. Jelly scoots toward a neighboring target at a time-based
+speed, then points left/right/up/down. Overwhelmed/overworked Jelly avoids travel.
+
+Arrivals wave, running changes attract attention, input requests point, resolved
+input nods, departures attract an exploratory glance, unknown connections produce
+concern, and reconnection waves. Successful focus notifications arrive through a
+bounded 32-item queue; callbacks never modify the animation controller.
+Reactions coalesce with a minimum three-second interval; pending reminders are
+at most once per 45 seconds. Cosmetic input pointing never consumes a functional
+button press. There is no special empty-key feeding/press action.
+
+Explicit outcomes are separate from normal state. An idle/Stop event **does not
+mean success**, and unknown/link loss **does not mean failure**. The normal
+snapshot API accepts optional:
+
+```json
+{
+  "status": "idle",
+  "producer": "existing-producer-id",
+  "seq": 42,
+  "outcome": "success",
+  "outcomeId": "stable-unique-completion-id"
+}
+```
+
+The ordinary authenticated instance-update route and producer/sequence rules
+still apply. Outcome must be `success` or `failure`, paired with an ID of 1–128
+characters. IDs deduplicate heartbeat snapshots and remain bounded to current
+visible slots inside Jelly. The registry retains the last outcome until a new
+explicit outcome; the companion does not repeatedly react to that retained value.
+
+The native hook normalizer forwards explicit error/failure hooks and status error.
+It forwards success only for explicit `status: "success"` on Stop/stop/agentStop/
+AfterAgent events. Interruptions, aborted status and ordinary idle do not create
+success outcomes. Outcomes carry only a generated/hash ID, never tool output.
+Availability depends on the native harness supplying these events/fields;
+OpenCode's separate adapter currently has normal state reactions but no new
+explicit success mapping. No live/native-harness compatibility claim is made.
+
+## Offline speech
+
+`ocdeck/assets/jelly/thoughts.json` contains 1,040 individually authored, unique,
+ASCII lines, each 1–52 characters. Categories have context constraints in code:
+quiet, curiosity, play, running, input, success, concern, sleep, food, workload,
+greetings, departures, reconnected, resolved and failure.
+
+Arrival/departure/reconnect lines are separated to prevent contradictory text.
+Success/failure lines require explicit events; ambient proud mood does not
+invent a result. Stale input/running/unknown observations are cleared when the
+corresponding state disappears. Text never includes session names or content.
+A deque of the last 128 phrase IDs avoids repeats until a small category is
+exhausted, then reuses its oldest selection. Different contexts keep separate
+line identities. No runtime language model is used.
+
+Text is drawn into a one-bit bitmap and nearest-neighbor scaled in a reserved
+strip above the resting head. It remains inside the current key. Long lines
+scroll once at 32 native pixels/second after a brief initial hold; short lines
+hold without scrolling. The strip disappears after the pass. Movement/eviction
+cancels it, sleeping is silent, and quiet actions hold long enough for reading.
+The first ambient opportunity is after 20 seconds. Approximate ambient cooldowns
+are 90/35/15 seconds for quiet/normal/chatty, with event speech also rate-limited.
+No speech thread or repeated paragraph marquee exists.
+
+## Configuration and persistence
+
+The README has the full enable/disable example and defaults. All new options are
+strictly validated: personality, mood_colors, needs, reactions, thoughts,
+local_movement, travel and persistent. Existing enabled/gap/seed/hop options
+remain compatible. Default hop style stays classic; `mood` is an explicit choice.
+Version-1 appearance export/import stays compatible and preserves broker options.
+
+Optional `jelly-state.json` resides next to broker configuration. Only schema
+version, six bounded needs, mood and at most 128 phrase IDs are stored. It contains
+no session IDs, labels, code, paths or transcripts. Checkpoints occur at most once
+per minute and on ordinary close; saving failure logs a warning without disabling
+agent monitoring. Invalid state is ignored. Resume restores at least 85 energy,
+resets workload and wakes Jelly, with no offline decay penalty. Persistence is
+false by default; it is independently configurable.
+
+## Rendering, performance and failure isolation
+
+One device connection and one existing device writer remain authoritative.
+Jelly creates no timers, threads or busy-wait loop. Cached logical, scaled and
+colored poses have bounded LRUs, as does the existing native frame cache.
+Only intersecting/cosmetically changed free keys refresh; agent-render caching
+and assignment-generation handling remain intact. Thoughts add updates only to
+Jelly's own key. Controller/render exceptions disable Jelly and let normal
+agent rendering continue; optional persistence errors only disable that save.
+
+`device.jelly_life` reports mood/action/hop and bounded needs.
+`device.render_timing` reports requested/effective loop FPS, over-budget ticks
+and mean composition/conversion/write time. It is not an LCD refresh counter.
+
+The refreshed [`benchmark.json`](benchmark.json) evaluates **all 14 styles at
+24 and 30 FPS**, each simulating 30 seconds of work with two running-agent states
+and actual StreamDeckMini native conversion, without HID writes. Composition
+includes observation/controller/cropping. This is unpaced CPU measurement,
+not a hardware throughput guarantee or full-app CPU measurement.
+
+| Requested FPS | Mean composition range across styles | Mean native conversion range |
+| --- | ---: | ---: |
+| 24 | 0.039–0.117 ms/tick | 0.045–0.053 ms/tick |
+| 30 | 0.033–0.042 ms/tick | 0.044–0.060 ms/tick |
+
+Cold caches and host scheduling affect individual rows. Both have substantial
+CPU headroom against 41.67ms/33.33ms budgets. USB delivery, physical dropped
+frames, actual display smoothness and machine-wide application CPU remain
+unmeasured. Default stays 24 FPS until a real Mini is reviewed.
+
+## Verification and reproduction
+
+The previous prototype had 79 Python and 25 Node tests. This expansion passes
+**108 Python tests** (29 additional behavioral tests) and **26 Node tests**
+(one additional hook-outcome test). Existing tests were retained. Ruff lint and
+format, Pyright, wheel/sdist building, and installed-wheel vocabulary/rendering
+are checked. Host validation is Linux/Python 3.12; remote Windows matrix results
+are separate from these local claims.
+
+New tests cover all action trajectories, all 33 floor anchors and distinct new
+poses, all 14 hop styles, mood palettes, event feeding limits, sustained exercise,
+sleep/wake, restorative persistence, workload, safe routes and directional points,
+input priority, outcome deduplication and schema, honest event categories,
+1,040-line uniqueness, one-pass scrolling, own-key clipping, no-repeat history,
+config validation and bounded metadata-only state. Earlier eviction, agent
+priority, single-writer, shutdown and baseline behavior tests continue to pass.
 
 ```bash
 python -m pip install -e ".[dev]"
 python -m unittest discover -s tests -v
-python -m unittest discover -s tests -p test_jelly.py -v
 node --test tests/facts.test.mjs tests/harnesses.test.mjs tests/next.test.mjs
 python -m ruff check ocdeck tests
 python -m ruff format --check ocdeck tests
 python -m pyright
 python -m build
-```
-
-The project uses `unittest`; installing pytest is unnecessary for the prototype.
-No existing tests were deleted or weakened.
-
-## 24 vs 30 FPS observations
-
-Measured using `python scripts/preview_jelly.py --benchmark` on this host.
-Each row is an **unpaced simulation of 30 seconds**, with real Pillow composition
-and StreamDeckMini native conversion but no HID connection/writes. These are
-per-simulated-tick costs, not sustained hardware FPS or machine-wide CPU usage.
-Raw results: [`benchmark.json`](benchmark.json).
-
-| Style | Requested FPS | Composition mean ms | Composition p95 ms | Native conversion mean ms | Process CPU seconds |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Classic | 24 | 0.0163 | 0.0229 | 0.0410 | 0.0422 |
-| Classic | 30 | 0.0143 | 0.0199 | 0.0373 | 0.0475 |
-| Fluid | 24 | 0.0153 | 0.0216 | 0.0453 | 0.0445 |
-| Fluid | 30 | 0.0143 | 0.0200 | 0.0373 | 0.0476 |
-
-Both are well below the CPU frame budgets (41.67ms at 24; 33.33ms at 30).
-Process CPU here is about 0.14–0.16% of a single core when amortized across the
-30 simulated seconds. This excludes agent rendering, broker work, scheduling
-and real HID writes; it must not be read as total application CPU utilization.
-Small differences between variants/rates are not statistically meaningful.
-
-`python -m ocdeck devices` returned `[]`. Effective delivered LCD FPS, USB write
-time, hardware late/dropped frames and physical stability are **not measured**.
-24 FPS remains the conservative default; 30 should be selected after testing a
-physical Mini. The implementation does not introduce any 60 FPS requirement.
-
-## Reproduction and hardware acceptance
-
-```bash
-python scripts/preview_jelly.py
-python scripts/preview_jelly.py --fps 30 --output docs/jelly-30
-python scripts/preview_jelly.py --debug --output docs/jelly-debug
 python scripts/preview_jelly.py --benchmark
+python scripts/preview_jelly_life.py
+python scripts/preview_jelly_life.py --fps 30 --output docs/jelly-30
 ```
 
-The command creates: `jelly_static.png`, `jelly_sprite_sheet.png`,
-`jelly_sprite_sheet.json`, `jelly_idle.gif`, `jelly_hop_right.gif`,
-`jelly_hop_left.gif`, `jelly_hop_up.gif`, `jelly_hop_down.gif`,
-`jelly_full_deck_demo.gif`, `jelly_personality.gif`,
-`jelly_hop_comparison.gif`, and `jelly_hop_contact_sheet.png`.
-`--benchmark` additionally writes `benchmark.json` and requires the project's
-StreamDeck dependency. Normal preview generation requires only Pillow.
+Generated artifacts include the original sprite sheet/metadata, idle and four
+directional hop GIFs, full-deck demo, personality demo and hop contact sheet;
+plus new action GIF/PNG, mood PNG, all-pose PNG, all-hop GIF, thought GIF,
+agent-reaction GIF and catalog JSON. Visual inspection checks floor anchoring,
+expressive silhouettes, mood contrast and the above-head scrolling strip.
+Previews simulate screens and gaps, not a measured physical chassis.
 
-Enable configuration as documented in the README, close Elgato's app, and stop
-the existing broker before starting this branch:
+After enabling the README config, close Elgato's app, stop any existing broker,
+and run `python -m ocdeck broker`. Use `--mock` for a hardware-free broker.
+From another terminal use `python -m ocdeck status --json` and
+`python -m ocdeck stop`.
 
-```bash
-python -m ocdeck broker
-```
+## Files and limitations
 
-From another terminal:
+New runtime modules: `jelly_catalog.py`, `jelly_mind.py`, `jelly_words.py`; new
+packaged data: `assets/jelly/thoughts.json`. Existing `jelly.py` and `jelly_art.py`
+contain the expanded controller and pixel art. Device/broker integration adds
+persistence, telemetry and the focus handoff; model/hook normalization adds
+explicit outcome metadata. `pyproject.toml` packages the vocabulary. New preview
+script: `scripts/preview_jelly_life.py`. New Python tests: `tests/test_jelly_life.py`;
+Node coverage extends `tests/next.test.mjs`. README, this report and visual assets
+are updated. No new runtime dependency is required.
 
-```bash
-python -m ocdeck status --json
-python -m ocdeck stop
-```
+Physical Mini/other-model testing is still pending. 72px displays use smaller
+1× art; the bezel gap is uncalibrated. Rotation is deliberately discrete pixel
+rotation, not a smooth vector spin. Palette/glyph readability and quiet/chatty
+timing should be reviewed on the actual LCDs. Larger layouts and outcome payloads
+have automated coverage, not physical/native-harness certification. Agent
+behavior is inferred from metadata, not semantic understanding of the task.
+Direct coding outside connected sessions is invisible. No manual feeding,
+keypress game, multi-pet system or diagonal travel is added.
 
-For acceptance, run 24 FPS and 30 FPS for several minutes each, with both hop
-styles; save status timing and observe actual key motion. Start an agent on a
-key while Jelly is idling and mid-hop; confirm immediate replacement. Fill every
-key, close sessions, disconnect/reconnect, and stop the broker. Verify no stale
-Jelly pixels and clean blank/close behavior. Compare gaps 4, 8 and 12 to tune the
-illusion against the real Mini bezel. No physical validation is claimed here.
-
-## Files and remaining scope
-
-Added source: `ocdeck/jelly.py`, `ocdeck/jelly_art.py`,
-`scripts/preview_jelly.py`, `tests/test_jelly.py`.
-
-Modified: `ocdeck/device.py`, `ocdeck/settings.py`, `README.md`.
-
-Added documentation/artifacts: this report and all generated assets listed above
-under `docs/jelly/`. Artwork source ships in the normal Python package; the
-sprite sheet is a human inspection artifact, not a runtime network dependency.
-
-Known limitations: no physical device tested; virtual gap is uncalibrated;
-72px keys use smaller 1× artwork; 15/32-key geometry is tested without hardware;
-no diagonal travel or pathfinding across occupied keys; no press reaction;
-no virtual-pet progression or external event behavior; static main application
-appearance preview does not show Jelly; configuration changes require restart.
-The geometry/controller leave room for future events but this branch adds none.
-
-Recommended next iteration: use a real Mini to tune arc, compression holds,
-vertical emergence and gap, compare 24/30 with live agent churn, then decide
-whether the fluid variant offers an improvement. That physical review is the
-remaining acceptance gate for the central “jumped between the buttons” illusion.
+Recommended next step: test the floor, thought strip and input-approach behavior
+on a real Mini at 24 and 30 FPS, including mid-flight assignment, full occupancy,
+rapid session churn, long work/rest periods and disconnect/shutdown.

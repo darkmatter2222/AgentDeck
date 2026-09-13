@@ -23,7 +23,7 @@ ocdeck = "ocdeck.__main__:main"
 packages = ["ocdeck"]
 
 [tool.setuptools.package-data]
-ocdeck = ["assets/logos/*.png", "assets/logos/*.svg", "assets/logos/*.json", "assets/logos/*.txt"]
+ocdeck = ["assets/logos/*.png", "assets/logos/*.svg", "assets/logos/*.json", "assets/logos/*.txt", "assets/jelly/*.json"]
 
 [project.optional-dependencies]
 dev = ["ruff==0.12.12", "pyright==1.1.405", "pre-commit>=4,<5", "build>=1,<2"]

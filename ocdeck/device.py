@@ -129,13 +129,36 @@ def enumerate_minis():
 
 
 class DeviceLoop:
-    def __init__(self, registry, presses, stop, config, mock=False):
+    def __init__(self, registry, presses, stop, config, mock=False, root=None):
         self.registry, self.presses, self.stop, self.config, self.mock = registry, presses, stop, config, mock
         self.status = {"online": False, "mock": mock, "error": "Not connected", "frames": 0}
         self.presented: list[dict | None] = [None] * len(self.registry.slots)
         self.presented_lock = threading.Lock()
         self.deck = None
         self.jelly = None
+        self.jelly_events = queue.Queue(maxsize=32)
+        self.jelly_root = root
+        self.jelly_saved_at = 0.0
+
+    def notify_jelly(self, kind, slot):
+        """Metadata-only handoff; workers never touch the animation controller."""
+        if kind == "focus":
+            try:
+                self.jelly_events.put_nowait({"kind": kind, "slot": slot})
+            except queue.Full:
+                pass
+
+    def _save_jelly(self):
+        if self.jelly and self.jelly_root and self.jelly.options["persistent"]:
+            from pathlib import Path
+            from .common import atomic_json
+
+            try:
+                atomic_json(
+                    Path(self.jelly_root) / "jelly-state.json", self.jelly.mind.snapshot(self.jelly.thoughts.recent)
+                )
+            except Exception:
+                LOG.warning("Could not save Jelly's optional state", exc_info=True)
 
     def _start_jelly(self):
         self.jelly = None
@@ -151,7 +174,15 @@ class DeviceLoop:
                 rows, columns = {6: (2, 3), 15: (3, 5), 32: (4, 8)}[len(self.registry.slots)]
                 width = height = 80
             geometry = DeckGeometry(rows, columns, width, height, options["virtual_gap"])
-            self.jelly = Jelly(geometry, options["behavior_seed"], options["hop_style"])
+            self.jelly = Jelly(geometry, options["behavior_seed"], options["hop_style"], options)
+            self.jelly.thoughts.next_at = time.monotonic() + 20
+            if options["persistent"] and self.jelly_root:
+                from pathlib import Path
+                from .common import read_json
+
+                recent = self.jelly.mind.restore(read_json(Path(self.jelly_root) / "jelly-state.json", {}))
+                self.jelly.thoughts.recent.extend(recent)
+            self.jelly_saved_at = time.monotonic()
             self.status["jelly"] = "enabled"
         except Exception:
             self._fail_jelly()
@@ -168,7 +199,22 @@ class DeviceLoop:
             return {}
         try:
             available = free_keys(views)
-            self.jelly.update(now, available)
+            events = []
+            for _ in range(32):
+                try:
+                    events.append(self.jelly_events.get_nowait())
+                except queue.Empty:
+                    break
+            self.jelly.update(now, available, views, events)
+            self.status["jelly_life"] = {
+                "mood": self.jelly.mind.mood,
+                "action": self.jelly.state,
+                "hop_style": self.jelly.active_hop,
+                "needs": {k: round(v, 1) for k, v in self.jelly.mind.needs.items()},
+            }
+            if now - self.jelly_saved_at >= 60:
+                self._save_jelly()
+                self.jelly_saved_at = now
             return self.jelly.crops(available)
         except Exception:
             self._fail_jelly()
@@ -317,6 +363,7 @@ class DeviceLoop:
                 self.status.update(online=False, error=message("AD002", str(error)))
             finally:
                 if self.jelly:
+                    self._save_jelly()
                     self.jelly.close()
                     self.jelly = None
                 if self.deck:

@@ -47,7 +47,10 @@ export function normalize(profile, event, input) {
   if (!session) return null; // Never guess identity from cwd or hook PID.
   return {event, session, tool: str(input.tool_name || input.toolName),
     request: str(input.tool_use_id || input.toolUseId),
-    notification: str(input.notification_type), failed: input.status === 'error' || input.status === 'aborted'};
+    notification: str(input.notification_type), failed: input.status === 'error' || input.status === 'aborted',
+    // Only explicit terminal success; an ordinary idle/Stop is never a success claim.
+    outcome: input.status === 'error' || p.events[event] === 'error' || /toolusefailure$/i.test(event) ? 'failure'
+      : input.status === 'success' && ['Stop','stop','agentStop','AfterAgent'].includes(event) ? 'success' : null};
 }
 
 export class HookFacts {
@@ -59,6 +62,11 @@ export class HookFacts {
     const action = this.profile.events[e.event];
     if (!action || typeof e.session !== 'string' || !e.session) return;
     this.seen = true;
+    if (e.outcome === 'success' || e.outcome === 'failure') {
+      this.outcome = {outcome:e.outcome, outcomeId:e.request
+        ? crypto.createHash('sha256').update(JSON.stringify([e.session,e.event,e.request])).digest('hex')
+        : crypto.randomUUID()};
+    }
     if (action === 'end') { this.sessions.delete(e.session); return; }
     const s = this.sessions.get(e.session) || {status:'unknown', pending:new Set(), detail:'', inputNeeded:false};
     this.sessions.set(e.session, s);
@@ -101,7 +109,7 @@ export class HookFacts {
     const requestIds = [];
     for (const [session, s] of this.sessions) for (const id of s.pending)
       requestIds.push(crypto.createHash('sha256').update(JSON.stringify([session,id])).digest('hex'));
-    return {status, pending, detail, pendingKnown:false,
+    return {status, pending, detail, pendingKnown:false, ...this.outcome,
       inputNeeded:[...this.sessions.values()].some(s => s.inputNeeded), requestIds};
   }
 }

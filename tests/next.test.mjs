@@ -40,3 +40,20 @@ test('metadata normalization strips randomized credentials from body fields',()=
     assert.ok(!JSON.stringify(value).includes(secret));
   }
 });
+
+test('Jelly outcomes require explicit success or failure, never ordinary idle',()=>{
+  const facts=new HookFacts('claude');
+  facts.event(normalize('claude','Stop',{session_id:'s'}));
+  assert.equal(facts.snapshot().outcome,undefined);
+  facts.event(normalize('claude','PostToolUseFailure',{session_id:'s',tool_use_id:'private-tool-id',output:'private output'}));
+  const failure=facts.snapshot();
+  assert.equal(failure.outcome,'failure');
+  assert.match(failure.outcomeId,/^[0-9a-f]{64}$/);
+  assert.ok(!JSON.stringify(failure).includes('private'));
+  assert.equal(facts.snapshot().outcomeId,failure.outcomeId);
+  facts.event(normalize('claude','Stop',{session_id:'s',status:'success',transcript:'private transcript'}));
+  assert.equal(facts.snapshot().outcome,'success');
+  assert.notEqual(facts.snapshot().outcomeId,failure.outcomeId);
+  assert.equal(normalize('codex','Interrupt',{session_id:'s',status:'success'}).outcome,null);
+  assert.equal(normalize('claude','Stop',{session_id:'s',status:'aborted'}).outcome,null);
+});

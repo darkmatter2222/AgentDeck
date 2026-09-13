@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from PIL import Image, ImageDraw
 from ocdeck.jelly import DeckGeometry, Jelly
 from ocdeck.jelly_art import ANCHOR, GRID, POSES, logical_sprite
+from ocdeck.jelly_catalog import HOPS
 
 
 def deck_frame(jelly, available, debug=False):
@@ -105,7 +106,7 @@ def benchmark():
 
     deck = StreamDeckMini(NoTransport())
     results = []
-    for style in ("classic", "fluid"):
+    for style in HOPS:
         for fps in (24, 30):
             jelly = Jelly(DeckGeometry(), seed=7, hop_style=style)
             free = {1, 2, 4, 5}
@@ -118,7 +119,14 @@ def benchmark():
                     destination = next(k for k in jelly.geometry.adjacent(jelly.current) if k in free)
                     jelly.hop(destination, now, free)
                 t = time.perf_counter()
-                jelly.update(now, free)
+                jelly.update(
+                    now,
+                    free,
+                    [
+                        {"id": None if k in free else str(k), "state": "off" if k in free else "running"}
+                        for k in range(6)
+                    ],
+                )
                 crops = jelly.crops(free)
                 composition.append((time.perf_counter() - t) * 1000)
                 t = time.perf_counter()
