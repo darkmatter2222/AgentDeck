@@ -1,4 +1,3 @@
-\
 """Per-user broker startup registration for an installed AgentStreamDeck package."""
 
 import json
@@ -28,7 +27,10 @@ def _windows(root, start=True, runner=None):
     pythonw = python.with_name("pythonw.exe")
     if not pythonw.exists():
         pythonw = python
-    q = lambda value: str(value).replace("'", "''")
+
+    def quote(value):
+        return str(value).replace("'", "''")
+
     script = f"""
 $ErrorActionPreference = 'Stop'
 $task = Get-ScheduledTask -TaskName '{WINDOWS_TASK}' -TaskPath '\\' -ErrorAction SilentlyContinue
@@ -38,7 +40,7 @@ if ($legacy -and $legacy.Description -like 'OpenCode Deck*') {{
   Unregister-ScheduledTask -TaskName 'OpenCode Deck' -TaskPath '\\' -Confirm:$false
 }}
 $user = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-$action = New-ScheduledTaskAction -Execute '{q(pythonw)}' -Argument '-m ocdeck broker' -WorkingDirectory '{q(root)}'
+$action = New-ScheduledTaskAction -Execute '{quote(pythonw)}' -Argument '-m ocdeck broker' -WorkingDirectory '{quote(root)}'
 $trigger = New-ScheduledTaskTrigger -AtLogOn -User $user
 $principal = New-ScheduledTaskPrincipal -UserId $user -LogonType Interactive -RunLevel Limited
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -MultipleInstances IgnoreNew -RestartCount 999 -RestartInterval (New-TimeSpan -Minutes 1) -ExecutionTimeLimit ([TimeSpan]::Zero) -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
