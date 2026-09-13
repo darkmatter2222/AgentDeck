@@ -597,6 +597,103 @@ restores reported state; confirmed process death releases a slot.
 
 [Architecture](docs/ARCHITECTURE.md) · [Broker API](docs/API.md) · [Environment boundaries](docs/REMOTE-AND-WSL.md)
 
+## Experimental: Living Jelly
+
+Living Jelly is an **opt-in prototype**: one original pixel-art creature inhabits
+unused keys, looks around, blinks, waves, and jumps between adjacent LCDs. Its
+position moves across a continuous virtual deck, with the physical bezel modeled
+as a gap between screen viewports. It is a living idle-character experiment,
+not a finished virtual-pet feature.
+
+![Experimental Jelly crossing the bezel on a simulated Stream Deck Mini](docs/jelly/jelly_full_deck_demo.gif)
+
+Agent buttons and required UI **always have priority**. Only an unassigned `off`
+key is available to Jelly; the initial READY key remains reserved. If either end
+of a jump becomes occupied, Jelly hides on the next render tick rather than
+finishing its animation. When space returns it waits 0.5–1.3 seconds to reappear.
+With one free key it stays there; with none it stays hidden. Press/focus behavior
+is unchanged, and pressing Jelly has no special action in this prototype.
+
+To try this branch from a source checkout:
+
+```bash
+git fetch origin
+git switch feature/living-jelly-prototype
+python -m pip install -e ".[dev]"
+```
+
+Merge these settings into `%USERPROFILE%\.opencode-deck\config.json` (or the
+directory selected by `OCDECK_HOME`), then restart the broker:
+
+```json
+{
+  "fps": 24,
+  "animations": true,
+  "jelly": {
+    "enabled": true,
+    "virtual_gap": 8,
+    "behavior_seed": null,
+    "hop_style": "classic"
+  }
+}
+```
+
+| Setting | Default | Behavior |
+| --- | --- | --- |
+| `jelly.enabled` | `false` | Opt in; set false to disable and restart. |
+| `jelly.virtual_gap` | `8` | Integer 0–40, in native key pixels; visual bezel tuning. |
+| `jelly.behavior_seed` | `null` | Optional integer for reproducible behavior. |
+| `jelly.hop_style` | `classic` | `classic` key poses or `fluid` intermediate poses. |
+| Existing `fps` | `24` | Shared renderer, 1–30; evaluate Jelly at 24 or 30. |
+| Existing `animations` | `true` | False disables Jelly entirely. |
+
+Jelly settings are broker configuration. Existing schema-version-1 appearance
+exports remain unchanged; importing an appearance file preserves Jelly settings.
+No network access, image service, extra dependencies, or extra device thread is
+needed for Jelly. All artwork is generated locally from bundled Python source.
+
+Generate the sprite sheet, idle, four directional hops, personality, side-by-side
+hop variants, and full-deck demo without a device:
+
+```bash
+python scripts/preview_jelly.py
+python scripts/preview_jelly.py --fps 30 --output docs/jelly-30
+python scripts/preview_jelly.py --benchmark
+```
+
+The default output is [`docs/jelly/`](docs/jelly/). Add `--debug` for state/pose
+labels in the previews. GIF timing uses distributed 10ms ticks; actual device
+motion uses monotonic elapsed time. The existing `ocdeck preview` continues to
+preview agent appearance; use this dedicated script for Jelly.
+
+Close Elgato's application, stop any existing broker, then run:
+
+```bash
+python -m ocdeck broker
+```
+
+Use `python -m ocdeck broker --mock` for broker integration without hardware.
+`python -m ocdeck status --json` includes `device.jelly` and `device.render_timing`
+with requested/effective loop FPS, late frames, and composition/conversion/write
+milliseconds per tick. A cosmetic failure disables Jelly until broker restart
+(or device reconnection); normal agent rendering continues.
+
+The Mini 2×3 is the primary target. Automated geometry coverage includes 6, 15,
+and 32 keys; **no physical model has been tested for this prototype**. Native
+layout and image dimensions are read from the connected device. Artwork uses a
+40×40 logical grid, integer nearest-neighbor scaling, and a fixed bottom-center
+anchor. At 80×80 that is 2×; at 72×72 it remains 1× and looks smaller.
+
+CPU-only tests at 24 and 30 FPS indicate ample composition/conversion headroom,
+but do not measure USB throughput or delivered hardware FPS. The conservative
+default remains 24 FPS with classic poses until a physical Mini comparison is
+available. Physical motion runs every tick; body poses change roughly 10–13 Hz
+during hopping, with longer idle holds. Larger decks, bezel calibration, and
+physical 30 FPS stability still need acceptance testing.
+
+See the [engineering report](docs/jelly/ENGINEERING.md) for architecture, tests,
+performance measurements, reproduction commands, and limitations.
+
 ## Commands and configuration
 
 | Command | Purpose |

@@ -1,0 +1,50 @@
+[
+  {
+    "style": "classic",
+    "requested_fps": 24,
+    "simulated_seconds": 30,
+    "composition_mean_ms": 0.016255249998822465,
+    "composition_p95_ms": 0.02287400002387585,
+    "native_conversion_mean_ms": 0.04097739030410392,
+    "cpu_seconds": 0.04215362400000089,
+    "hardware_delivered_fps": null,
+    "device_write_ms": null,
+    "note": "Unpaced CPU simulation; native Mini conversion; no USB hardware."
+  },
+  {
+    "style": "classic",
+    "requested_fps": 30,
+    "simulated_seconds": 30,
+    "composition_mean_ms": 0.01434942556039055,
+    "composition_p95_ms": 0.0198500001715729,
+    "native_conversion_mean_ms": 0.037258156664595136,
+    "cpu_seconds": 0.04753118500000042,
+    "hardware_delivered_fps": null,
+    "device_write_ms": null,
+    "note": "Unpaced CPU simulation; native Mini conversion; no USB hardware."
+  },
+  {
+    "style": "fluid",
+    "requested_fps": 24,
+    "simulated_seconds": 30,
+    "composition_mean_ms": 0.015331201394827885,
+    "composition_p95_ms": 0.021562000256380998,
+    "native_conversion_mean_ms": 0.04532549998228003,
+    "cpu_seconds": 0.04449236099999965,
+    "hardware_delivered_fps": null,
+    "device_write_ms": null,
+    "note": "Unpaced CPU simulation; native Mini conversion; no USB hardware."
+  },
+  {
+    "style": "fluid",
+    "requested_fps": 30,
+    "simulated_seconds": 30,
+    "composition_mean_ms": 0.014309910003349715,
+    "composition_p95_ms": 0.02003999998123618,
+    "native_conversion_mean_ms": 0.03734692001974812,
+    "cpu_seconds": 0.047581901000000926,
+    "hardware_delivered_fps": null,
+    "device_write_ms": null,
+    "note": "Unpaced CPU simulation; native Mini conversion; no USB hardware."
+  }
+]

@@ -1,0 +1,535 @@
+{
+  "grid": 40,
+  "anchor": [
+    20,
+    34
+  ],
+  "copyright": "Original AgentStreamDeck Jelly; repository MIT license",
+  "frames": [
+    {
+      "name": "idle_neutral_center__0",
+      "rect": [
+        0,
+        0,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "idle",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "breathe_neutral_center__0",
+      "rect": [
+        40,
+        0,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "breathe",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "bob_neutral_center__0",
+      "rect": [
+        80,
+        0,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "bob",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "squash_neutral_center__0",
+      "rect": [
+        120,
+        0,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "squash",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "deep_neutral_center__0",
+      "rect": [
+        160,
+        0,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "deep",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "launch_neutral_center__0",
+      "rect": [
+        200,
+        0,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "launch",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "stretch_neutral_center__0",
+      "rect": [
+        240,
+        0,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "stretch",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "air_neutral_center__0",
+      "rect": [
+        280,
+        0,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "air",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "apex_neutral_center__0",
+      "rect": [
+        0,
+        40,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "apex",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "fall_neutral_center__0",
+      "rect": [
+        40,
+        40,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "fall",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "impact_neutral_center__0",
+      "rect": [
+        80,
+        40,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "impact",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "rebound_neutral_center__0",
+      "rect": [
+        120,
+        40,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "rebound",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "jiggle_neutral_center__0",
+      "rect": [
+        160,
+        40,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "jiggle",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_happy_center__0",
+      "rect": [
+        200,
+        40,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "idle",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_curious_center__0",
+      "rect": [
+        240,
+        40,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "idle",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_focused_center__0",
+      "rect": [
+        280,
+        40,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "idle",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_surprised_center__0",
+      "rect": [
+        0,
+        80,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "idle",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_sleepy_center__0",
+      "rect": [
+        40,
+        80,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "idle",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_jump_center__0",
+      "rect": [
+        80,
+        80,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "idle",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_landing_center__0",
+      "rect": [
+        120,
+        80,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "idle",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_half_center__0",
+      "rect": [
+        160,
+        80,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "idle",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_closed_center__0",
+      "rect": [
+        200,
+        80,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "idle",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_curious_left__0",
+      "rect": [
+        240,
+        80,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "idle",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_curious_right__0",
+      "rect": [
+        280,
+        80,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "idle",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_curious_up__0",
+      "rect": [
+        0,
+        120,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "idle",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_happy_right_wave_0",
+      "rect": [
+        40,
+        120,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "wave",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_happy_right_wave_1",
+      "rect": [
+        80,
+        120,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "wave",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_happy_right_wave_2",
+      "rect": [
+        120,
+        120,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "wave",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_happy_right_wave_3",
+      "rect": [
+        160,
+        120,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "wave",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_happy_right_wave_4",
+      "rect": [
+        200,
+        120,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "wave",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_happy_right_point_0",
+      "rect": [
+        240,
+        120,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "point",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_happy_right_point_1",
+      "rect": [
+        280,
+        120,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "point",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_happy_right_point_2",
+      "rect": [
+        0,
+        160,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "point",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_happy_right_point_3",
+      "rect": [
+        40,
+        160,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "point",
+      "anchor": [
+        20,
+        34
+      ]
+    },
+    {
+      "name": "idle_happy_right_point_4",
+      "rect": [
+        80,
+        160,
+        40,
+        40
+      ],
+      "duration_ms": 100,
+      "group": "point",
+      "anchor": [
+        20,
+        34
+      ]
+    }
+  ]
+}

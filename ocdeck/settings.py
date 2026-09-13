@@ -2,12 +2,14 @@
 
 import math
 from .appearance_io import export_settings
+from .jelly import settings as jelly_settings
 
 
 def validate_config(config):
     if not isinstance(config, dict):
         raise ValueError("config.json must contain an object")
     export_settings(config)
+    jelly_settings(config)
     if type(config.get("slots", 6)) is not int or config.get("slots", 6) not in (6, 15, 32):
         raise ValueError("slots must be 6, 15 or 32 (mock capacity; physical deck auto-detects)")
     for name in ("check_updates", "allow_elgato", "animations", "ready"):
