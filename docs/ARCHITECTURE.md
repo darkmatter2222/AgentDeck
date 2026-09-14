@@ -1,5 +1,7 @@
 # Implementation architecture
 
+[Project overview](../README.md) · [Documentation index](README.md)
+
 AgentStreamDeck uses direct USB HID for the Stream Deck and native harness plugins/hooks for lifecycle metadata. No Elgato plugin, MCP server, or AgentStreamDeck-owned harness launcher is required for the normal path.
 
 ```mermaid
@@ -105,6 +107,12 @@ Harness icons are packaged locally. Registration names such as `copilot-cli` and
 - Native hook payloads are normalized and bounded before broker delivery.
 - Hooks are observers and never make approval decisions.
 - No prompt/model transcript is required for monitoring.
-- Physical key presses request focus or explicit Jelly update approval only; they never answer an agent request.
+- Physical key presses route the displayed action: agent focus, Jelly touch, an explicit package update, or the displayed coffee support link. They never answer an agent request.
 
 See [API](API.md), [Harnesses](HARNESSES.md), [Plugin-first setup](PLUGIN-FIRST.md), and [Remote/WSL boundaries](REMOTE-AND-WSL.md).
+
+## Related guides
+
+[Repository source map](development/SOURCE-MAP.md) · [Developer setup](development/README.md) · [Privacy](features/PRIVACY.md)
+
+[Project overview](../README.md) · [Documentation index](README.md) · [Feature hub](features/README.md) · [CLI reference](CLI.md)

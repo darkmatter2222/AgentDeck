@@ -1,5 +1,7 @@
 # Verification record
 
+[Project overview](../README.md) · [Documentation index](README.md)
+
 Bundle final verification: 2026-09-08. Environment: Linux authoring workspace, Python 3.12, Node, Pillow, psutil 7.2.2, streamdeck 0.10.0 and hidapi 0.15.0. No physical Stream Deck or Windows desktop was available.
 
 ## Passed here
@@ -149,3 +151,7 @@ requires project ownership and trusted-publisher setup and was not executed.
 The first GitHub matrix passed Ubuntu 3.11/3.13 and exposed Windows native-argv
 quoting plus a short-path test comparison. Native EXE launches now bypass the
 legacy PowerShell argument binder; the test compares canonical paths.
+
+## Related guides
+
+[Project overview](../README.md) · [Documentation index](README.md) · [Feature hub](features/README.md) · [CLI reference](CLI.md)

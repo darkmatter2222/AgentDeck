@@ -1,11 +1,13 @@
 # Jelly: your coding companion
 
+[Project overview](../README.md) · [Documentation index](README.md)
+
 [Back to the README](../README.md)
 
 
 **Tap Jelly and he reacts.** A playful wobble, dance or cheer comes with a short
 “Boop!”, “Ouch!” or another little response, even when ambient thoughts are off.
-Pressing a minimized agent's key now maximizes its window and brings it forward.
+Agent-key focus is described in the [window switching guide](features/FOCUS.md).
 
 ![Jelly reacts to a tap, then points to a steaming coffee on another free key](jelly/coffee_break.gif)
 
@@ -22,7 +24,7 @@ in your default browser and dismiss the invitation immediately.
 
 Agent controls always take priority: if an agent needs either key, the coffee
 break ends. Each completed or dismissed break schedules a fresh 1–3 hour delay;
-restarting the broker starts a new delay. Nothing opens without a cup press.
+restarting the broker starts a new delay. Nothing opens without pressing Jelly or the cup during the invitation.
 The cup artwork is bundled, so the animation needs no network access.
 
 Set `"jelly": {"coffee": false}` to disable invitations, or
@@ -181,3 +183,8 @@ physical validation. No new runtime dependency is introduced.
 See the [engineering report](jelly/ENGINEERING.md) for implementation,
 configuration, test coverage, measurements, and remaining hardware checks.
 
+## Related guides
+
+[Every companion setting](reference/JELLY.md) · [Animation catalog](jelly/README.md) · [Coffee interactions](features/COFFEE.md)
+
+[Project overview](../README.md) · [Documentation index](README.md) · [Feature hub](features/README.md) · [CLI reference](CLI.md)

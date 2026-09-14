@@ -1,5 +1,7 @@
 # Jelly update indicator
 
+[Project overview](../../README.md) · [Documentation index](../README.md)
+
 AgentStreamDeck checks the published `agentstreamdeck` package on PyPI when the broker starts and every five minutes while it is running.
 
 When a newer stable package is available:
@@ -11,3 +13,7 @@ When a newer stable package is available:
 - Agent buttons keep priority. Jelly and the update action only occupy otherwise free buttons.
 
 No package is installed merely because an update exists. The physical button press is the user approval to update. Set `"check_updates": false` in the existing configuration to disable update checks and this Jelly behavior.
+
+## Related guides
+
+[Project overview](../../README.md) · [Documentation index](../README.md) · [Feature hub](../features/README.md) · [CLI reference](../CLI.md)

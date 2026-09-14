@@ -1,5 +1,7 @@
 # Local broker protocol
 
+[Project overview](../README.md) · [Documentation index](README.md)
+
 Endpoint: `http://127.0.0.1:<discovery.port>`. `.opencode-deck/discovery.json` is atomically written after socket binding and removed on graceful shutdown. The token is stored separately in the per-user `token` file. Never print or commit it.
 
 Every request requires `Authorization: Bearer <token>`. JSON bodies must be objects at most 64 KiB. Browser Origin headers are refused. This is a trusted local application protocol, not a LAN service. Clients reread discovery/token instead of assuming the port persists.
@@ -112,3 +114,9 @@ The broker binds loopback only, rejects browser Origin requests, limits concurre
 Registration can include an optional `harness` string for rendering. It is display metadata only and does not change process identity, sequence, slot-generation, or focus invariants. Older clients can omit it.
 
 See [Architecture](ARCHITECTURE.md), [Harnesses](HARNESSES.md), and [Plugin-first setup](PLUGIN-FIRST.md).
+
+## Related guides
+
+[CLI commands](CLI.md) · [Status semantics](features/STATUS.md) · [Diagnostics](features/DIAGNOSTICS.md)
+
+[Project overview](../README.md) · [Documentation index](README.md) · [Feature hub](features/README.md) · [CLI reference](CLI.md)

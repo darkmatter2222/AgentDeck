@@ -1,5 +1,7 @@
 # Local deployment and validation handoff (any coding agent)
 
+[Project overview](../README.md) · [Documentation index](README.md)
+
 You are working locally on the owner's Windows PC. Install and finish validating this source bundle, preserving existing Home AI / HomeAILab work and OpenCode configuration. The owner authorizes this integration and will disable the Mini in Elgato Preferences > Devices. Do not assume that this bundle has been verified with their physical hardware or their installed OpenCode version.
 
 Choose the setup path and desired profiles from TUTORIALS.md and HARNESSES.md.
@@ -77,3 +79,7 @@ validate title-based focus. Do not alter their ordinary editor settings.
 Deliver the installed profile/project list, observed native versions, actual
 software/hardware results, and the exact removal commands. Keep the receipt files
 until removal; do not commit machine paths, launch descriptors or secrets.
+
+## Related guides
+
+[Project overview](../README.md) · [Documentation index](README.md) · [Feature hub](features/README.md) · [CLI reference](CLI.md)

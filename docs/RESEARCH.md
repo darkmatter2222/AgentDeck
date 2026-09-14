@@ -1,4 +1,6 @@
 > Historical OpenCode design research. Current supported profiles and limitations
+
+[Project overview](../README.md) · [Documentation index](README.md)
 > are documented in [HARNESSES.md](HARNESSES.md); this file is not a current support matrix.
 
 # Stream Deck Mini + OpenCode: feasibility and implementation research
@@ -419,3 +421,7 @@ Use deterministic event fixtures for ordering, duplicate delivery, unresolved-re
 The eventual goal prompt should require implementation, installation into the actual global runtime, automatic startup, and evidence for the full matrix. It should prohibit success claims based only on compilation, mocked colors, synthetic button calls, or screenshots of desired state. It should explicitly name any unverified local-version capability and require discovery instead of invented APIs.
 
 For your stated dedicated-Mini use, start with **global OpenCode adapter + local Python broker + direct HID ownership + Windows focus adapter**. Retain the Elgato-plugin design as the supported alternative when you want Elgato to continue owning this Mini. The physical controls are simple; reliable identity, ownership, and recovery are what make them stay simple after a reboot.
+
+## Related guides
+
+[Project overview](../README.md) · [Documentation index](README.md) · [Feature hub](features/README.md) · [CLI reference](CLI.md)

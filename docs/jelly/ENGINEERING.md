@@ -1,5 +1,7 @@
 # Living Jelly — expanded companion engineering report
 
+[Project overview](../../README.md) · [Documentation index](../README.md)
+
 Repository: https://github.com/darkmatter2222/AgentStreamDeck
 
 Branch: `feature/living-jelly-prototype`. This expansion builds on `c0a465f`.
@@ -284,3 +286,7 @@ keypress game, multi-pet system or diagonal travel is added.
 Recommended next step: test the floor, thought strip and input-approach behavior
 on a real Mini at 24 and 30 FPS, including mid-flight assignment, full occupancy,
 rapid session churn, long work/rest periods and disconnect/shutdown.
+
+## Related guides
+
+[Project overview](../../README.md) · [Documentation index](../README.md) · [Feature hub](../features/README.md) · [CLI reference](../CLI.md)

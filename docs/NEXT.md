@@ -1,8 +1,8 @@
-# AgentStreamDeck 2.1 feature guide
+# Historical 2.1 implementation and acceptance record
 
-This branch adds the 20 requested improvements. Run the Python and Node suites
-before use. Physical USB, foreground focus, native Codex hook trust and Windows
-notification behavior require the live checks below.
+[Project overview](../README.md) · [Documentation index](README.md)
+
+This page preserves the original 2.1 engineering record and anchors. Some setup and release statements describe that historical branch, not current behavior. Use the [current feature hub](features/README.md), [installation](FIRST-RUN.md), [updates](features/UPDATES.md) and [release workflow](PYPI.md) for current instructions. The live acceptance checklist remains a useful manual checklist.
 
 ## Alerts
 
@@ -222,3 +222,7 @@ GitHub release is published merely by pushing this feature branch.
 | 18 | Appearance dry-run | Diff and in-memory preview; zero filesystem writes fixture |
 | 19 | Appearance sharing | Versioned validated JSON import/export; unrelated config preserved |
 | 20 | Elgato conflict | Conservative process guard before HID open and doctor check |
+
+## Related guides
+
+[Project overview](../README.md) · [Documentation index](README.md) · [Feature hub](features/README.md) · [CLI reference](CLI.md)

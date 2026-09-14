@@ -1,170 +1,66 @@
-# Setup, upgrade and removal tutorials
+# Practical AgentStreamDeck workflows and customization tutorials
 
-Start with a permanent checkout, such as `C:\Tools\AgentStreamDeck`. Examples use
-PowerShell and `C:\Projects\MyApp` as the software project; substitute real paths.
-Do not confuse the AgentStreamDeck source directory with the project your agent will edit.
-See [HARNESSES.md](HARNESSES.md) for the profile/capability matrix.
+[Project overview](../README.md) · [Documentation index](README.md)
 
-## Existing install: add a harness
+## Monitor Claude Code and Codex together
 
-1. Close affected managed agents. Update the existing permanent checkout with
-   `git pull --ff-only` while on `main`; inspect local changes before pulling.
-   If testing a separate checkout, the BAT launchers load that checkout via
-   `PYTHONPATH`, while the existing broker/OpenCode plugin keep their installed paths.
-2. Verify `node --version` reports 20 or newer. Confirm the desired harness starts
-   and authenticates normally. Run `ocdeck status`; the existing broker should be
-   active. Release the Mini in Elgato if it is still owned there.
-3. Preview and install hooks for your project:
+Install the broker once using the first-run guide. From a software project, install both project profiles:
 
 ```powershell
-C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp -DryRun
-C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp
-C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile copilot-cli -Project C:\Projects\MyApp
+python -m ocdeck harness-install claude
+python -m ocdeck harness-install codex
 ```
 
-4. Launch from that project:
+Review/trust Codex hooks in its native /hooks UI. Open Claude in one OS window and Codex in another, then send each a task. Both can share the same physical deck. Press their keys to switch windows. Follow the separate integration pages for the difference between Claude questions, Codex approvals and unknown counts.
+
+## Set up a readable review station
 
 ```powershell
-cd C:\Projects\MyApp
-C:\Tools\AgentStreamDeck\scripts\Launch-Claude.bat
-C:\Tools\AgentStreamDeck\scripts\Launch-Copilot.bat
+python -m ocdeck preview --preset readable --output readable.gif
+python -m ocdeck appearance --preset readable --dry-run
+python -m ocdeck appearance --preset readable
+python -m ocdeck appearance --slot 2 --alias Reviewer --secondary alias
 ```
 
-5. Verify the native harness accepts the generated hook config. Submit a task and
-   check running -> idle in `ocdeck status` and on the Mini. Follow
-   [FIRST-RUN.md](FIRST-RUN.md) for physical focus and multi-agent checks.
+The preset uses a minimal layout, accessible palette, large text and steady effect. A slot alias remains attached to key 2 even when another session takes it. Restart after saving. To restore global inheritance for key 2, remove that slot's override object from buttons in config.json.
 
-Use these exact profile names for other adapters:
-
-| Install profile | Launcher |
-|---|---|
-| `codex` | `scripts\Launch-Codex.bat` (review/trust hooks using `/hooks`) |
-| `gemini` | `scripts\Launch-Gemini.bat` |
-| `cursor` | `scripts\Launch-Cursor.bat` (Cursor CLI `agent`) |
-| `copilot-vscode` | `scripts\Launch-Copilot-VSCode.bat` |
-
-VS Code opens an isolated profile and may require sign-in on every launch. Read
-[its setup notes](HARNESSES.md#copilot-in-vs-code-preview) before testing. Hooks
-installed in one project do not instrument every other project automatically.
-
-## Fresh install with OpenCode
-
-This path installs the broker's automatic logon startup and the global OpenCode
-integration. It also supports adding any of the project-hook adapters above.
-
-1. Install Python 3.11+, Windows Terminal and OpenCode. Add Node 20+ if using hook
-   adapters or running the JavaScript tests. Check `python --version`,
-   `opencode --version`, `node --version`, and `Get-Command wt`.
-2. Quit Elgato Stream Deck from the tray and close competing controllers.
-3. Clone/extract this repository into a permanent directory; enter it:
+## Make long project names readable
 
 ```powershell
-cd C:\Tools\AgentStreamDeck
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Install.ps1
+python -m ocdeck preview --preset marquee --alias "Backend integration review" --output labels.gif
+python -m ocdeck appearance --slot 1 --preset marquee --alias "Backend integration review"
 ```
 
-For a nonstandard Python/OpenCode executable or config home, use the documented
-`-Python`, `-OpenCodePath`, and `-ConfigDirectory` flags in [FIRST-RUN.md](FIRST-RUN.md).
-The installer records the original OpenCode executable. Never set that path to
-its own `.opencode-deck\bin\opencode.cmd` wrapper.
+The marquee preset scrolls long labels with pauses. Prefer a concise alias on smaller native keys. Keep the secondary status line so you can identify the state without interpreting color.
 
-4. Open a fresh terminal, run `Get-Command opencode` and `ocdeck status`. The shim
-   should resolve from `.opencode-deck\bin`; the real device should be online and
-   `mock` should be false. Use `oc` if another alias shadows the shim.
-5. Launch OpenCode from a software project and complete the physical checklist.
-   Add other harnesses using the existing-install tutorial above.
-
-The task is named `OpenCode Deck` and runs at this desktop user's logon. If task
-registration is denied, follow the same-user elevation instructions in FIRST-RUN;
-do not switch to SYSTEM or another account. `Verify-Windows.ps1` checks this
-installation path specifically; it is not a generic hook installer check.
-
-## Fresh install without OpenCode
-
-The original installer requires OpenCode. To use only Claude, Copilot, Gemini, Cursor or
-Codex, set up the Python environment and run the broker in a foreground terminal.
-This path **does not create a scheduled task or global command shims**.
-
-After installing Python 3.11+, Node 20+, Windows Terminal and your desired harness,
-quit Elgato Stream Deck. In PowerShell:
+## Share a visual setup
 
 ```powershell
-$agentDeckSource = 'C:\Tools\AgentStreamDeck'
-$agentDeckData = Join-Path $env:USERPROFILE '.opencode-deck'
-New-Item -ItemType Directory -Force -Path $agentDeckData | Out-Null
-$agentDeckUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-icacls.exe $agentDeckData /inheritance:r /grant:r "${agentDeckUser}:(OI)(CI)F" 'SYSTEM:(OI)(CI)F'
-if ($LASTEXITCODE -ne 0) { throw 'Could not secure the per-user state directory.' }
-python -m venv (Join-Path $agentDeckData 'venv')
-if ($LASTEXITCODE -ne 0) { throw 'Virtual environment creation failed.' }
-$agentDeckPython = Join-Path $agentDeckData 'venv\Scripts\python.exe'
-& $agentDeckPython -m pip install -e $agentDeckSource
-if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed.' }
-& $agentDeckPython -m ocdeck broker
+python -m ocdeck appearance --export team-look.json
+python -m ocdeck appearance --import team-look.json --dry-run
+python -m ocdeck appearance --import team-look.json
 ```
 
-Keep that terminal open. Use `broker --mock` instead for software-only testing;
-mock mode does not open or draw on the Mini. Do not run a mock and real broker
-against the same state directory simultaneously.
+The export shares appearance/buttons/FPS only, so it does not overwrite another person's serial, alerts or Jelly settings. Import replaces visual settings; it is not a merge of each incoming field. Inspect the dry-run diff and restart afterward.
 
-In a second terminal, follow the project install/launch examples above. The BAT
-files automatically use this per-user virtual environment. To inspect status:
+## Keep local-model launch scripts
+
+Install the native hook profile once and launch your existing local-model script normally. AgentStreamDeck observes the harness, so changing a model endpoint in your own launcher does not require a new adapter. Model compatibility and provider configuration remain the harness's responsibility. See the compatibility launcher guide for optional dedicated-window examples and their prerequisites.
+
+## Quiet evenings with Jelly
+
+Merge `{"jelly":{"personality":"mellow","thoughts":"quiet","local_movement":"low","travel":"rare","coffee":false}}` into config and restart. This keeps a quiet companion without support invitations. Use `jelly.enabled: false` to disable Jelly entirely. To also suppress the empty-deck READY key, set ready false.
+
+## Prepare a useful bug report
 
 ```powershell
-& "$env:USERPROFILE\.opencode-deck\venv\Scripts\python.exe" -m ocdeck status
+python -m ocdeck doctor --project C:\Projects\MyApp --no-device --json
+python -m ocdeck status --json
+python -m ocdeck report --output agentstreamdeck-report.zip --lines 200
 ```
 
-Use the same interpreter with `-m ocdeck stop` to stop the broker. Relaunch it after
-logging in again. Automated non-OpenCode installation/startup is not yet supplied.
-If an existing AgentStreamDeck environment is present, use the existing-install path
-rather than recreating it.
+Record whether device.input_events changes on a press and whether synthetic focus succeeds. Inspect the ZIP before sharing. Include the harness name/version and exact failed step; never label a mock result as physical hardware verification.
 
-## Upgrade
+## Related guides
 
-Close managed sessions and stop the broker before modifying the source checkout.
-Inspect `git status`, switch to `main` when appropriate, then `git pull --ff-only`.
-Do not discard local changes to make an update work.
-
-- Existing editable Python installations use source updates in the same folder;
-  reinstall dependencies with the installed interpreter's `-m pip install -e .`
-  from the source checkout if `pyproject.toml` changed.
-- Rerun each project's `Install-Harness.ps1` command after adapter updates. It
-  removes entries recorded in its receipt and installs the current definitions.
-  Repeated installation is idempotent. Restart the agents afterward.
-- For the scheduled broker, use `Start-ScheduledTask -TaskName 'OpenCode Deck'`.
-  For a foreground broker, rerun the interpreter command from the previous section.
-- If moving the checkout or software project, uninstall hooks first and reinstall
-  from the new location. Receipts bind to the target config's absolute path; moved
-  project receipts need manual cleanup as described in HARNESSES.md.
-
-Run `scripts\Test.ps1`, inspect hook loading, and repeat one actual task and focus
-check after upgrades. Do not treat fixture tests as native compatibility proof.
-
-## Remove a harness or the whole installation
-
-Close affected agent windows. Remove project hooks while the checkout and receipts
-still exist, once for each installed profile in each software project:
-
-```powershell
-C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp -Remove
-C:\Tools\AgentStreamDeck\scripts\Install-Harness.ps1 -Profile copilot-cli -Project C:\Projects\MyApp -Remove
-```
-
-This removes matching recorded entries and preserves other settings/hooks. It may
-leave an empty hooks object/file; that's harmless. If you edited an installed
-AgentStreamDeck command yourself, it may no longer match the receipt: inspect and remove
-that edited command manually. Keep unrelated hooks. Timestamped backups are for
-manual recovery; do not overwrite newer unrelated edits with an old whole file.
-
-For complete integration removal, preview the plan first:
-
-```powershell
-ocdeck uninstall --all --scan C:\Projects --dry-run
-ocdeck uninstall --all --scan C:\Projects
-```
-
-Add `--scan` for other project roots. `scripts\Uninstall.ps1` delegates to that command and supports
-`-DryRun`/`-Scan`. It removes owned integration entries, including the managed TUI
-URI, and backs up local configuration. Logs, backups and the Python environment
-remain. See [complete removal behavior](NEXT.md#uninstall). Re-enable your device
-in Elgato afterward if desired.
+[First run](FIRST-RUN.md) · [CLI](CLI.md) · [Appearance](APPEARANCE.md) · [Launchers](LAUNCHERS.md) · [Jelly settings](reference/JELLY.md)

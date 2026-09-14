@@ -1,47 +1,39 @@
-# AgentStreamDeck rename and upgrade
+# Migrate from AgentDeck to AgentStreamDeck
 
-AgentDeck is now **AgentStreamDeck**, starting with version **2.1.1**.
-The PyPI distribution is `agentstreamdeck`; the command and Python module remain
-`ocdeck`. Existing `.opencode-deck` configuration, `OCDECK_HOME`, `.agentdeck`
-receipts/backups, Copilot hook filenames, Windows notification identity and
-“OpenCode Deck” scheduled task remain compatible. No hook reinstall is required
-solely for this rename. Historical releases and their media keep their original names.
+[Project overview](../README.md) · [Documentation index](README.md)
 
-## Rename the GitHub repository
+The project was renamed from AgentDeck to AgentStreamDeck. The distribution is now `agentstreamdeck`; the CLI and Python module remain `ocdeck`. The compatibility data directory remains `.opencode-deck` and project receipts remain `.agentdeck`. Old filenames in hooks and historical media are intentional compatibility names.
 
-The owner completed the repository rename on 2026-09-12. For reference, as the repository
-owner, open https://github.com/darkmatter2222/AgentDeck/settings and under
-**General → Repository name**, enter **AgentStreamDeck**, then click **Rename**.
-GitHub redirects old repository URLs. Do not create a new repository at the old
-name, because that can break the redirects. Update local checkouts:
+## Update an older installation
 
-```sh
+If the old agentdeck distribution is installed, stop its broker and remove that distribution before installing agentstreamdeck because they own the same Python module. Preserve the data directory and native hook configuration.
+
+```powershell
+python -m pip uninstall agentdeck
+python -m pip install --upgrade agentstreamdeck
+python -m ocdeck install
+python -m ocdeck --version
+```
+
+Run install in the same intended environment to register the current AgentStreamDeck Broker task or Linux user service. The Windows setup recognizes an owned legacy OpenCode Deck task. Rerun native project hook installation after adapter updates and restart the harness; the rename alone is not evidence that an old hook runtime is current.
+
+If you already use agentstreamdeck, a normal pip upgrade is sufficient when the current broker watcher is active. See [update behavior](features/UPDATES.md).
+
+## Update an old checkout remote
+
+The repository rename is already complete. Preserve local changes and point the existing checkout at its current URL:
+
+```bash
 git remote set-url origin https://github.com/darkmatter2222/AgentStreamDeck.git
 git pull --ff-only
 ```
 
-Links in current documentation target the new name and become active after this
-settings change. Source history, issues and pull requests stay in this repository.
+An editable/source installation is excluded from automatic installed-version restart. Restart the broker after updating source and reinstall dependencies when necessary. The current package-install path does not require a checkout.
 
-## Upgrade the package
+## Old instructions to retire
 
-Stop the broker first. If you installed the old distribution, remove it before
-installing the new one because both own the same Python module:
+Older pages referred to a required OpenCode shim, managed launchers, the OpenCode Deck scheduled task or a pinned 2.1.1 install. Current setup is plugin-first and supports other harnesses without OpenCode. Compatibility launchers still exist but are optional and may require legacy metadata. Use [first run](FIRST-RUN.md) and [the current release workflow](PYPI.md) instead of historical release setup commands.
 
-```sh
-python -m pip uninstall agentdeck
-python -m pip install --upgrade agentstreamdeck==2.1.1
-ocdeck --version
-```
+## Related guides
 
-Version 2.1.1 is published on PyPI. To install from source instead,
-install from this checkout with `python -m pip install .`, after uninstalling the
-old distribution. Restart the broker using your existing launcher/task.
-
-## Publish to PyPI
-
-Follow [the exact trusted publisher setup](PYPI.md) after renaming the repository.
-Use project `agentstreamdeck`, owner `darkmatter2222`, repository
-`AgentStreamDeck`, workflow `pypi.yml`, environment `pypi`. Version 2.1.1 was successfully published on 2026-09-12. Pending publishers do not reserve names.
-
-GitHub reference: https://docs.github.com/en/repositories/creating-and-managing-repositories/renaming-a-repository
+[First run](FIRST-RUN.md) · [Updates](features/UPDATES.md) · [Startup](features/STARTUP.md) · [Legacy launchers](LAUNCHERS.md)
