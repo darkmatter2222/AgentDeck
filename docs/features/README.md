@@ -1,5 +1,7 @@
 # AgentStreamDeck feature guides
 
+[Holiday celebrations, local weather and seasonal Jelly scenes](../jelly/world.md)
+
 [Project overview](../../README.md) · [Documentation index](../README.md)
 
 Explore every implemented user-facing feature, its settings, behavior and limitations.

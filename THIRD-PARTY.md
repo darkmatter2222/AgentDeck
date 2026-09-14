@@ -47,3 +47,7 @@ Codex uses a text identifier and procedural status symbol; no new trademark imag
 is bundled. Never collect prompts, transcripts, tool input/output or provider
 configuration in reports. Redact credential fields and bearer tokens at the log
 and report output boundaries. See [NEXT.md](docs/NEXT.md) for coverage limits.
+
+## Living-world data and original art
+
+World props and costumes are original procedural pixel drawings in `ocdeck/world_art.py`. Calendar calculations use the MIT-licensed `holidays` and `pyluach` packages, plus timezone data from `tzdata`. Weather data: [Open-Meteo](https://open-meteo.com/), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Approximate IP location: [IPWhois](https://ipwhois.io/). See [provider behavior and usage limits](docs/jelly/world.md#weather-and-location).

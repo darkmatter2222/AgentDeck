@@ -167,6 +167,9 @@ class DeviceLoop:
         self.overlay_actions: dict[int, dict] = {}
         self.controls: "Controls | None" = None
         self.key_down = {}
+        self.world = None
+        self.world_service = None
+        self.world_down = {}
 
     def notify_jelly(self, kind, slot):
         """Metadata-only handoff; workers never touch the animation controller."""
@@ -206,6 +209,17 @@ class DeviceLoop:
             geometry = DeckGeometry(rows, columns, width, height, options["virtual_gap"])
             self.jelly = Jelly(geometry, options["behavior_seed"], options["hop_style"], options)
             self.coffee = CoffeeBreak(time.monotonic())
+            from .world_settings import settings as world_settings
+            from .world_weather import WeatherService
+            from .world import World
+
+            world_options = world_settings(self.config.get("world", {}))
+            if self.world_service:
+                self.world_service.close()
+            self.world_service = WeatherService(world_options)
+            self.world = World(world_options, self.world_service)
+            if not self.mock:
+                self.world_service.start()
             self.jelly.thoughts.next_at = time.monotonic() + 20
             if options["persistent"] and self.jelly_root:
                 from pathlib import Path
@@ -220,6 +234,10 @@ class DeviceLoop:
 
     def _fail_jelly(self):
         self.overlay_actions = {}
+        if self.world_service:
+            self.world_service.close()
+            self.world_service = None
+        self.world = None
         LOG.exception("Experimental Jelly disabled; agent rendering continues")
         if self.jelly:
             self.jelly.close()
@@ -241,11 +259,17 @@ class DeviceLoop:
                     break
             for event in events:
                 slot = event.get("slot")
-                if event.get("kind") not in ("tap", "coffee") or slot not in available:
+                if event.get("kind") not in ("tap", "coffee", "world_hold") or slot not in available:
                     continue
                 if event.get("generation") != views[slot].get("generation"):
                     continue
-                if event["kind"] == "coffee":
+                if event["kind"] == "world_hold":
+                    if self.world and self.world.hold(now):
+                        try:
+                            self.presses.put_nowait({"_action": "open_world_help"})
+                        except queue.Full:
+                            LOG.warning("Press queue full; help request dropped")
+                elif event["kind"] == "coffee":
                     if (
                         self.coffee
                         and not coffee_blocked
@@ -262,6 +286,9 @@ class DeviceLoop:
                         except queue.Full:
                             LOG.warning("Press queue full; coffee browser request dropped")
                 else:
+                    if self.world and now < self.world.help_until:
+                        self.world.help_until = 0
+                        continue
                     self.jelly.tap(now)
                     if self.coffee:
                         self.coffee.tap(event.get("pressed_at", now), available, blocked=coffee_blocked)
@@ -294,6 +321,14 @@ class DeviceLoop:
             if now - self.jelly_saved_at >= 60:
                 self._save_jelly()
                 self.jelly_saved_at = now
+            if self.world and coffee_key is None:
+                # A visible Jelly stays under a held finger until release.
+                if self.world_down and self.jelly.current in self.world_down:
+                    self.jelly.settle(self.jelly.current, now)
+                self.world.tick(now, self.jelly)
+                self.status["jelly_world"] = self.world.status
+            else:
+                self.jelly.world_costume = ""
             frames = self.jelly.crops(available - {coffee_key})
             self.overlay_actions = {k: {"_action": "tap"} for k in frames}
             if self.coffee:
@@ -302,6 +337,9 @@ class DeviceLoop:
                     for key in (coffee_key, self.coffee.jelly_key):
                         if key is not None:
                             self.overlay_actions[key] = {"_action": "coffee", "serial": self.coffee.serial}
+            if self.world and coffee_key is None:
+                frames = self.world.decorate(now, self.jelly, frames, available)
+                # Decorative scenery never becomes an agent action or a pet tap target.
             return frames
         except Exception:
             self._fail_jelly()
@@ -309,6 +347,25 @@ class DeviceLoop:
 
     def press(self, key, state):
         """Route the action actually displayed; keep HID callbacks free of I/O."""
+        if self.world and self.world.active and self.world.options["help"] and 0 <= key < len(self.presented):
+            with self.presented_lock:
+                current = dict(self.presented[key] or {})
+                if state and current.get("_action") == "tap" and not current.get("id"):
+                    self.world_down.setdefault(key, (time.monotonic(), current))
+                    return
+                pressed = self.world_down.pop(key, None) if not state else None
+            if pressed:
+                started, view = pressed
+                if any(view.get(k) != current.get(k) for k in ("id", "generation", "_action")):
+                    return
+                held = time.monotonic() - started >= self.world.options["hold_ms"] / 1000
+                try:
+                    self.jelly_events.put_nowait(
+                        {**view, "kind": "world_hold" if held else "tap", "slot": key, "pressed_at": time.monotonic()}
+                    )
+                except queue.Full:
+                    LOG.warning("Jelly queue full; dropping press")
+                return
         if self.controls and self.controls.enabled and 0 <= key < len(self.presented):
             with self.presented_lock:
                 if state:
@@ -529,6 +586,11 @@ class DeviceLoop:
                 LOG.warning(message("AD002", str(error)))
                 self.status.update(online=False, error=message("AD002", str(error)))
             finally:
+                self.world_down.clear()
+                if self.world_service:
+                    self.world_service.close()
+                    self.world_service = None
+                self.world = None
                 if self.jelly:
                     self._save_jelly()
                     self.jelly.close()

@@ -1,5 +1,7 @@
 # Repository source map and feature-to-code reference
 
+[World module boundaries and design contract](DESIGN_SYSTEM.md#implementation-boundaries)
+
 [Project overview](../../README.md) · [Documentation index](../README.md)
 
 The source is organized around a local broker, two producer paths, physical rendering, and a separate companion subsystem. Use this map to find implementation details and related user documentation.

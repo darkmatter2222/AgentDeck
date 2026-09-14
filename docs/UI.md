@@ -1,5 +1,7 @@
 # Stream Deck user interface and every customization area
 
+[Living-world controls, locale and accessibility](jelly/world.md) · [Contributor design system](development/DESIGN_SYSTEM.md)
+
 [Project overview](../README.md) · [Documentation index](README.md)
 
 The physical deck is the user interface. AgentStreamDeck currently configures that UI through CLI flags and config.json; it does not ship a graphical settings application or Elgato property inspector.

@@ -1,5 +1,7 @@
 # AgentStreamDeck documentation
 
+[Jelly holidays, weather and seasons](jelly/world.md) · [75-scene catalog](jelly/world-catalog.md) · [UI/UX design contract](development/DESIGN_SYSTEM.md)
+
 [Project overview](../README.md) · [Documentation index](README.md)
 
 Find a task, follow a guide, then use its related links for settings and implementation detail. The package is agentstreamdeck; the Python module and command remain ocdeck. Start with the current setup guides below. Historical release and engineering records are separated at the end.

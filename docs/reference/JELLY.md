@@ -1,5 +1,7 @@
 # Jelly configuration reference and personality recipes
 
+[Holiday, weather and seasonal INI/CLI settings](../jelly/world.md)
+
 [Project overview](../../README.md) · [Documentation index](../README.md)
 
 The full default Jelly object below is taken from the current settings validator. Merge this object with existing broker configuration and restart the broker. `animations: false` disables Jelly even when `enabled` is true.

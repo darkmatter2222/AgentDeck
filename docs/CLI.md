@@ -416,3 +416,54 @@ python -m ocdeck focus [-h] slot
 ## Related guides
 
 [Install](FIRST-RUN.md) · [Appearance fields](reference/APPEARANCE.md) · [Configuration fields](reference/CONFIG.md) · [Diagnostics](features/DIAGNOSTICS.md) · [Launchers](LAUNCHERS.md)
+
+## world
+
+Configure holiday, weather and seasonal scenes in `jelly.ini`. Restart the broker to apply.
+
+- `world configure`: save any combination of the flags below.
+- `world show`: print effective settings.
+- `world catalog`: list every recipe and stable ID.
+- `world validate`: validate without network requests.
+- `world preview scene --keys 6 --output scene.gif`: offline GIF; `--keys` accepts 6, 15 or 32.
+
+[Setup, ranges, defaults and examples](jelly/world.md) · [All scene IDs](jelly/world-catalog.md)
+
+| INI field | Default | CLI flag |
+| --- | --- | --- |
+| `enabled` | `true` | `--enabled` / `--no-enabled` |
+| `holidays` | `true` | `--holidays` / `--no-holidays` |
+| `weather` | `true` | `--weather` / `--no-weather` |
+| `seasons` | `true` | `--seasons` / `--no-seasons` |
+| `costumes` | `true` | `--costumes` / `--no-costumes` |
+| `particles` | `true` | `--particles` / `--no-particles` |
+| `props` | `true` | `--props` / `--no-props` |
+| `captions` | `true` | `--captions` / `--no-captions` |
+| `help` | `true` | `--hold-help` / `--no-hold-help` |
+| `auto_location` | `true` | `--auto-location` / `--no-auto-location` |
+| `reduced_motion` | `false` | `--reduced-motion` / `--no-reduced-motion` |
+| `country` | `auto` | `--country` |
+| `timezone` | `auto` | `--timezone` |
+| `latitude` | `empty` | `--latitude` |
+| `longitude` | `empty` | `--longitude` |
+| `hemisphere` | `auto` | `--hemisphere` |
+| `units` | `auto` | `--units` |
+| `poll_seconds` | `900` | `--poll-seconds` |
+| `stale_seconds` | `3600` | `--stale-seconds` |
+| `scene_seconds` | `24` | `--scene-seconds` |
+| `caption_seconds` | `90` | `--caption-seconds` |
+| `hint_seconds` | `1800` | `--hint-seconds` |
+| `hold_ms` | `900` | `--hold-ms` |
+| `before_days` | `1` | `--before-days` |
+| `after_days` | `1` | `--after-days` |
+| `halloween_days` | `7` | `--halloween-days` |
+| `christmas_days` | `12` | `--christmas-days` |
+| `birthday` | `empty` | `--birthday` |
+| `quiet_start` | `-1` | `--quiet-start` |
+| `quiet_end` | `-1` | `--quiet-end` |
+| `max_keys` | `32` | `--max-keys` |
+| `holiday_ids` | `july4,thanksgiving,christmas,holi,easter,halloween,newyear,valentine,lunar,diwali,eid,hanukkah,patrick,earth,birthday` | `--holiday-ids` |
+| `disabled_scenes` | `empty` | `--disabled-scenes` |
+| `scene_override` | `empty` | `--scene-override` |
+| `weather_override` | `empty` | `--weather-override` |
+| `date_override` | `empty` | `--date-override` |
