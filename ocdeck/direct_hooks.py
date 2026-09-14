@@ -160,4 +160,4 @@ class DirectHooks:
         if not self.registry.snapshot(key, snapshot):
             return {"ok": False, "reason": "stale native hook"}
         state["seq"] = snapshot["seq"]
-        return {"ok": True, "slot": self.registry.records[key]["slot"]}
+        return {"ok": True, "id": key, "slot": self.registry.records[key]["slot"]}

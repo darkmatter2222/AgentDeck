@@ -7,7 +7,7 @@ AgentStreamDeck observes coding-agent lifecycle metadata on your computer and re
 | Data or action | Project behavior |
 |---|---|
 | Native hook payload | Normalized profile/event/session/tool/request identity, flags, working directory and parent PID |
-| Prompts, commands, arguments, results, source and transcripts | Not forwarded by the direct hook adapter to the broker |
+| Prompts, commands, arguments, results, source and transcripts | Not forwarded in normal lifecycle transport; opt-in permission controls send bounded, scrubbed input previews in a separate ephemeral handoff |
 | Request identifiers in public status | Hashed metadata identities |
 | Process ownership | Local PID plus exact creation timestamp |
 | Jelly personality | Offline session activity metadata and authored phrases |
@@ -17,7 +17,7 @@ AgentStreamDeck observes coding-agent lifecycle metadata on your computer and re
 
 The broker binds an automatically selected loopback port. Its per-user discovery file identifies the port and a separate token authenticates requests. Browser Origin requests are refused, JSON bodies are capped at 64 KiB, and clients reread discovery so restarts can change ports. These assumptions describe a trusted local application protocol, not a public network API.
 
-The direct hook process reads native input to normalize it, but forwards only its allowlisted metadata. Lifecycle metadata still includes project labels and identifiers. Reports scrub known credential patterns but cannot guarantee that arbitrary custom label text is non-sensitive.
+The direct hook process reads native input to normalize it. Default lifecycle transport forwards only allowlisted metadata. Explicit permission-control enablement additionally allows bounded native input previews in memory through a separate authenticated endpoint; previews are not included in status or logs. Lifecycle metadata still includes project labels and identifiers. Reports scrub known credential patterns but cannot guarantee that arbitrary custom label text is non-sensitive.
 
 ## Offline preferences
 
@@ -27,7 +27,7 @@ The direct hook process reads native input to normalize it, but forwards only it
 
 This disables online package discovery. Local status, drawing, Jelly personality and installed-version monitoring can continue offline. Separately installed coding agents may still use cloud model endpoints; their network behavior is outside AgentStreamDeck. Disable coffee invitations separately with `jelly.coffee: false` if you do not want a support-link interaction.
 
-The buttons focus agent windows rather than making approval decisions. Jelly’s marked update button explicitly installs an update, and its displayed coffee action opens the support page. There is no automatic tool approval, keystroke injection or arbitrary macro UI.
+Ordinary taps focus agent windows. Opt-in [deck controls](DECK-CONTROLS.md) add explicit session launch and native permission decisions from a separate review screen. Jelly’s marked update button explicitly installs an update, and its displayed coffee action opens the support page. There is no automatic tool approval, keystroke injection or arbitrary macro UI.
 
 Source: [hook normalizer](../../plugins/harnesses/profiles.mjs), [transport](../../plugins/harnesses/hook.mjs), [security scrubber](../../ocdeck/security.py), [API contract](../API.md).
 

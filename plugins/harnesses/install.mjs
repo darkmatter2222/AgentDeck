@@ -14,6 +14,7 @@ export function configuration(profile, script = fileURLToPath(new URL('./hook.mj
   for (const event of Object.keys(p.events)) {
     const command = `node "${script}" ${profile} ${event}`;
     let entry = {type:'command', command, timeout:5};
+    if (profile === 'claude' && event === 'PermissionRequest') entry.timeout = 125;
     if (p.format === 'copilot') entry = {type:'command', bash:command, powershell:command, timeoutSec:5};
     if (p.format === 'cursor') entry = {command, timeout:5};
     if (p.format === 'nested') {

@@ -4,6 +4,10 @@ import logging
 import queue
 import threading
 import time
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .controls import Controls
 from .art import frame
 from .coffee import CoffeeBreak
 from .errors import message
@@ -161,6 +165,8 @@ class DeviceLoop:
         self.jelly_saved_at = 0.0
         self.coffee = None
         self.overlay_actions: dict[int, dict] = {}
+        self.controls: "Controls | None" = None
+        self.key_down = {}
 
     def notify_jelly(self, kind, slot):
         """Metadata-only handoff; workers never touch the animation controller."""
@@ -303,6 +309,32 @@ class DeviceLoop:
 
     def press(self, key, state):
         """Route the action actually displayed; keep HID callbacks free of I/O."""
+        if self.controls and self.controls.enabled and 0 <= key < len(self.presented):
+            with self.presented_lock:
+                if state:
+                    self.key_down.setdefault(key, (time.monotonic(), dict(self.presented[key] or {})))
+                    return
+                pressed = self.key_down.pop(key, None)
+                if not pressed:
+                    return
+                started, view = pressed
+                current = self.presented[key] or {}
+                held = time.monotonic() - started >= self.config.get("controls", {}).get("hold_ms", 650) / 1000
+                fields = ("id", "generation", "revision") if held else ("id", "generation", "revision", "_action")
+                if any(view.get(k) != current.get(k) for k in fields):
+                    return
+            if view.get("_action") != "controls" and held:
+                view["_action"] = "open_controls"
+            try:
+                if view.get("_action") in ("tap", "coffee") and not view.get("id"):
+                    self.jelly_events.put_nowait(
+                        {**view, "kind": view["_action"], "slot": key, "pressed_at": time.monotonic()}
+                    )
+                else:
+                    self.presses.put_nowait(view)
+            except queue.Full:
+                LOG.warning("Press queue full; dropping press")
+            return
         if not state or not 0 <= key < len(self.presented):
             return
         with self.presented_lock:
@@ -320,6 +352,8 @@ class DeviceLoop:
             LOG.warning("Press queue full; dropping press")
 
     def _presented_view(self, key, view):
+        if view.get("_action") == "controls":
+            return dict(view)
         if view.get("id"):
             return dict(view)
         return {**view, **self.overlay_actions.get(key, {})}
@@ -329,6 +363,8 @@ class DeviceLoop:
 
         while not self.stop.is_set():
             try:
+                with self.presented_lock:
+                    self.key_down.clear()
                 if not self.mock:
                     from StreamDeck.ImageHelpers import PILHelper
 
@@ -388,10 +424,37 @@ class DeviceLoop:
                             raise OSError("Stream Deck input reader stopped")
                         next_probe = start + 2
                     views = self.registry.view()
+                    if self.controls and self.controls.enabled:
+                        waiting = self.controls.broker.permissions.waiting_owners()
+                        for view in views:
+                            if view["id"] in waiting:
+                                view["state"] = "input"
                     if not any(v["id"] for v in views) and self.config.get("ready", True):
                         views[0] = {**views[0], "state": "ready"}
                     compose_start = time.monotonic()
                     overlays = self._jelly_frames(start, views)
+                    tiles = self.controls.tiles() if self.controls else None
+                    if tiles:
+                        from .controls import control_frame
+
+                        for k, tile in enumerate(tiles):
+                            views[k] = {**views[k], **tile, "id": None}
+                            overlays[k] = control_frame(
+                                tile["title"],
+                                tile["subtitle"],
+                                tile["tone"],
+                                int(start * 12) % 24 if self.config.get("animations", True) else 0,
+                            )
+                    elif self.controls and self.controls.enabled:
+                        from .controls import hold_frame
+
+                        with self.presented_lock:
+                            held_keys = dict(self.key_down)
+                        for k, (pressed_at, _) in held_keys.items():
+                            elapsed = start - pressed_at
+                            if elapsed >= 0.2:
+                                duration = self.config.get("controls", {}).get("hold_ms", 650) / 1000
+                                overlays[k] = hold_frame(min(24, int(elapsed / duration * 24)))
                     metrics["composition_ms"] += (time.monotonic() - compose_start) * 1000
                     for k, v in enumerate(views):
                         style = styles[k]

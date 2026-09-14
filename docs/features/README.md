@@ -6,6 +6,7 @@ Explore every implemented user-facing feature, its settings, behavior and limita
 
 | Guide | Topic |
 |---|---|
+| [Launch agents and review native permissions](DECK-CONTROLS.md) | CLI-configured repo picker, hold menus, one-request decisions and harness coverage. |
 | [Optional Windows sound alerts and desktop notifications](ALERTS.md) | Opt into WAV/system sounds, toasts, cooldown and per-slot muting. |
 | [Jelly tap reactions and coffee invitations](COFFEE.md) | Five-tap gesture, timing, press actions, priority and opt-outs. |
 | [Doctor, status telemetry, logs and diagnostic reports](DIAGNOSTICS.md) | Doctor results, physical-input telemetry, report contents and AD errors. |

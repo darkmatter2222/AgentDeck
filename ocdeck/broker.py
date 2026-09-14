@@ -85,8 +85,23 @@ class Broker:
         self.last_focus = None
         self.last_press = {}
         self.server = None
+        from .permissions import Permissions
+        from .controls import Controls
+
+        self.permissions = Permissions(
+            self.registry,
+            self.config.get("controls", {}).get("enabled", False)
+            and self.config.get("controls", {}).get("permissions", False),
+            timeout=self.config.get("controls", {}).get("request_timeout", 110),
+        )
+        self.controls = Controls(self)
+        self.device.controls = self.controls
 
     def dispatch(self, method, path, body):
+        if method == "GET" and path == "/v1/control-capabilities":
+            return {"permissions": self.permissions.enabled, "launcher": self.controls.enabled}
+        if method == "POST" and path in ("/v1/permissions/offer", "/v1/permissions/poll", "/v1/permissions/finish"):
+            return getattr(self.permissions, path.rsplit("/", 1)[1])(body)
         if method == "GET" and path == "/v1/status":
             with self.registry.lock:
                 overflow = sum(r["slot"] is None for r in self.registry.records.values())
@@ -124,6 +139,11 @@ class Broker:
         raise KeyError("Unknown route")
 
     def handle_press(self, view, synthetic=False):
+        if not synthetic and view.get("_action") == "controls":
+            return self.controls.handle(view)
+        if not synthetic and view.get("_action") == "open_controls":
+            self.controls.open(view)
+            return {"ok": True}
         # Only the physical/render queues can request these local actions.
         if not synthetic and view.get("_action") == "open_coffee":
             import webbrowser

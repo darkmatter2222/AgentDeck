@@ -18,7 +18,7 @@ For the shortest setup path, see [Plugin-first setup](PLUGIN-FIRST.md). For diag
 | `gemini` | `.gemini/settings.json` | Start, turn/model/tool activity, stop, compaction | Permission notifications remain unknown rather than inventing a count |
 | `cursor` | `.cursor/hooks.json` | Start, prompt, tools, stop, compaction | Activity only; this profile targets Cursor CLI (`agent`) |
 
-Hooks never approve, deny, answer, retry, or type into a harness. They are observers only.
+Hooks observe by default. Opt-in [deck permission controls](features/DECK-CONTROLS.md) allow the Claude PermissionRequest hook to return an explicit physical allow/deny decision. Other native-hook profiles remain observers; no integration types keystrokes or answers structured questions.
 
 ## 1. Install AgentStreamDeck once
 
@@ -115,7 +115,7 @@ If `input_events` does not increase when you press a key, troubleshoot USB/HID o
 - Pending counts are shown only when the native payload contains stable paired request IDs. Unknown is never converted to zero.
 - Codex approvals can be observed with an unknown count. Review and trust the installed hooks with Codex's `/hooks` UI.
 - Claude `AskUserQuestion` calls have paired IDs and can be tracked until result/failure/turn end. Unpaired permission events remain unknown.
-- Hook commands exit zero and never return approval decisions. Gemini receives the expected empty JSON response.
+- Hook commands exit zero. With permission controls enabled, Claude PermissionRequest may return a physical allow/deny response; other hooks return no decision. Gemini receives the expected empty JSON response.
 - Node.js 20+ must be available for the JavaScript hook commands.
 - Remote SSH/WSL/container sessions need the explicit host boundary described in [REMOTE-AND-WSL.md](REMOTE-AND-WSL.md).
 

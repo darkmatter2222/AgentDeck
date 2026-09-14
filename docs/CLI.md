@@ -14,6 +14,7 @@ python -m ocdeck appearance --help
 
 | Command | Purpose |
 |---|---|
+| [`controls`](#controls) | Configure launcher profiles, gestures and native permission review; validate or launch a saved profile. |
 | [`broker`](#broker) | Run the foreground device broker. |
 | [`install`](#install) | Register per-user startup and start the broker. |
 | [`status`](#status) | Print the broker status JSON, including slots, overflow, device input, focus and update state. |
@@ -39,6 +40,28 @@ python -m ocdeck appearance --help
 ## Argument rules
 
 Put AgentStreamDeck options before the literal `--` separator when forwarding arguments to a harness. Arguments after it belong to that harness. JSON settings use underscores where CLI flags use hyphens. Every subcommand also accepts `-h` / `--help`. Argparse rejects invalid syntax/choices with exit status 2; caught runtime errors return 1. Some compatibility launch paths return their child status.
+
+## controls
+
+Every setting for the new launcher/review controls is available through this command. [Hands-on tutorials](TUTORIALS.md#launch-a-new-agent-without-leaving-the-deck) · [Defaults, INI format and harness coverage](features/DECK-CONTROLS.md).
+
+```text
+python -m ocdeck controls configure [--enabled | --no-enabled]
+    [--permissions | --no-permissions] [--hold-ms N] [--menu-timeout N] [--request-timeout N]
+python -m ocdeck controls show
+python -m ocdeck controls validate
+python -m ocdeck controls repo set NAME [--directory PATH]
+    [--harness PROFILE ...] [--arg VALUE ...] [--clear-args]
+    [--executable PATH] [--clear-executable]
+python -m ocdeck controls repo remove NAME
+python -m ocdeck controls launch NAME --harness PROFILE
+```
+
+`configure` preserves omitted fields and requires a broker restart. `--hold-ms` accepts 300–2000 (default 650), `--menu-timeout` 10–300 seconds (45), and `--request-timeout` 10–110 seconds (110). Controls and permission decisions default off. Enabling permissions also requires enabled controls.
+
+`repo set` creates or updates one named profile in `launcher.ini`; a new profile requires `--directory`. Repeat `--harness` for each choice: `opencode`, `claude`, `codex`, `copilot-cli`, `copilot-vscode`, `gemini`, `cursor`. Repeated choices or unknown INI fields are rejected. Default harness choices are OpenCode and Claude. Omitted fields are retained; supplied harness/argument lists replace old lists. Use `--arg=--option` when an argument begins with a dash. Arguments are stored as a JSON array and never evaluated as a shell command. `--clear-args` and `--clear-executable` reset those optional fields. Use distinct profiles for harness-specific launch arguments.
+
+`show` returns JSON settings and profiles. `validate` returns JSON checks and exit 1 when any check fails; it inspects directories, PATH executables, adapter manifests and Windows Terminal, without launching agents. `launch` uses the same saved-folder launch path as the deck, but does not require a physical key press. Permission decisions themselves are physical/native-UI actions, not a CLI automation endpoint.
 
 ## broker
 

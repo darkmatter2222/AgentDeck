@@ -29,7 +29,7 @@ The physical deck is the user interface. AgentStreamDeck currently configures th
 | Jelly with Update available | Installs detected package version and restarts broker |
 | Blank key or READY without an agent | No agent focus action |
 
-The action follows what was actually displayed, and current assignments take priority. Stale generations and expired invitation events are rejected. Buttons never approve an agent’s pending tool or send a reply.
+The action follows what was actually displayed, and current assignments take priority. Stale generations and expired invitation events are rejected. Ordinary taps never approve tools or send replies. Opt-in [hold menus](features/DECK-CONTROLS.md) provide a separate request-specific native permission review and decision screen.
 
 ## Build a look
 

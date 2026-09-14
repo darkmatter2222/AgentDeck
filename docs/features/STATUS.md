@@ -13,7 +13,7 @@ AgentStreamDeck gives each monitored local session or runtime a physical button.
 | READY | Initial system artwork | No active assignments and ready enabled | No agent assignment |
 | Off | Black, or available for Jelly | Unassigned slot | Jelly action only if one is displayed |
 
-These colors describe the classic palette. Themes can change colors; keep status text visible for unambiguous identification. **Pressing an agent key never answers a question or approves a tool.**
+These colors describe the classic palette. Themes can change colors; keep status text visible for unambiguous identification. **Ordinary taps focus sessions.** Optional [hold controls](DECK-CONTROLS.md) provide a separate permission review screen; structured questions still require the harness UI.
 
 ## Pending requests: known counts and honest uncertainty
 

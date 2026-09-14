@@ -10,6 +10,26 @@ def validate_config(config):
         raise ValueError("config.json must contain an object")
     export_settings(config)
     jelly_settings(config)
+    controls = config.get("controls", {})
+    if not isinstance(controls, dict) or set(controls) - {
+        "enabled",
+        "permissions",
+        "hold_ms",
+        "menu_timeout",
+        "request_timeout",
+    }:
+        raise ValueError("Unknown controls option")
+    for key in ("enabled", "permissions"):
+        if type(controls.get(key, False)) is not bool:
+            raise ValueError("controls." + key + " must be boolean")
+    for key, default, low, high in (
+        ("hold_ms", 650, 300, 2000),
+        ("menu_timeout", 45, 10, 300),
+        ("request_timeout", 110, 10, 110),
+    ):
+        value = controls.get(key, default)
+        if type(value) is not int or not low <= value <= high:
+            raise ValueError(f"controls.{key} must be {low}..{high}")
     if type(config.get("slots", 6)) is not int or config.get("slots", 6) not in (6, 15, 32):
         raise ValueError("slots must be 6, 15 or 32 (mock capacity; physical deck auto-detects)")
     for name in ("check_updates", "auto_restart_on_upgrade", "allow_elgato", "animations", "ready"):

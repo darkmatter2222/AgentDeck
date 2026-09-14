@@ -8,6 +8,7 @@ Find a task, follow a guide, then use its related links for settings and impleme
 
 | Goal | Guide |
 |---|---|
+| Launch sessions and review native permissions from keys | [Deck controls](features/DECK-CONTROLS.md) and [tutorials](TUTORIALS.md#launch-a-new-agent-without-leaving-the-deck) |
 | Install and verify a real session | [First run](FIRST-RUN.md) |
 | Understand normal plugin/hook startup | [Plugin-first setup](PLUGIN-FIRST.md) |
 | Copy a practical workflow | [Tutorials](TUTORIALS.md) |

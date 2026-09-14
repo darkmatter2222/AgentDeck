@@ -105,7 +105,7 @@ Harness icons are packaged locally. Registration names such as `copilot-cli` and
 - Broker API uses a per-user bearer token.
 - Browser Origin requests are refused.
 - Native hook payloads are normalized and bounded before broker delivery.
-- Hooks are observers and never make approval decisions.
+- Hooks are observers by default. The opt-in Claude PermissionRequest path holds a native invocation for an explicit physical decision; see [deck controls](features/DECK-CONTROLS.md).
 - No prompt/model transcript is required for monitoring.
 - Physical key presses route the displayed action: agent focus, Jelly touch, an explicit package update, or the displayed coffee support link. They never answer an agent request.
 

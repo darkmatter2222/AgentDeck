@@ -106,12 +106,21 @@ def main():
         if not match:
             errors.append(f"CLI reference missing command: {name}")
             continue
-        for action in command._actions:
-            if isinstance(action, argparse._HelpAction):
-                continue
-            for option in action.option_strings or [action.dest]:
-                if option not in match[1]:
-                    errors.append(f"CLI reference missing {name} argument: {option}")
+        def check_arguments(command, prefix):
+            for action in command._actions:
+                if isinstance(action, argparse._HelpAction):
+                    continue
+                if isinstance(action, argparse._SubParsersAction):
+                    for child_name, child in action.choices.items():
+                        if child_name not in match[1]:
+                            errors.append(f"CLI reference missing {prefix} subcommand: {child_name}")
+                        check_arguments(child, prefix + " " + child_name)
+                    continue
+                for option in action.option_strings or [action.dest]:
+                    if option not in match[1]:
+                        errors.append(f"CLI reference missing {prefix} argument: {option}")
+
+        check_arguments(command, name)
 
     for filename, names in (
         ("APPEARANCE.md", [field.name for field in fields(Appearance)]),
