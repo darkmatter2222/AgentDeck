@@ -106,7 +106,15 @@ def uninstall(scan=(), dry_run=False):
         raise RuntimeError("Broker did not stop; local files retained. Run ocdeck stop")
     backup = root / "backups" / str(time.time_ns())
     backup.mkdir(parents=True, exist_ok=False)
-    for name in ("config.json", "install.json", "projects.json", "update.json", "token", "discovery.json"):
+    for name in (
+        "config.json",
+        "launcher.ini",
+        "install.json",
+        "projects.json",
+        "update.json",
+        "token",
+        "discovery.json",
+    ):
         path = root / name
         if path.exists():
             shutil.move(str(path), str(backup / name))

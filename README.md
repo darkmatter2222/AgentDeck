@@ -112,7 +112,15 @@ The integrations above share the same deck, but their event coverage differs. Th
 
 **Activity-only integrations can still look busy while waiting for approval.** A green key doesn't guarantee that no input is needed. Input counts appear only when the integration supplies enough information.
 
-Pressing an agent key requests window focus. It never types a reply or approves a tool. Windows can restrict foreground activation; the status output includes the last focus result for diagnosis.
+A normal tap on an agent key requests window focus. Optional [deck controls](docs/features/DECK-CONTROLS.md) add a separate hold menu for launching sessions and explicitly accepting or rejecting supported native permission requests. Windows can restrict foreground activation; the status output includes the last focus result for diagnosis.
+
+## Launch and review from the deck
+
+**On this feature branch:** hold and release a key to choose a saved repository and agent, then launch a dedicated window in the right folder. Hold a session key to review a specific pending permission and press ACCEPT or REJECT. Native decisions are supported for Claude Code and the OpenCode server plugin; other harnesses offer terminal focus.
+
+Everything is configurable from the CLI, including named folders, harness choices, custom BAT launchers, arguments and interaction timing. The controls are opt-in and preserve ordinary taps and Jelly interactions.
+
+[Step-by-step tutorials](docs/TUTORIALS.md#launch-a-new-agent-without-leaving-the-deck) · [Feature guide and animated preview](docs/features/DECK-CONTROLS.md) · [CLI commands](docs/CLI.md#controls)
 
 ## Make it yours
 

@@ -46,7 +46,7 @@ def install(profile, project, remove=False, dry_run=False):
     return result
 
 
-def launch(profile, args, executable=None, current_window=False):
+def launch(profile, args, executable=None, current_window=False, cwd=None):
     executable = shutil.which(executable or PROFILES[profile])
     if not executable:
         raise RuntimeError("Harness executable not found; install it or pass --executable")
@@ -57,7 +57,7 @@ def launch(profile, args, executable=None, current_window=False):
         "id": key,
         "profile": profile,
         "executable": executable,
-        "cwd": os.getcwd(),
+        "cwd": str(Path(cwd).resolve()) if cwd else os.getcwd(),
         "args": args,
         "windowToken": "" if current_window or os.name != "nt" else f"AgentDeck [{key}]",
     }

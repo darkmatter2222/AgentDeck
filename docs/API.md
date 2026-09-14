@@ -115,6 +115,21 @@ Registration can include an optional `harness` string for rendering. It is displ
 
 See [Architecture](ARCHITECTURE.md), [Harnesses](HARNESSES.md), and [Plugin-first setup](PLUGIN-FIRST.md).
 
+## Permission controls
+
+All routes below use the existing bearer token and loopback/Origin protections. They are adapter handoff routes, not an approval automation API. There is no HTTP decision endpoint; only the physical render/press queue can submit a decision. Synthetic focus cannot access it.
+
+| Route | Purpose |
+|---|---|
+| `GET /v1/control-capabilities` | Return `launcher` and `permissions` booleans. Adapters check permission enablement before forwarding input previews. |
+| `POST /v1/permissions/offer` | Accept bounded `owner`, `tool` and `summary`; return `enabled` and random `ticket` when supported. Owner must have a live slot. |
+| `POST /v1/permissions/poll` | Take `ticket`; refresh its live lease. Return pending, a single decision, delivered, finished, failed or expired. |
+| `POST /v1/permissions/finish` | Take `ticket` and boolean `ok`; report native-response handoff success or uncertainty. |
+
+Tickets bind to process identity and slot generation. They expire after configured request_timeout (default 110 seconds, maximum 110) or three seconds without a poll. Adapter polls occur every 350 ms only while a request is pending. The queue is capped at 64 entries; finished status remains briefly available for the decision screen. Restarting the broker invalidates all tickets. No decision is redelivered after consumption.
+
+Permission controls are disabled by default. When explicitly enabled, the separate handoff carries a bounded scrubbed preview (up to 2,000 characters), unlike metadata-only `/v1/hook`. Previews/tickets are not included in public status or persisted to logs. Native policy and other hooks remain authoritative. A confirmed handoff is not a claim that a tool completed successfully.
+
 ## Related guides
 
 [CLI commands](CLI.md) · [Status semantics](features/STATUS.md) · [Diagnostics](features/DIAGNOSTICS.md)

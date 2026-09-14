@@ -1,4 +1,5 @@
 import {Bridge, Facts, registration} from './core.mjs';
+import {reviewPermission, permissionReply} from './permissions.mjs';
 
 // Conventional globally loaded server plugin. No npm package dependencies.
 export async function DeckBridge({client, directory}) {
@@ -12,6 +13,7 @@ export async function DeckBridge({client, directory}) {
   try { reg = await registration(); } catch { return {}; }
   if (!reg) return {};
   const facts = new Facts();
+  const reviewing = new Set();
   let eventRevision = 0;
   let lastReconcile = 0;
   let lastError = 0;
@@ -58,6 +60,24 @@ export async function DeckBridge({client, directory}) {
     event: async ({event}) => {
       if (/^(session\.|permission\.|question\.)/.test(event.type)) {
         eventRevision++; facts.event(event); void bridge.flush();
+        const p = event.properties || {};
+        const key = JSON.stringify([p.sessionID, p.id]);
+        if (event.type === 'permission.asked' && typeof p.id === 'string' && typeof p.sessionID === 'string'
+            && !reviewing.has(key) && (typeof client.permission?.reply === 'function'
+              || typeof client.postSessionByIdPermissionsByPermissionId === 'function')) {
+          reviewing.add(key);
+          void (async () => {
+            try {
+              await bridge.call('POST', '/v1/register', reg);
+              await reviewPermission(bridge.call.bind(bridge), {owner:reg.id,
+                tool:String(p.permission || 'Permission').slice(0,100),
+                summary:JSON.stringify(p.patterns || []).slice(0,2000)}, async decision => {
+                const result = await permissionReply(client, p, decision, directory);
+                if (result?.error || result?.data === false) throw Error('Permission reply failed');
+              }, () => !bridge.closed && facts.sessions.get(p.sessionID)?.permissions.has(p.id));
+            } catch {} finally { reviewing.delete(key); }
+          })();
+        }
       }
     },
     dispose: async () => { await bridge.close(); delete globalThis[globalKey]; }

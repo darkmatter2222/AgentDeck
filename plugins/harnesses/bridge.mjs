@@ -30,7 +30,7 @@ export async function serve({profile, registration, descriptor, root}) {
   server.on('connection', socket => socket.setTimeout(2000, () => socket.destroy()));
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
   try {
-    await fs.writeFile(descriptor + '.tmp', JSON.stringify({profile, port:server.address().port, token}), {mode:0o600});
+    await fs.writeFile(descriptor + '.tmp', JSON.stringify({profile, owner:registration.id, port:server.address().port, token}), {mode:0o600});
     await fs.rename(descriptor + '.tmp', descriptor);
   } catch (error) { server.close(); throw error; }
   bridge.start();

@@ -6,6 +6,7 @@ AgentStreamDeck reads `config.json` from `%USERPROFILE%\.opencode-deck` on Windo
 
 | Top-level field | Default | Meaning and accepted values |
 |---|---|---|
+| `controls` | disabled | [CLI-configurable launcher and permission menus](../features/DECK-CONTROLS.md#configuration-reference); enabled, permissions, hold_ms, menu_timeout, request_timeout |
 | `fps` | `24` | Integer 1–30; render-loop target, not a guaranteed USB refresh rate |
 | `brightness` | `45` | Integer 0–100; hardware backlight |
 | `animations` | `true` | Global motion; false also disables Jelly |
