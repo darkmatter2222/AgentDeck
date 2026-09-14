@@ -1,5 +1,7 @@
 # Develop, test and document AgentStreamDeck
 
+[Read the UI, UX and implementation contract](DESIGN_SYSTEM.md) before changing visuals or interaction. Rebuild world previews with `python scripts/preview_world.py`.
+
 [Project overview](../../README.md) · [Documentation index](../README.md)
 
 ## Development setup

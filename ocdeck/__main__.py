@@ -14,6 +14,9 @@ def main():
     from .controls_cli import add_parser
 
     add_parser(sub)
+    from .world_cli import add_parser as add_world_parser
+
+    add_world_parser(sub)
     broker = sub.add_parser("broker")
     broker.add_argument("--mock", action="store_true")
     install_cmd = sub.add_parser("install", help="Install the per-user broker startup service/task")
@@ -102,7 +105,11 @@ def main():
     focus.add_argument("slot", type=int)
     args = parser.parse_args()
     try:
-        if args.command == "controls":
+        if args.command == "world":
+            from .world_cli import run as run_world
+
+            return run_world(args)
+        elif args.command == "controls":
             from .controls_cli import run
 
             return run(args)

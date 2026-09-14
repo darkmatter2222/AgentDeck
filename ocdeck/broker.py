@@ -59,6 +59,9 @@ class Broker:
         self.root = Path(root or home())
         self.root.mkdir(parents=True, exist_ok=True)
         saved = load_config(self.root)
+        from .world_settings import read_ini
+
+        saved["world"] = {**saved.get("world", {}), **read_ini(self.root)}
         validate_config(saved)
         self.config = {
             "fps": 24,
@@ -144,6 +147,14 @@ class Broker:
         if not synthetic and view.get("_action") == "open_controls":
             self.controls.open(view)
             return {"ok": True}
+        if not synthetic and view.get("_action") == "open_world_help":
+            import webbrowser
+            from .world import HELP_URL
+
+            try:
+                return {"ok": bool(webbrowser.open(HELP_URL, new=2))}
+            except Exception:
+                return {"ok": False}
         # Only the physical/render queues can request these local actions.
         if not synthetic and view.get("_action") == "open_coffee":
             import webbrowser

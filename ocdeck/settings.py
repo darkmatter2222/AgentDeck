@@ -10,6 +10,9 @@ def validate_config(config):
         raise ValueError("config.json must contain an object")
     export_settings(config)
     jelly_settings(config)
+    from .world_settings import settings as world_settings
+
+    world_settings(config.get("world", {}))
     controls = config.get("controls", {})
     if not isinstance(controls, dict) or set(controls) - {
         "enabled",

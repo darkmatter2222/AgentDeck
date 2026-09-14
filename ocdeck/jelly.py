@@ -148,6 +148,8 @@ class Jelly:
         self.touch_until = 0.0
         self.touch_text = ""
         self.update_available = False
+        self.world_costume = ""
+        self.world_phase = 0
 
     def tap(self, now):
         """A visible, short reaction, even when ambient thoughts are disabled."""
@@ -524,6 +526,14 @@ class Jelly:
             previous,
             blend,
         )
+        if self.world_costume:
+            from .world_art import costume
+            from .jelly_art import POSES
+
+            logical = im.resize((GRID, GRID), Image.Resampling.NEAREST)
+            im = costume(logical, self.world_costume, self.world_phase, 34 - POSES[self.pose][1]).resize(
+                im.size, Image.Resampling.NEAREST
+            )
         if self.rotation:
             rotated = im.rotate(90 * self.rotation, resample=Image.Resampling.NEAREST)
             box = rotated.getbbox()

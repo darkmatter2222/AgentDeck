@@ -1,5 +1,7 @@
 # AgentStreamDeck video, animation and customization gallery
 
+[Holiday and weather showcase](jelly/world.md) · [Every world scene](jelly/world-catalog.md)
+
 [Project overview](../README.md) · [Documentation index](README.md)
 
 ## Original hardware video

@@ -37,7 +37,7 @@ Running several coding agents means several windows to check. AgentStreamDeck gi
 - **Know where you're needed.** Animated status keys distinguish work in progress, idle sessions and supported input requests.
 - **Get back with one press.** Focus the session's Windows window; minimized windows are maximized and brought forward.
 - **Keep your usual workflow.** Launch your CLI or editor normally after installing its integration. No special launcher, Elgato plugin or MCP server required.
-- **Give spare keys some personality.** Jelly, an offline companion, plays on unused buttons and reacts when you tap him.
+- **Give spare keys some personality.** Jelly plays on unused buttons, celebrates holidays and reacts to your local weather.
 
 The hero above uses the actual renderers on a simulated deck. [The video demo](https://www.youtube.com/watch?v=NTWLbLbJiO0) shows the OpenCode workflow on hardware.
 
@@ -153,6 +153,21 @@ With **two free keys**, Jelly can point to a steaming coffee cup and ask “Coff
 Prefer a quieter deck? Set `"jelly": {"coffee": false}` to disable coffee invitations or `"jelly": {"enabled": false}` to turn Jelly off. Merge these preferences into your existing configuration and restart the broker.
 
 [Jelly's personality and behavior](docs/JELLY.md) · [Complete Jelly settings](docs/reference/JELLY.md) · [Every action, mood and hop](docs/jelly/README.md) · [Tap and coffee interactions](docs/features/COFFEE.md)
+
+## A little world on your spare keys
+
+![Jelly celebrates holidays and reacts to weather across free Stream Deck keys](docs/jelly/world-showcase.gif)
+
+Fireworks for July Fourth. A Thanksgiving feast. Christmas lights across the deck. A floating Halloween ghost. Holi colors, snow days and a sunhat when it gets hot. **75 configurable scenes**, including 50 additional seasonal and festival experiences, bring Jelly into the world around you.
+
+The broker can discover approximate location and retrieve current weather. Jelly shares temperature updates and wears the right outfit while your agent buttons keep their jobs. Hold Jelly for setup guidance, then hold again to open the instructions. Every scene, costume, effect and caption can be configured or disabled.
+
+```console
+ocdeck world configure --country US --timezone America/New_York --units F
+ocdeck world configure --no-weather --no-auto-location
+```
+
+The second command keeps the world offline. Restart the broker after changes. [Set up holidays, weather and your locale](docs/jelly/world.md) · [Explore all 75 scenes](docs/jelly/world-catalog.md) · [UI/UX and contributor design contract](docs/development/DESIGN_SYSTEM.md)
 
 ## Stay up to date
 

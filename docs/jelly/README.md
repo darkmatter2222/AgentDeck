@@ -1,5 +1,7 @@
 # Jelly animation catalog: actions, poses, moods, hops and thoughts
 
+[Living-world setup and configuration](world.md) · [All 75 world scenes](world-catalog.md)
+
 [Project overview](../../README.md) · [Documentation index](../README.md)
 
 Browse Jelly’s actual local animation catalog and preview assets. These are generated renderer demonstrations, not photographs or proof of physical USB speed. The original hardware walkthrough is linked from the [media gallery](../GALLERY.md).

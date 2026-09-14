@@ -144,6 +144,10 @@ jobs:
             cp docs/jelly/readme_hero.gif dist/
           fi
 
+          if [ -f docs/jelly/world-showcase.gif ]; then
+            cp docs/jelly/world-showcase.gif dist/
+          fi
+
           (cd dist && sha256sum * > SHA256SUMS.txt)
 
       - uses: actions/attest-build-provenance@v2

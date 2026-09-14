@@ -14,6 +14,8 @@ Version-specific historical release notes. For current installation use [first r
 - [v3.0.6](v3.0.6.md)
 - [v3.0.7](v3.0.7.md)
 
+- [v3.0.11: Jelly living world](v3.0.11.md)
+
 ## Related guides
 
 [Current publishing workflow](../PYPI.md) · [GitHub releases](https://github.com/darkmatter2222/AgentStreamDeck/releases)

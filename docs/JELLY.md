@@ -1,5 +1,7 @@
 # Jelly: your coding companion
 
+[Holiday costumes, live weather, seasons and world configuration](jelly/world.md)
+
 [Project overview](../README.md) · [Documentation index](README.md)
 
 [Back to the README](../README.md)
@@ -35,7 +37,7 @@ installs the update. Preview timing above is compressed.
 ## Personality and settings
 
 
-Jelly is an **offline companion enabled by default** living on the bottom edge of unused
+Jelly is a **companion enabled by default with offline personality and optional network-backed weather** living on the bottom edge of unused
 buttons. He rests three native pixels above the floor, scoots and plays inside
 his key, and occasionally crosses the bezel to a neighboring free button.
 

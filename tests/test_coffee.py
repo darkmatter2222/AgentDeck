@@ -75,7 +75,11 @@ class ButtonRoutingTests(unittest.TestCase):
         self.registry = Registry(lambda _: True)
         self.presses = queue.Queue()
         self.loop = DeviceLoop(
-            self.registry, self.presses, threading.Event(), {"jelly": {"thoughts": "off", "needs": False}}, mock=True
+            self.registry,
+            self.presses,
+            threading.Event(),
+            {"jelly": {"thoughts": "off", "needs": False}, "world": {"enabled": False}},
+            mock=True,
         )
         self.loop._start_jelly()
         self.loop.jelly.settle(0, 0)

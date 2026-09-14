@@ -270,7 +270,12 @@ class JellyTests(unittest.TestCase):
 
         deck = Deck()
         registry = Registry(lambda _: True)
-        loop = DeviceLoop(registry, queue.Queue(), stop, {"fps": 30, "ready": False, "jelly": {"enabled": True}})
+        loop = DeviceLoop(
+            registry,
+            queue.Queue(),
+            stop,
+            {"fps": 30, "ready": False, "jelly": {"enabled": True}, "world": {"enabled": False}},
+        )
         original = loop._start_jelly
 
         def start():
