@@ -111,7 +111,7 @@ class ControlTests(unittest.TestCase):
             run(parser.parse_args(["controls", "repo", "set", "My project", "--harness", "gemini"]))
             run(parser.parse_args(["controls", "configure", "--hold-ms", "900", "--request-timeout", "60"]))
         profile = read_profiles(self.root / "launcher.ini")[0]
-        self.assertEqual(profile.directory, folder)
+        self.assertEqual(profile.directory, folder.resolve())
         self.assertEqual(profile.harnesses, ("gemini",))
         self.assertEqual(profile.args, ("--model", "a b"))
         config = json.loads((self.root / "config.json").read_text())
