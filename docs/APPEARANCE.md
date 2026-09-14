@@ -1,8 +1,10 @@
 # Make the deck yours
 
+[Project overview](../README.md) · [Documentation index](README.md)
+
 ![Harness layout with Aurora colors](appearance-preview.gif)
 
-Use the installed `ocdeck` command (or `python -m ocdeck` from the checkout).
+Use the installed `ocdeck` command (or `python -m ocdeck` from the same Python environment).
 Preferences are saved to `%USERPROFILE%\.opencode-deck\config.json` (or
 `OCDECK_HOME`). Restart the AgentStreamDeck broker after changing them. Existing
 configuration, including an explicitly selected FPS, is preserved.
@@ -104,14 +106,19 @@ Merge these fields into your existing config, retaining serial and other setting
 
 Top-level `brightness` remains the device-wide hardware setting (0–100).
 Appearance brightness is pixel dimming, not independent hardware backlighting.
-`animations: false` disables all motion, including glow. Empty keys remain black.
+`animations: false` disables all motion, including glow. Unassigned keys can show Jelly; with Jelly disabled they remain black except for the optional initial READY artwork.
 A 96-step time-based cycle replaces the old 24-step cycle. Late frames are skipped
 naturally; no queue of stale animation frames builds up. Actual FPS depends on USB
 throughput and the number of active keys. Try 15 FPS if six active keys saturate
 an older Mini. Hardware throughput and Windows appearance still need live testing.
 
 
-## 2.1 additions
+## More controls
 
-See [the 2.1 feature guide](NEXT.md) for larger decks, Codex, alerts, doctor/report,
-appearance import/export, dry-run and complete integration uninstall.
+See the [current feature hub](features/README.md) for larger decks, Codex, alerts, doctor/report and complete removal. The [appearance reference](reference/APPEARANCE.md) lists every field, default and import/export behavior.
+
+## Related guides
+
+[Every appearance field/default](reference/APPEARANCE.md) · [Full gallery](GALLERY.md) · [UI guide](UI.md)
+
+[Project overview](../README.md) · [Documentation index](README.md) · [Feature hub](features/README.md) · [CLI reference](CLI.md)

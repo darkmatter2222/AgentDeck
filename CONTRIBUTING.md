@@ -8,7 +8,7 @@ If you keep that true, your change fits. If it blurs the line, it doesn't.
 
 ## The architecture in one paragraph
 
-The broker service (`ocdeck/broker.py`) never talks to any agent harness. It owns six slots, an authenticated loopback API, the USB/HID connection, artwork, and window focus. It only understands one vocabulary, delivered by whatever harness adapter is running:
+The broker service (`ocdeck/broker.py`) receives normalized lifecycle metadata; it does not call a model provider. It owns 6, 15 or 32 slots, an authenticated loopback API, the USB/HID connection, artwork, and window focus. It only understands one vocabulary, delivered by whatever harness adapter is running:
 
 ```json
 {"producer": "<adapter uuid>", "seq": 42, "status": "busy", "pending": 1, "detail": ""}
@@ -49,7 +49,7 @@ If your change *does* have to touch the core, that's allowed — but the PR shou
 
 ## Ground rules
 
-- **Windows is the reference platform.** The broker, focus, and managed launcher are Windows-native; keep other platforms working as far as they already do (the lock and registry are portable; focus and launcher are not, and that's documented).
+- **Windows is the reference platform.** Windows provides the reference desktop focus path. Linux also has broker/systemd startup and rendering support, but no desktop focus. Preserve each documented platform boundary.
 - **No silent config mutation.** The installer already refuses to overwrite unmarked files and backs up `tui.json`. Extend that caution, don't waive it.
 - **Be honest about unverified gates.** This project's culture is: *implemented* ≠ *verified on hardware*. Record evidence, name the environment, and leave the unverified table row unverified.
 - **Don't bind the broker to `0.0.0.0`.** Loopback + local token is a feature.
@@ -64,8 +64,7 @@ If your change *does* have to touch the core, that's allowed — but the PR shou
 
 For a harness with native command hooks, start with
 `plugins/harnesses/profiles.mjs` and its configuration formats in `install.mjs`.
-The persistent relay already imports the shared Bridge; a profile need not create
-another transport. Document exact event names, native config location, paired-ID
+The normal hook path posts directly to the broker. The compatibility relay imports the shared Bridge; preserve both contracts when changing shared normalization. Document exact event names, native config location, paired-ID
 availability, managed process scope and missing-event behavior. Do not promise
 pending approval coverage where the upstream payload cannot support it.
 
@@ -96,3 +95,8 @@ Build with `python -m build`; verify the installed wheel outside the checkout.
 `setup.py` copies runtime assets during the build, so edit their original files
 under `plugins/` and `scripts/`, never a generated build directory. Configure the
 PyPI project and GitHub `pypi` environment before dispatching the signed workflow.
+
+
+## Documentation and source navigation
+
+[Project overview](README.md) · [Documentation index](docs/README.md) · [Developer hub](docs/development/README.md) · [Source map](docs/development/SOURCE-MAP.md). Keep current guides and local links checked with `python scripts/check-docs.py`.

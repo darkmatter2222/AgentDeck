@@ -1,35 +1,31 @@
-# Global installation and other environments
+# Windows, Linux, WSL, SSH, containers and remote model boundaries
 
-The supplied installer is global **for one native Windows user and OpenCode configuration home**. It works across project directories without adding project files. A config-home override needs its own plugin installation entry. A shell alias or a machine-level PATH entry may outrank the launcher; check command resolution explicitly.
+[Project overview](../README.md) · [Documentation index](README.md)
 
-The implemented and tested broker protocol uses native local process IDs plus process creation times. That identity has meaning only on the broker's operating system. The device and focus worker must run on the Windows PC with the Mini and the user's desktop. Loopback in WSL, a container, or a remote host does not automatically mean the same loopback endpoint.
+The broker validates native local process IDs and creation timestamps. A process inside another operating system, container or remote host is not automatically a valid Windows desktop identity. A shared directory or forwarded localhost port does not translate that identity.
 
-The added hook adapters instead install **per software project** and require
-their managed launcher. Their local Node relay lives on the same host; it is not
-the cross-environment relay proposed below.
-
-## Supported design boundaries
-
-| Launch type | This bundle |
+| Environment | Current behavior |
 |---|---|
-| Managed native Windows OpenCode, any project directory | Intended primary path; dedicated window identity |
-| Native OpenCode launched without wrapper | Global state plugin can register; exact terminal focus is not guaranteed |
-| Multiple tabs/panes in a shared terminal window | Exact tab/pane selection not implemented |
-| Multiple clients attached to one OpenCode server | Not supported by default process-wide adapter |
-| Native Windows Claude/Copilot CLI/Gemini/Cursor CLI | Project hooks + managed launcher; native acceptance unverified |
-| Copilot VS Code | Isolated editor profile; all chats share one key; focus acceptance unverified |
-| WSL / Docker / SSH runtime | Cross-environment host relay not implemented |
-| macOS / Linux desktop | Windows installer/focus not implemented |
+| Native Windows OpenCode | Global server plugin; normal launch; window capture/fallback |
+| Native Windows hook harness | Project hook; normal launch; no managed launcher required |
+| Windows Terminal tabs/panes | Shared top-level window can be ambiguous; exact tab selection absent |
+| VS Code Copilot | Preview workspace hooks; window focus, no exact chat selector |
+| Native Linux | User systemd startup and broker/rendering; no desktop focus |
+| WSL, Docker or SSH guest runtime | Cross-environment identity/transport relay not implemented |
+| macOS | No supported automatic startup/focus workflow documented |
+| Local CLI calling a remote model API | Observed local CLI remains local; model host does not change process identity |
+| Multiple clients on one OpenCode server | Not independently mapped by default process-wide adapter |
 
-This boundary is deliberate and visible: a global configuration is not a cross-machine deployment mechanism. The original request's “any environment” is implemented as any native Windows project directory. If it means WSL, containers, or remote machines, additional work is required.
+## Remote model versus remote agent process
 
-## Concrete extension plan for a local implementation agent
+A Windows Claude/OpenCode process calling a model served on another machine remains a local agent process and can use the normal integration. Running that same CLI over SSH moves its PID and hook execution to the remote machine, which the current Windows broker cannot register as a local process.
 
-1. Keep the hardware broker on Windows. Create a managed Windows launcher that owns the exact local terminal identity and a host process lifetime.
-2. Create a separate runtime-binding credential per launched remote environment. Do not copy the unrestricted broker token into containers or remote hosts.
-3. Relay a narrow authenticated snapshot stream through a local host-side process or SSH tunnel. The relay translates runtime UUID, launch UUID, epoch, sequence and pending state into the Windows registration. Guest PIDs are metadata, never Windows focus/process-liveness identities.
-4. Have the Windows launcher own focus and host lifetime. Remote disconnect should show unknown during a bounded grace period, then remove the instance when authoritative host/runtime closure is known. Network loss alone must not masquerade as confirmed process exit.
-5. Install the plugin in each runtime's own global OpenCode config home. Add explicit environment transport selection; do not assume the Windows discovery file or 127.0.0.1 endpoint is reachable.
-6. Test tunnel loss/reconnect, broker restart, guest process exit, host terminal closure, token revocation, multiple guests with identical PIDs, and exact local-window focus.
+## What a future remote relay would require
 
-Do not expose the present broker on `0.0.0.0`. Its process validation, credential storage and HTTP assumptions are designed for local use, not an Internet-facing service.
+A host-side process would need to own the Windows window and lifetime, translate a bounded authenticated guest snapshot into a local registration, and use a separate scoped credential. Guest PIDs must remain metadata. Disconnect, reconnect, broker restart, guest exit and identical PIDs across guests need explicit tests. This is a design boundary, not an available installation option.
+
+Do not bind the current broker to 0.0.0.0 or copy its unrestricted local token into remote environments to work around the missing relay. The existing per-launch Node relay is only a local compatibility mechanism.
+
+## Related guides
+
+[Normal installation](FIRST-RUN.md) · [Local launchers](LAUNCHERS.md) · [Focus](features/FOCUS.md) · [Privacy](features/PRIVACY.md) · [Architecture](ARCHITECTURE.md)

@@ -1,74 +1,39 @@
-# Publish AgentStreamDeck to PyPI
+# GitHub releases and PyPI publishing workflow
 
-**Published:** [agentstreamdeck 2.1.1](https://pypi.org/project/agentstreamdeck/2.1.1/)
-on 2026-09-12 using trusted publishing. The steps below document setup and future releases.
+[Project overview](../README.md) · [Documentation index](README.md)
 
-The repository is prepared for keyless publishing. Account-side PyPI authorization
-must be configured by someone with access to the PyPI account. The previous `agentdeck` name was rejected by PyPI as too similar to an existing
-project. The new distribution name is `agentstreamdeck`; PyPI must still accept
-the pending publisher. Rename the GitHub repository before configuring it.
+The current workflow is [Automatic main release](https://github.com/darkmatter2222/AgentStreamDeck/actions/workflows/pypi.yml), defined in [.github/workflows/pypi.yml](../.github/workflows/pypi.yml). This page describes the checked-in workflow, not the success state of any particular remote run.
 
-## Exact first-time setup
+## What triggers publication
 
-1. Sign in to [PyPI](https://pypi.org/account/login/), verify your email and complete
-   the account's required two-factor authentication setup.
-2. Open [PyPI account Publishing](https://pypi.org/manage/account/publishing/).
-   In **Add a new pending publisher**, choose **GitHub** and enter:
+A push to main or manual workflow dispatch enters the release workflow. It is scoped to darkmatter2222/AgentStreamDeck. A commit already carrying a stable version tag is skipped. Otherwise the workflow determines the next patch after the highest stable version tag, stamps pyproject.toml and ocdeck/__init__.py in the build workspace, and runs verification. The stamp is not committed back to the source branch, so the installed package version can differ from the checked-in version.
 
-   | Field | Exact value |
-   |---|---|
-   | PyPI project name | `agentstreamdeck` |
-   | Owner | `darkmatter2222` |
-   | Repository name | `AgentStreamDeck` |
-   | Workflow name | `pypi.yml` |
-   | Environment name | `pypi` |
+There is no docs-only path exclusion: merging documentation to main can produce a new package and GitHub release. A feature-branch push does not meet the push-to-main trigger; it can still run PR CI.
 
-   Use the filename `pypi.yml`, not `.github/workflows/pypi.yml` and not the visible
-   workflow title. Click **Add**. A pending publisher creates the project on the
-   first successful upload; it does not reserve the name before then.
-3. Open [GitHub repository Environments](https://github.com/darkmatter2222/AgentStreamDeck/settings/environments).
-   Create an environment named **pypi** if it does not already exist. Under its
-   deployment branch/tag rules choose selected branches/tags and add branch
-   **main**. Save the rule. Any existing environment review requirements continue
-   to apply. No `PYPI_API_TOKEN` or password secret is needed.
-4. Open [Signed Python release](https://github.com/darkmatter2222/AgentStreamDeck/actions/workflows/pypi.yml),
-   choose **Run workflow**, select **main**, and click **Run workflow**. Approve the
-   environment deployment if your configured environment requires it.
-5. Wait for both **build** and **publish** to finish successfully. The workflow
-   builds the package, SBOM and checksums, records provenance and uploads the
-   wheel/sdist using short-lived OIDC credentials with PyPI attestations.
-6. Verify [the project on PyPI](https://pypi.org/project/agentstreamdeck/2.1.1/), then install:
+## Verification and assets
 
-   ```powershell
-   python -m pip install --upgrade agentstreamdeck==2.1.1
-   ocdeck --version
-   ```
+The workflow runs Python and Node suites, Ruff checks/formatting and Pyright. It builds wheel/sdist, checks package metadata with Twine, produces a CycloneDX environment SBOM and a source ZIP, and includes the showcase MP4 and hero GIF when present. It generates release-asset SHA256SUMS and build-provenance attestations, then creates or updates the GitHub release.
 
-This installs the Python command/runtime assets. It does not automatically create
-the OpenCode scheduled task, grant native hook trust, or install hooks in projects;
-follow the README for those steps.
+The wheel/sdist artifact goes to the publish-pypi job, which uses the pypi environment and PyPI trusted publishing with attestations. Existing package files are skipped on retry rather than overwritten.
 
-## If the project already exists
+## Trusted publisher identity
 
-If **you own** `agentstreamdeck`, use that project's **Manage → Publishing** page and
-add a GitHub publisher with the same owner/repository/workflow/environment values.
-If somebody else owns it or PyPI rejects the name, choose an available distribution
-name, change `[project].name` in `pyproject.toml`, update the documentation/install
-commands, and configure the pending publisher for that exact name. The `ocdeck`
-CLI/module name can remain unchanged. Do not upload to someone else's project.
+| Field | Repository workflow value |
+|---|---|
+| Distribution | agentstreamdeck |
+| Owner | darkmatter2222 |
+| Repository | AgentStreamDeck |
+| Workflow filename | pypi.yml |
+| GitHub environment | pypi |
 
-## Troubleshooting
+These must match the account-side publisher configuration. Existing environment review requirements still apply. A publisher mismatch or pending environment approval is separate from source-test success. Inspect the actual workflow run for the current publication result.
 
-- **Invalid publisher / token exchange rejected:** compare all five values exactly;
-  the workflow must run from `main` in `darkmatter2222/AgentStreamDeck`, in environment `pypi`.
-- **Publish job skipped:** the workflow was dispatched from a different branch/repository.
-- **Waiting for approval:** approve the `pypi` environment deployment in the run UI.
-- **File already exists:** PyPI never replaces an uploaded distribution. Inspect the
-  existing release before retrying; use a new version for changed package contents.
-- **Name unavailable:** a pending publisher does not reserve a project name.
+## Release verification
 
-Official references: [new-project trusted publishing](https://docs.pypi.org/trusted-publishers/creating-a-project-through-oidc/)
-and [adding a publisher to an existing project](https://docs.pypi.org/trusted-publishers/adding-a-publisher/).
+Check the new GitHub release and PyPI project, inspect asset checksums/attestations, then install the intended version in an isolated environment and run `python -m ocdeck --version`. Validate packaged runtime assets from outside a checkout. Normal first-time users still run `python -m ocdeck install` and install project hooks after pip.
 
-The initial v2.1.1 merge also starts this workflow automatically. Check that run
-before dispatching manually to avoid uploading the same version twice.
+The version-specific release-v*.yml workflows and docs/releases notes are historical release records. The automatic pypi.yml workflow is the current main-release entry point. Do not dispatch old release workflows as the ordinary update process.
+
+## Related guides
+
+[Developer setup](development/README.md) · [User upgrade guide](features/UPDATES.md) · [Release notes](https://github.com/darkmatter2222/AgentStreamDeck/releases)

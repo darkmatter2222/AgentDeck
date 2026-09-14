@@ -1,19 +1,34 @@
 # AgentStreamDeck
 
-**Your AI agents, one glance away.** See which session is working, waiting or needs you—then press a Stream Deck key to jump back in.
+**A physical dashboard for your AI coding agents.** Monitor OpenCode, Claude Code, Codex CLI, GitHub Copilot, Gemini CLI and Cursor CLI on an Elgato Stream Deck. See who is working or needs you, press a key to return to that window, and let Jelly bring your spare buttons to life.
 
-<p align="center">
-  <img src="docs/jelly/readme_hero.gif" alt="Animated Stream Deck with agent status keys and Jelly exploring unused buttons" width="100%">
-</p>
-
+[![GitHub stars](https://img.shields.io/github/stars/darkmatter2222/AgentStreamDeck?style=flat&logo=github)](https://github.com/darkmatter2222/AgentStreamDeck/stargazers)
+[![Forks](https://img.shields.io/github/forks/darkmatter2222/AgentStreamDeck?style=flat&logo=github)](https://github.com/darkmatter2222/AgentStreamDeck/forks)
+[![Latest release](https://img.shields.io/github/v/release/darkmatter2222/AgentStreamDeck)](https://github.com/darkmatter2222/AgentStreamDeck/releases/latest)
+[![PyPI version](https://img.shields.io/pypi/v/agentstreamdeck)](https://pypi.org/project/agentstreamdeck/)
+[![PyPI downloads per month](https://img.shields.io/pypi/dm/agentstreamdeck)](https://pypi.org/project/agentstreamdeck/)
 [![Tests](https://github.com/darkmatter2222/AgentStreamDeck/actions/workflows/ci.yml/badge.svg)](https://github.com/darkmatter2222/AgentStreamDeck/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/agentstreamdeck)](https://pypi.org/project/agentstreamdeck/)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB)](pyproject.toml)
+[![Node.js 20+](https://img.shields.io/badge/Node.js-20%2B-339933)](docs/integrations/README.md)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue)](LICENSE)
 
-[Get started](#get-started) · [Supported agents](#supported-agents) · [Customize](#make-it-yours) · [Documentation](docs/README.md) · [Watch the demo](https://www.youtube.com/watch?v=NTWLbLbJiO0)
+> **⭐ Find this useful? [Star AgentStreamDeck on GitHub](https://github.com/darkmatter2222/AgentStreamDeck)** to help more developers discover it.
+>
+> **☕ [Support Ryan’s projects](https://buymeacoffee.com/j6oiubzfnh)** on Buy Me a Coffee. Any amount, one-time or monthly, helps fund development, hardware testing and videos. Thank you for supporting this hobby.
 
-> ☕ Enjoying AgentStreamDeck? [Buy Ryan a Coffee](https://buymeacoffee.com/j6oiubzfnh) to support development, hardware testing and documentation. A [GitHub star](https://github.com/darkmatter2222/AgentStreamDeck) helps other developers find it, too.
+[![Support on Buy Me a Coffee](https://img.shields.io/badge/Support-Buy_Me_a_Coffee-FFDD00?logo=buymeacoffee&logoColor=000000)](https://buymeacoffee.com/j6oiubzfnh)
+
+<p align="center">
+  <img src="docs/jelly/readme_hero.gif" alt="AgentStreamDeck animated dashboard with live coding-agent status keys and Jelly exploring unused Stream Deck buttons" width="100%">
+</p>
+
+[Get started](#get-started) · [Watch the video](#watch-agentstreamdeck-on-a-real-stream-deck) · [All features](#explore-every-feature) · [CLI reference](docs/CLI.md) · [UI options](docs/UI.md) · [Visual gallery](docs/GALLERY.md) · [Documentation](docs/README.md)
+
+## Watch AgentStreamDeck on a real Stream Deck
+
+[![Watch Ryan’s OpenCode and Stream Deck hardware demonstration on YouTube](https://img.youtube.com/vi/NTWLbLbJiO0/hqdefault.jpg)](https://www.youtube.com/watch?v=NTWLbLbJiO0)
+
+**[▶ Watch the YouTube demo: AI coding-agent status and one-touch window switching](https://www.youtube.com/watch?v=NTWLbLbJiO0).** This is the original OpenCode hardware walkthrough, recorded before later Jelly and customization additions. The source-rendered hero above and [full animation gallery](docs/GALLERY.md) show the broader current feature set. The thumbnail opens YouTube; GitHub README pages do not play embedded YouTube iframes.
 
 ## Keep your attention on the work
 
@@ -84,6 +99,8 @@ Need more detail? [Installation guide](docs/PLUGIN-FIRST.md) · [Troubleshooting
 
 ## Supported agents
 
+Follow the dedicated setup guide for [OpenCode](docs/integrations/OPENCODE.md), [Claude Code](docs/integrations/CLAUDE.md), [Codex CLI](docs/integrations/CODEX.md), [Copilot CLI](docs/integrations/COPILOT-CLI.md), [Copilot in VS Code](docs/integrations/COPILOT-VSCODE.md), [Gemini CLI](docs/integrations/GEMINI.md), or [Cursor CLI](docs/integrations/CURSOR.md). Each includes install commands, exact shipped hook mappings, verification and removal.
+
 The integrations above share the same deck, but their event coverage differs. These are the default visual signals:
 
 | Key | Meaning |
@@ -98,6 +115,8 @@ The integrations above share the same deck, but their event coverage differs. Th
 Pressing an agent key requests window focus. It never types a reply or approves a tool. Windows can restrict foreground activation; the status output includes the last focus result for diagnosis.
 
 ## Make it yours
+
+The physical deck is the UI; preferences are configured through the CLI and JSON. See [every UI control](docs/UI.md), [every appearance field and default](docs/reference/APPEARANCE.md), and [all CLI arguments](docs/CLI.md).
 
 Choose recognizable agent logos, project labels, layouts, color palettes and animation styles. Apply a preset across the deck or give individual keys their own look.
 
@@ -115,6 +134,8 @@ Want your Mini beside your screen? The [3D-printable side monitor mount](3d-mode
 
 ## Meet Jelly
 
+![Jelly lives on unused Stream Deck buttons alongside agent sessions](docs/jelly/jelly_v3_showcase.gif)
+
 Jelly makes a home on your spare buttons. He stretches, dances, naps and changes mood with the rhythm of your coding sessions. Tap him for a wobble, cheer or little “Boop!” His thoughts and personality run offline using session activity metadata, without reading your prompts or source code.
 
 ![Jelly reacts to a tap and points toward a steaming coffee cup](docs/jelly/coffee_break.gif)
@@ -123,7 +144,7 @@ With **two free keys**, Jelly can point to a steaming coffee cup and ask “Coff
 
 Prefer a quieter deck? Set `"jelly": {"coffee": false}` to disable coffee invitations or `"jelly": {"enabled": false}` to turn Jelly off. Merge these preferences into your existing configuration and restart the broker.
 
-[Jelly's personality, animations and settings](docs/JELLY.md)
+[Jelly's personality and behavior](docs/JELLY.md) · [Complete Jelly settings](docs/reference/JELLY.md) · [Every action, mood and hop](docs/jelly/README.md) · [Tap and coffee interactions](docs/features/COFFEE.md)
 
 ## Stay up to date
 
@@ -140,6 +161,47 @@ python -m pip install --upgrade agentstreamdeck
 A running broker with upgrade monitoring automatically restarts after the new package finishes installing. Use the same Python environment as the broker. First-time setup still needs `python -m ocdeck install`; older installations may need one restart to enable monitoring. [Upgrade details and opt-outs](docs/CONFIGURATION.md#pip-upgrades-restart-the-broker-automatically)
 
 [Release notes](https://github.com/darkmatter2222/AgentStreamDeck/releases) · [Upgrading from AgentDeck](docs/RENAMING.md)
+
+## Explore every feature
+
+| What you want to do | What AgentStreamDeck provides | Full documentation |
+|---|---|---|
+| Monitor several AI coding sessions | Live running, idle, input and unknown state; automatic slot cleanup and overflow handling | [Status and slots](docs/features/STATUS.md) |
+| Switch back to the right session | One-touch Windows terminal/editor focus, including minimized windows | [Window switching](docs/features/FOCUS.md) |
+| Use your existing coding tools | Global OpenCode plugin and six project hook profiles, with honest per-agent coverage | [Integration hub](docs/integrations/README.md) |
+| Choose the information on each key | Harness icons, project labels, aliases, custom text, status and input badges | [UI guide](docs/UI.md) |
+| Personalize the whole deck or one key | Three layouts, six themes, five presets, borders, backgrounds and logo sizes | [Appearance reference](docs/reference/APPEARANCE.md) |
+| Tune motion and readability | Breathe/glow/steady effects, scrolling/shimmer, font size, alignment, speed and brightness | [Animated gallery](docs/GALLERY.md) |
+| Share your configuration | Versioned visual import/export, dry-run diff and preview GIF generation | [Appearance import/export](docs/reference/APPEARANCE.md#export-import-and-preview) |
+| Hear when you are needed | Optional Windows sounds and request-specific desktop notifications | [Alert settings](docs/features/ALERTS.md) |
+| Give unused keys personality | Offline Jelly companion with actions, moods, thoughts and touch reactions | [Jelly guide](docs/JELLY.md) |
+| Customize Jelly’s behavior | Four personalities, fourteen hop styles, movement frequency and optional persistence | [Jelly settings](docs/reference/JELLY.md) |
+| Take a coffee break | Timed or five-tap invitation with a steaming cup on a second free key | [Coffee interactions](docs/features/COFFEE.md) |
+| Keep the package current | Visible update notice, press-to-install and verified restart after pip upgrades | [Update guide](docs/features/UPDATES.md) |
+| Start automatically at login | Per-user Windows task or Linux systemd service | [Startup controls](docs/features/STARTUP.md) |
+| Use Mini, Original/MK.2 or XL | Automatic 6/15/32-key capacity, serial selection and reconnect handling | [Hardware guide](docs/features/HARDWARE.md) |
+| Mount a Mini beside your monitor | Multi-part printable holder, reinforced wing and five-degree locking hinge | [STLs and assembly](3d-models/side-monitor-mount/README.md) |
+| Diagnose an issue | Doctor checks, physical-input telemetry, structured logs and scrubbed reports | [Diagnostics](docs/features/DIAGNOSTICS.md) |
+| Understand the local data boundary | Metadata-only hooks, loopback authentication and offline companion | [Privacy and offline operation](docs/features/PRIVACY.md) |
+| Remove only what was installed | Hook receipts, config-preserving removal, preview and retained backups | [Uninstall](docs/features/UNINSTALL.md) |
+| Extend the project | API, architecture, source map, adapter contracts and test guides | [Developer documentation](docs/development/README.md) |
+
+## More ways to make it yours
+
+![Agent key motion effects: breathe, glow and steady](docs/visuals/effects.gif)
+
+![Scrolling and shimmer text effects on agent status buttons](docs/visuals/text-effects.gif)
+
+![Five ready-to-use visual presets for coding-agent keys](docs/visuals/presets.png)
+
+Browse [layouts, themes, harness logos, labels, typography, borders, brightness and mixed-key examples](docs/GALLERY.md). Each gallery links to the settings that produce it. These are renderer demonstrations; physical USB speed depends on your deck and active keys.
+
+## Documentation shortcuts
+
+- **Start here:** [first run](docs/FIRST-RUN.md), [practical tutorials](docs/TUTORIALS.md), [FAQ](docs/FAQ.md), [troubleshooting](docs/TROUBLESHOOTING.md).
+- **Complete references:** [all commands and flags](docs/CLI.md), [broker JSON and environment](docs/reference/CONFIG.md), [appearance settings](docs/reference/APPEARANCE.md), [Jelly settings](docs/reference/JELLY.md).
+- **Advanced workflows:** [local-model and compatibility launchers](docs/LAUNCHERS.md), [WSL/SSH/container boundaries](docs/REMOTE-AND-WSL.md), [local HTTP API](docs/API.md).
+- **Browse everything:** [documentation index](docs/README.md), [feature hub](docs/features/README.md), [integration hub](docs/integrations/README.md), [media gallery](docs/GALLERY.md).
 
 ## Need a hand?
 

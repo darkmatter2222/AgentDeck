@@ -54,3 +54,8 @@ The wing measures 76 × 60 × 8 mm, with rear rails adding 6 mm. Allow about 27 
 - [MESH_CHECKS.json](MESH_CHECKS.json) and [DIGITAL_VALIDATION.txt](DIGITAL_VALIDATION.txt): digital validation results. These do not establish physical fit or load capacity.
 
 The housing envelope is based on [Elgato's Stream Deck Mini specifications](https://help.elgato.com/hc/en-us/articles/10836894087309-Elgato-Stream-Deck-Mini-Technical-Specifications); the wedge profile is estimated from a [side-view product photograph](https://geartechs.com/products/elgato-stream-deck-mini-compact-6-key-tactile-control-pad).
+
+
+## Project and documentation
+
+[AgentStreamDeck overview](../../README.md) · [Documentation index](../../docs/README.md) · [Hardware support](../../docs/features/HARDWARE.md) · [Visual gallery](../../docs/GALLERY.md).

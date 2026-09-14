@@ -1,5 +1,7 @@
 # Plugin-first setup
 
+[Project overview](../README.md) · [Documentation index](README.md)
+
 AgentStreamDeck does not need to launch your AI harness. The broker is a per-user background process, and each supported harness reports lifecycle metadata through its native plugin or hook system.
 
 ## 1. Install the broker
@@ -47,3 +49,9 @@ You can give a coding agent this instruction:
 ```text
 Go to https://github.com/darkmatter2222/AgentStreamDeck and follow the current README and docs/HARNESSES.md. Install AgentStreamDeck from PyPI, run `ocdeck install` so the broker starts automatically, then install the native AgentStreamDeck plugin or hook for the harnesses I use. Preserve my existing harness configuration. Do not require an AgentStreamDeck launcher; I want to start each harness normally. Verify the setup with `ocdeck status` and the physical button test.
 ```
+
+## Related guides
+
+[First-run verification](FIRST-RUN.md) · [Integration guides](integrations/README.md) · [Startup controls](features/STARTUP.md)
+
+[Project overview](../README.md) · [Documentation index](README.md) · [Feature hub](features/README.md) · [CLI reference](CLI.md)

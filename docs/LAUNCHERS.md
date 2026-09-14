@@ -1,34 +1,25 @@
-# Managed launchers: HomeAILab, local AI, and cloud
+# Optional managed launchers, HomeAILab and local model workflows
 
-The model endpoint and the window are separate concerns. HomeAILab selects a
-backend and launches a CLI; AgentStreamDeck needs a stable association with the desktop
-window to focus it. A directly started OpenCode process can report state while
-having no usable top-level window: Windows Terminal owns that window, not the
-OpenCode PID. This explains why a lit key does not establish a focus mapping.
+[Project overview](../README.md) · [Documentation index](README.md)
 
-`Launch-Agent.bat` runs the selected CLI or existing launcher inside AgentStreamDeck's
-unique, title-pinned window. Its supervisor owns one registration, and the child
-inherits the appropriate plugin/hook binding. Backend selection and tuning remain
-inside HomeAILab. Nothing in HomeAILab needs to be copied or edited.
+Normal monitoring uses the global OpenCode plugin or project-native hooks and your existing launch command. A custom local-model BAT file can keep running normally after hook installation. Managed launchers are compatibility helpers when you specifically want a supervisor-owned Windows Terminal window.
 
-## Setup
+## Setup and current limitations
 
-1. Update AgentStreamDeck to current main and restart its broker. Run the broker as your
-   desktop user, at the same elevation as the agent windows.
-2. For OpenCode, run `scripts\Install.ps1` as described in the README. This installs
-   the global OpenCode plugin and records the actual CLI path. If requested, supply
-   `-OpenCodePath` pointing to the original CLI, not AgentStreamDeck's shim.
-3. For Claude and other hook adapters, install their project hooks once, e.g.
-   `scripts\Install-Harness.ps1 -Profile claude -Project C:\Projects\MyApp`.
-   Follow [tutorials](TUTORIALS.md) for a setup without OpenCode.
-4. Close the old unmanaged sessions and relaunch through the wrapper from your
-   software project's directory. Restarting the broker alone cannot turn an old
-   unmanaged process into a titled managed window.
+1. Follow [first run](FIRST-RUN.md) to install the broker and your project hooks.
+2. Install Windows Terminal for a dedicated managed window. Use one harness per OS window.
+3. For hook harnesses, optionally use `python -m ocdeck start --profile claude`, or pass a synchronous existing script through `--launcher`.
+4. OpenCode managed launch/route/worker paths still expect legacy install.json metadata with an `opencode` executable entry. Fresh plugin-first setup does not create that entry, and the worker reads it even when a launcher override is supplied. On a fresh install, launch OpenCode or your OpenCode BAT normally. The OpenCode wrapper examples below apply only to a legacy installation that already has valid metadata.
 
-Use current Windows Terminal. Keep `showTerminalTitleInTitlebar` enabled (the
-Terminal default); changing it to false hides the exact title used for mapping.
-Do not rename the managed tab or combine multiple agents into it. Deck aliases
-are fine: they affect only button text.
+The current scripts/Install.ps1 accepts only -Python; older -OpenCodePath and -ConfigDirectory flags are not present. Use install-plugin --config-dir for an alternate plugin home. Do not point legacy executable metadata at the shim itself. Legacy Verify-Windows.ps1 checks the old task/environment and is not a current setup check.
+
+Hook helper example:
+
+```powershell
+python -m ocdeck harness-launch --profile claude --current-window -- --help
+```
+
+Options before `--` belong to AgentStreamDeck; arguments after it belong to the harness. `--current-window` is useful for status testing and does not provide a unique managed window title. A local CLI calling a remote model API is still a local process; a CLI running over SSH is a different host boundary.
 
 ## Keep using HomeAILab
 
@@ -135,3 +126,8 @@ Sources: [HomeAILab launchers](https://github.com/darkmatter2222/HomeAILab/tree/
 [Windows thread input attachment](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-attachthreadinput),
 [Terminal title settings](https://learn.microsoft.com/en-us/windows/terminal/customize-settings/appearance).
 Windows desktop / physical device acceptance still requires testing on your machine.
+
+
+## Related guides
+
+[CLI commands](CLI.md) · [Native integrations](integrations/README.md) · [Focus](features/FOCUS.md) · [Remote boundaries](REMOTE-AND-WSL.md)

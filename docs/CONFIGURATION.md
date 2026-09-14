@@ -1,5 +1,7 @@
 # Configuration and maintenance
 
+[Project overview](../README.md) · [Documentation index](README.md)
+
 [Back to the README](../README.md)
 
 ## Commands and configuration
@@ -67,7 +69,7 @@ Merge settings into existing config rather than replacing unrelated preferences.
 | `appearance` / `buttons` | Global preferences / per-slot overrides; [full field reference](APPEARANCE.md) |
 
 Restart the broker after edits. FPS is configurable from 1 to 30; new installations target 24. Disable animations for static
-images, disable ready for an empty black deck, or select a serial when multiple
+images, disable ready and Jelly for an empty black deck, or select a serial when multiple
 decks are connected. Compatibility names remain `ocdeck` and the `.opencode-deck` state directory. New Windows startup registration uses the **AgentStreamDeck Broker** Scheduled Task; uninstall also recognizes an owned legacy `OpenCode Deck` task.
 
 ## Sound alerts and Windows notifications
@@ -190,3 +192,8 @@ Editable installs and source checkouts are excluded. Reinstalling the same
 version does not trigger a restart. Clients reconnect through their normal
 heartbeat or next native hook event.
 
+## Related guides
+
+[Complete config reference](reference/CONFIG.md) · [Every CLI command](CLI.md) · [Startup controls](features/STARTUP.md)
+
+[Project overview](../README.md) · [Documentation index](README.md) · [Feature hub](features/README.md) · [CLI reference](CLI.md)

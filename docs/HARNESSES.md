@@ -1,5 +1,7 @@
 # Agent harness adapters
 
+[Project overview](../README.md) · [Documentation index](README.md)
+
 AgentStreamDeck is **plugin-first**. The broker runs independently in the background, and supported harnesses report lifecycle metadata through their native plugin or hook mechanisms. AgentStreamDeck does not need to launch the harness.
 
 For the shortest setup path, see [Plugin-first setup](PLUGIN-FIRST.md). For diagnostics, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
@@ -152,3 +154,9 @@ Event/config mappings were checked against these official references on 2026-09-
 - [VS Code agent hooks](https://code.visualstudio.com/docs/agent-customization/hooks)
 - [Gemini CLI hooks](https://geminicli.com/docs/hooks/reference/)
 - [Cursor hooks](https://cursor.com/docs/hooks)
+
+## Related guides
+
+[Dedicated integration guides](integrations/README.md) · [State semantics](features/STATUS.md) · [Focus](features/FOCUS.md)
+
+[Project overview](../README.md) · [Documentation index](README.md) · [Feature hub](features/README.md) · [CLI reference](CLI.md)
