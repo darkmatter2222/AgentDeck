@@ -1,0 +1,4 @@
+OpenSCAD CSG intersection of stationary wing and rotated holder at -30,-25,-20,-15,-10,-5,0,5,10,15,20,25,30 degrees returned: Current top level object is empty. Exit code 1 is the expected empty-STL export result. No collision at the nominal indexed positions.
+All six print meshes are closed, connected components; see MESH_CHECKS.json.
+Pin hole centers: inner radius40 mm at odd 5-degree positions; outer radius50 mm at multiples of10. Hole center paths coincide with the moving index arm at each corresponding angle. Pin clearance is0.8 mm diametral.
+No physical printing, adhesive test, or structural load test performed.

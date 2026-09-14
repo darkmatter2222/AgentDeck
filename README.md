@@ -111,6 +111,8 @@ Restart the broker after saving appearance changes. You can preview changes befo
 
 [Appearance gallery and settings](docs/APPEARANCE.md) · [Configuration, alerts and maintenance](docs/CONFIGURATION.md)
 
+Want your Mini beside your screen? The [3D-printable side monitor mount](3d-models/side-monitor-mount/) includes separate STL parts, a reinforced wing, a 5° locking hinge, and printing instructions.
+
 ## Meet Jelly
 
 Jelly makes a home on your spare buttons. He stretches, dances, naps and changes mood with the rhythm of your coding sessions. Tap him for a wobble, cheer or little “Boop!” His thoughts and personality run offline using session activity metadata, without reading your prompts or source code.

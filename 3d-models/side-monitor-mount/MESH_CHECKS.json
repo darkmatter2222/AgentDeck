@@ -1,0 +1,62 @@
+[
+  {
+    "file": "01_Holder.stl",
+    "triangles": 1896,
+    "closed_connected": true,
+    "print_dimensions_mm": [
+      83.0,
+      83.0,
+      118.2
+    ]
+  },
+  {
+    "file": "02_Reinforced_Wing.stl",
+    "triangles": 13980,
+    "closed_connected": true,
+    "print_dimensions_mm": [
+      69.0,
+      68.0,
+      119.12
+    ]
+  },
+  {
+    "file": "03_Pivot_Pin.stl",
+    "triangles": 716,
+    "closed_connected": true,
+    "print_dimensions_mm": [
+      14.0,
+      14.0,
+      82.0
+    ]
+  },
+  {
+    "file": "04_Locking_Pin.stl",
+    "triangles": 716,
+    "closed_connected": true,
+    "print_dimensions_mm": [
+      10.0,
+      10.0,
+      22.0
+    ]
+  },
+  {
+    "file": "05_Device_Fit_Gauge.stl",
+    "triangles": 48,
+    "closed_connected": true,
+    "print_dimensions_mm": [
+      53.264,
+      68.0,
+      10.5
+    ]
+  },
+  {
+    "file": "06_Pin_Fit_Coupon.stl",
+    "triangles": 596,
+    "closed_connected": true,
+    "print_dimensions_mm": [
+      32.0,
+      16.0,
+      16.0
+    ]
+  }
+]

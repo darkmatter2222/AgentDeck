@@ -1,0 +1,92 @@
+V3 — INDEXED STREAM DECK MINI MONITOR MOUNT
+
+PRINT FOUR WORKING PARTS
+01_Holder.stl: upright wedge cradle and moving hinge section.
+02_Reinforced_Wing.stl: adhesive wing, stationary hinge and index plate.
+03_Pivot_Pin.stl: 6 mm gravity-retained main pin, 78 mm working length.
+04_Locking_Pin.stl: 4 mm gravity-retained angle-lock pin.
+No purchased screws, nuts, springs or bearings are required.
+Optional checks: 05_Device_Fit_Gauge.stl and 06_Pin_Fit_Coupon.stl.
+
+SETTINGS
+Millimetres; 100% scale; PLA; 0.20 mm layers; 5 walls; 6 top/bottom
+layers; 40% gyroid infill for holder and wing. Print both pins at
+100% infill. Pins are already head-down with chamfered tips at top.
+Use a brim on the tall main pin and holder. Print slowly near the
+pin tip; cooling matters on a small cross-section.
+Holder and wing are exported side-down; use this orientation.
+Holder: about 83 x 83 mm footprint, 118.2 mm tall.
+Wing: about 69 x 68 mm footprint, 119.1 mm tall.
+Both need removable supports for their raised sections.
+Use normal supports everywhere, with interface enabled; inspect
+slicer preview to ensure hinge barrels and index parts are supported.
+Clear support residue from holes. Do not force pins through debris.
+The coupon duplicates both horizontal hole sizes. A tuned printer
+should produce a hand sliding fit; printer-specific fit is not guaranteed.
+
+DESIGNED CLEARANCES
+Main shaft 6.0 mm / bore 6.8 mm: 0.8 mm diametral clearance.
+Lock shaft 4.0 mm / holes 4.8 mm: 0.8 mm diametral clearance.
+Nominal hinge end gaps 0.7 mm each. Index-arm gap 0.7 mm.
+Gravity settles the holder onto the lower bearing/upper index plate.
+These are intentionally free fits. Some small movement is expected.
+
+ASSEMBLY
+1. Hold the wing upright, tape face toward you and index plate at top.
+   Its wing extends to the RIGHT behind the monitor.
+2. Put the holder's long middle barrel BETWEEN the wing's lower and
+   upper barrels. The holder's top arm goes ABOVE the index plate.
+3. Drop the LARGE pin through the top arm and all hinge barrels.
+   The large head stays on top. No glue or press fit is needed.
+4. Rotate the holder to zero, then drop the SMALL pin through the
+   OUTER hole in the top arm and the index plate's zero hole.
+5. Seat the Mini from the front, three buttons across and two down.
+   The same photo-estimated V2 wedge pocket is retained. Use thin
+   internal adhesive for retention. Route cable through the rear slot,
+   leaving a slack loop for swivelling.
+6. Apply mounting tape to the completely flat monitor-facing wing.
+   All reinforcing rails are on the opposite, rear face. Use the
+   full practical tape area; keep monitor vents clear. Follow tape
+   curing instructions before letting the assembly hang.
+
+ADJUSTMENT
+Remove only the SMALL locking pin. Keep the LARGE pivot pin in place.
+Turn the holder, align one of its two holes, and reinsert the lock pin.
+Outer row: -30, -20, -10, 0, +10, +20, +30 degrees.
+Inner row: -25, -15, -5, +5, +15, +25 degrees.
+Thus every 5-degree position is available from -30 to +30.
+Positive/negative indicate opposite directions, not a preferred side.
+The index pin provides a positive stop; no tiny flexible detents.
+Do not turn it while locked. Both pins are gravity retained: mount
+upright, and remove/support parts before turning the assembly over.
+No hard end stops are fitted when the lock pin is removed.
+
+ALIGNMENT AND SIZE
+At zero, the nominal front fascia remains at the monitor front plane:
+10 mm monitor + assumed 1 mm compressed tape = 11 mm offset.
+Turning the vertical hinge changes sideways viewing angle; the face
+is coplanar with the screen only at zero. It does not reintroduce the
+Mini's desk tilt. Protruding keycaps are not the alignment datum.
+Adhesive wing: 76 x 60 x 8 mm. Two rear reinforcing rails add 6 mm.
+The hinge needs about 27 mm of space between cradle and tape wing.
+The robust index plate extends about 80 mm behind the face plane,
+roughly 27 mm farther back than the wedge cradle. Keep this space clear.
+Printed angle numerals are recessed; the diagram is easier to read.
+
+VALIDATION / LIMITS
+Device housing profile remains estimated from photographs, not scanned
+manufacturer CAD. If V2 has not been physically tested, use the device
+fit gauge first. Parts have not been physically printed or load-tested.
+All six STL files passed closed-mesh and single-component checks.
+Holder/wing intersection was empty at all 13 nominal lock angles
+(-30 to +30 in 5-degree steps). This is a geometry check, not a load test.
+Pins/holes have deliberate printing clearance; zero play is not promised.
+PLA and the tape must be kept away from hot monitor exhaust.
+
+SOURCE
+Hinged_Mount.scad has part selectors and monitor/tape parameters.
+Collision_check source is included for reproducibility.
+Manufacturer envelope: 84 x 60 x 58 mm, 160 g:
+https://help.elgato.com/hc/en-us/articles/10836894087309-Elgato-Stream-Deck-Mini-Technical-Specifications
+Side-profile reference used in V2:
+https://geartechs.com/products/elgato-stream-deck-mini-compact-6-key-tactile-control-pad
