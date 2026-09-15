@@ -195,30 +195,37 @@ class World:
         canvas = Image.new("RGBA", (math.ceil(g.size[0] / scale), math.ceil(g.size[1] / scale)))
         d = ImageDraw.Draw(canvas)
         if scene and o["particles"]:
-            if scene.sky in ("sun", "sunrise", "rainbow", "tornado", "hurricane"):
-                # Singular sky landmarks must not disappear behind an occupied key.
-                sky_key = (
-                    keys[0] if scene.sky in ("sun", "sunrise") else next((k for k in keys if k not in frames), keys[0])
-                )
-                tile = Image.new("RGBA", (math.ceil(g.width / scale), math.ceil(g.height / scale)))
-                sky(ImageDraw.Draw(tile), scene.sky, *tile.size, phase, scene.color)
-                left, top, _, _ = g.bounds(sky_key)
-                canvas.alpha_composite(tile, (left // scale, top // scale))
-            else:
-                sky(d, scene.sky, *canvas.size, phase, scene.color)
-            # Live precipitation still surrounds an active holiday celebration.
+            from .world_particles import LOCAL
+
+            def atmosphere(kind):
+                if kind in LOCAL or kind in ("sun", "sunrise", "rainbow", "tornado", "hurricane"):
+                    targets = keys if kind in LOCAL else [next((k for k in keys if k not in frames), keys[0])]
+                    for key in targets:
+                        tile = Image.new("RGBA", (math.ceil(g.width / scale), math.ceil(g.height / scale)))
+                        sky(
+                            ImageDraw.Draw(tile),
+                            kind,
+                            *tile.size,
+                            phase,
+                            scene.color,
+                            seconds=0 if o["reduced_motion"] else now,
+                            seed=key + 17,
+                        )
+                        left, top, _, _ = g.bounds(key)
+                        canvas.alpha_composite(tile, (left // scale, top // scale))
+                else:
+                    sky(d, kind, *canvas.size, phase, scene.color)
+
+            atmosphere(scene.sky)
+            # Weather keeps its own material timing around a holiday scene.
             _, weather, _ = self.service.snapshot()
             condition = o["weather_override"] or (weather.condition if weather else "")
             if o["weather"] and condition in ("rain", "snow") and condition != scene.sky:
-                sky(d, condition, *canvas.size, phase, scene.color)
+                atmosphere(condition)
         world = canvas.resize((canvas.width * scale, canvas.height * scale), Image.Resampling.NEAREST)
         result = {k: im for k, im in frames.items() if k not in keys}
         for k in keys:
             bg = world.crop(g.bounds(k))
-            if scene and scene.sky == "snow" and o["particles"]:
-                ground = ImageDraw.Draw(bg)
-                for x in range(0, g.width, 7):
-                    ground.rectangle((x, g.height - 2 - (x + k) % 3, x + 6, g.height), fill="#dbfff1")
             if bg.getbbox():
                 result[k] = bg
         play = self.interaction.frame

@@ -14,6 +14,16 @@ Props prefer an unused neighbor and avoid every key touched by a hop. With one f
 
 [Inspect every object and atmosphere effect](artwork.md). The existing `--no-props`, `--no-particles`, `--no-costumes`, `--max-keys` and `--reduced-motion` controls apply to the new artwork; the interaction controls below add short object-use sequences. Reduced motion freezes decorative animation. Restart after changing settings.
 
+## Natural weather particles
+
+Rain uses independent fast drops, varied streak lengths, and brief ground splashes. Snowflakes drift at different speeds and settle into tiny fading flecks. Leaves flutter and turn while falling, land sideways, and fade on the floor. Petals and confetti also settle before disappearing. Fog and smoke form small wisps; wind carries scattered flecks instead of repeated horizontal strips.
+
+Each free key has its own floor and particle seed. Motion follows elapsed time at the configured frame rate, so particles do not march in one repeating sheet. Existing `--no-particles`, `--reduced-motion` and `--max-keys` controls still apply; no new configuration is needed. Ground fading is an ambient visual effect, separate from Jelly's raked leaf pile.
+
+![Rain, snow and leaves at native 80px size; green keys represent occupied sessions](weather/particles-80.gif)
+
+[Native 72px preview](weather/particles-72.gif) · [Native 96px preview](weather/particles-96.gif) · [Particle review and measurements](weather/README.md)
+
 ## Jelly can use its props
 
 Jelly can approach a rake, pick it up, gather leaves, put it down and admire the pile. Other sequences include sipping cocoa, opening a gift or letter, watering a plant, bouncing a ball, spinning a dreidel, pushing a train, looking through a telescope, blowing a pinwheel, tasting a treat, building snowmen or sandcastles, and blowing out birthday candles.
