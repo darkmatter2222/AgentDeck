@@ -6,6 +6,14 @@ Jelly celebrates holidays, wears costumes, watches the weather and enjoys small 
 
 [Scene catalog](world-catalog.md) · [Design contract](../development/DESIGN_SYSTEM.md) · [Jelly settings](../reference/JELLY.md) · [CLI](../CLI.md#world)
 
+## Readable scenery and quieter motion
+
+Objects share Jelly's pixel scale: an acorn is smaller than a mug, and a tree is taller than either. Contact shadows ground solid props. Steam, flickering candles, rotating fan blades, fluttering ribbons and rippling water give each scene its own movement. Stars twinkle in place; balloons rise; leaves have lobes and veins. Clouds have lit tops and shaded undersides.
+
+Props prefer an unused neighbor and avoid every key touched by a hop. With one free key, a small corner detail sits behind Jelly. Singular sky landmarks such as the sun stay on an available key. Cloud watching deliberately uses drifting scenery without an extra foreground prop. No scene needs a large object on every button.
+
+[Inspect every object and atmosphere effect](artwork.md). The existing `--no-props`, `--no-particles`, `--no-costumes`, `--max-keys` and `--reduced-motion` controls apply to the new artwork; no new configuration is needed. Reduced motion freezes decorative animation. Restart after changing settings.
+
 ## Quick start
 
 World scenes are enabled with Jelly by default. Automatic location uses approximate IP geolocation; weather refreshes every 15 minutes. No account or API key is needed for the bundled personal-use services.

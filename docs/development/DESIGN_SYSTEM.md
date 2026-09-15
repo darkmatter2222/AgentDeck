@@ -43,11 +43,11 @@ Jelly is original procedural pixel art inspired by the readable, squash-and-stre
 
 ## Animation and layout
 
-Maintain elapsed-time positioning independently from discrete pose holds. Existing local art uses approximately 12 pose holds per second; the broker defaults to 24 FPS and caps at 30. The world layer uses an 8 Hz phase and bounded motif caches. Do not increase USB writes for unchanged images.
+Maintain elapsed-time positioning independently from discrete pose holds. Existing local art uses approximately 12 pose holds per second; the broker defaults to 24 FPS and caps at 30. The world layer uses an elapsed 8 Hz atmosphere clock without a forced global reset, 4 Hz held prop poses, and bounded motif caches. Do not increase USB writes for unchanged images.
 
 Jelly travels only between orthogonally adjacent free keys. Shared deck coordinates include virtual gaps, so effects line up across keys. A scene can occupy disconnected empty viewports, but Jelly cannot cross an occupied key. Recalculate availability every frame; never retain an ownership claim to a key.
 
-Props prefer a free neighbor of Jelly. On a single available key, use a small prop beside the character. With no space, draw nothing and wait. Prefer an attractive quiet composition over filling every pixel. Snow, stars and confetti remain sparse; avoid full-screen flashes. Reduced motion freezes world movement and scene animation while active. Global `animations=false` disables Jelly altogether.
+Props prefer a free neighbor of Jelly. On a single available key, use a small corner vignette behind the character. Author each prop at its own size on the 40px grid with the same `(20, 34)` contact anchor as Jelly; do not stretch that canvas to the key size. Prefer unoccupied adjacent keys, avoid every hop crop, and keep the character as the final foreground layer. With no space, draw nothing and wait. Prefer an attractive quiet composition over filling every pixel. Snow, stars and confetti remain sparse; avoid full-screen flashes. Reduced motion freezes world movement and scene animation while active. Global `animations=false` disables Jelly altogether.
 
 ## Interaction priorities
 
@@ -89,7 +89,8 @@ Automatic location is approximate IP geolocation, not GPS. A manual coordinate p
 | [jelly.py](../../ocdeck/jelly.py) | Character motion, state, cropped sprite |
 | [jelly_art.py](../../ocdeck/jelly_art.py) | Original body, expressions and palette |
 | [world_catalog.py](../../ocdeck/world_catalog.py) | Immutable scene recipes |
-| [world_art.py](../../ocdeck/world_art.py) | Pixel props, costumes and atmosphere |
+| [world_art.py](../../ocdeck/world_art.py) | Costume overlays and sparse atmosphere |
+| [world_props.py](../../ocdeck/world_props.py) | Sized object silhouettes, materials and held animation poses |
 | [world_calendar.py](../../ocdeck/world_calendar.py) | Cached calendar dates and priority |
 | [world_weather.py](../../ocdeck/world_weather.py) | Bounded background provider requests and snapshots |
 | [world.py](../../ocdeck/world.py) | Render-thread director, captions and compositing |
@@ -115,3 +116,5 @@ Copy this checklist into the implementation plan for a new feature:
 - **Documentation:** README value statement, linked guide, reference and release notes.
 
 Before merge, run the repository's Python and Node suites, Ruff checks, Pyright, documentation validation and package build. Inspect real renderer GIFs at native and enlarged sizes. Clearly distinguish simulated geometry checks from physical USB/device validation. Do not claim real-hardware testing without it.
+
+See the [artwork inventory and verification guide](../jelly/artwork.md) before adding a new motif. A new prop needs an identifiable silhouette, material palette, declared floor or airborne placement, and intentional motion. A static glint is appropriate for a solid object; do not make every object bounce.

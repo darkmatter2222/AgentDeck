@@ -9,6 +9,7 @@ from .world_catalog import SCENES
 from .world_calendar import active_holiday, quiet, season
 from .world_weather import local_country
 from .world_art import prop, sky
+from .world_props import AIRBORNE
 from .jelly_catalog import ACTIONS
 
 HELP_URL = "https://github.com/darkmatter2222/AgentStreamDeck/blob/main/docs/jelly/world.md#configuration"
@@ -177,38 +178,81 @@ class World:
             keys.insert(0, jelly.current)
         keys = keys[: o["max_keys"]]
         scene = SCENES.get(self.scene_id)
-        phase = 0 if o["reduced_motion"] else int(now * 8) % 240
+        phase = 0 if o["reduced_motion"] else int(now * 8)
         scale = g.scale
         canvas = Image.new("RGBA", (math.ceil(g.size[0] / scale), math.ceil(g.size[1] / scale)))
         d = ImageDraw.Draw(canvas)
         if scene and o["particles"]:
-            sky(d, scene.sky, *canvas.size, phase, scene.color)
+            if scene.sky in ("sun", "sunrise", "rainbow", "tornado", "hurricane"):
+                # Singular sky landmarks must not disappear behind an occupied key.
+                sky_key = (
+                    keys[0] if scene.sky in ("sun", "sunrise") else next((k for k in keys if k not in frames), keys[0])
+                )
+                tile = Image.new("RGBA", (math.ceil(g.width / scale), math.ceil(g.height / scale)))
+                sky(ImageDraw.Draw(tile), scene.sky, *tile.size, phase, scene.color)
+                left, top, _, _ = g.bounds(sky_key)
+                canvas.alpha_composite(tile, (left // scale, top // scale))
+            else:
+                sky(d, scene.sky, *canvas.size, phase, scene.color)
             # Live precipitation still surrounds an active holiday celebration.
             _, weather, _ = self.service.snapshot()
             condition = o["weather_override"] or (weather.condition if weather else "")
             if o["weather"] and condition in ("rain", "snow") and condition != scene.sky:
                 sky(d, condition, *canvas.size, phase, scene.color)
         world = canvas.resize((canvas.width * scale, canvas.height * scale), Image.Resampling.NEAREST)
-        result = dict(frames)
+        result = {k: im for k, im in frames.items() if k not in keys}
         for k in keys:
             bg = world.crop(g.bounds(k))
             if scene and scene.sky == "snow" and o["particles"]:
                 ground = ImageDraw.Draw(bg)
                 for x in range(0, g.width, 7):
                     ground.rectangle((x, g.height - 2 - (x + k) % 3, x + 6, g.height), fill="#dbfff1")
-            if k in frames:
-                bg.alpha_composite(frames[k])
             if bg.getbbox():
                 result[k] = bg
         if scene and scene.prop and o["props"]:
-            # Prefer an adjacent empty key. Fall back to a miniature on Jelly's own key.
-            neighbors = [k for k in g.adjacent(jelly.current) if k in keys] if jelly.current is not None else []
-            target = neighbors[0] if neighbors else jelly.current if jelly.current in keys else keys[0]
+            # Keep props out of the full set of keys touched by a hopping sprite.
+            neighbors = (
+                [k for k in g.adjacent(jelly.current) if k in keys and k not in frames]
+                if jelly.current is not None
+                else []
+            )
+            candidates = neighbors or [k for k in keys if k not in frames]
+            target = candidates[0] if candidates else jelly.current if jelly.current in keys else keys[0]
             if target is not None:
-                size = min(g.width, g.height) if target != jelly.current else min(g.width, g.height) // 3
-                icon = prop(scene.prop, (phase // 3) % 8, scene.color).resize((size, size), Image.Resampling.NEAREST)
-                bg = result.setdefault(target, Image.new("RGBA", (g.width, g.height)))
-                bg.alpha_composite(icon, ((g.width - size) // 2 if target != jelly.current else 0, g.height - size))
+                shared = target in frames
+                # Same logical scale as Jelly: no viewport-sized acorns or mugs.
+                icon = prop(scene.prop, (phase // 2) % 8, scene.color)
+                box = icon.getbbox()
+                if box:
+                    icon = icon.crop(box)
+                    factor = scale
+                    floor = g.height - 3
+                    x = g.width // 2 + (box[0] - 20) * factor
+                    y = floor + (box[1] - 34) * factor
+                    if shared:
+                        # A restrained corner vignette, composited behind Jelly.
+                        limit = max(10, g.width // 5)
+                        ratio = min(1, limit / max(icon.size))
+                        icon = icon.resize(
+                            (max(1, round(icon.width * ratio)), max(1, round(icon.height * ratio))),
+                            Image.Resampling.NEAREST,
+                        )
+                        factor = 1
+                        x, y = 2, floor - icon.height
+                    else:
+                        icon = icon.resize((icon.width * factor, icon.height * factor), Image.Resampling.NEAREST)
+                    bg = result.setdefault(target, Image.new("RGBA", (g.width, g.height)))
+                    if scene.prop not in AIRBORNE:
+                        ground = ImageDraw.Draw(bg)
+                        ground.ellipse(
+                            (max(0, x - 2), floor - 1, min(g.width - 1, x + icon.width + 2), floor + 1), fill="#20303b"
+                        )
+                    bg.alpha_composite(icon, (x, y))
+        # The character always owns the foreground, including its entire hop crop.
+        for k in keys:
+            if k in frames:
+                bg = result.setdefault(k, Image.new("RGBA", (g.width, g.height)))
+                bg.alpha_composite(frames[k])
         if jelly.current in result and jelly.state != "hop":
             if now < self.help_until:
                 tile = Image.new("RGBA", (g.width, g.height), "#09111b")

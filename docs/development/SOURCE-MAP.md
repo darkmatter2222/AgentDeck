@@ -117,3 +117,5 @@ The source is organized around a local broker, two producer paths, physical rend
 ## Related guides
 
 [Developer hub](README.md) · [Architecture](../ARCHITECTURE.md) · [API](../API.md) · [Verification record](../TEST-RESULTS.md)
+
+World object silhouettes and material animations live in [world_props.py](../../ocdeck/world_props.py); costume overlays and atmosphere remain in [world_art.py](../../ocdeck/world_art.py). Review their [complete artwork gallery](../jelly/artwork.md).

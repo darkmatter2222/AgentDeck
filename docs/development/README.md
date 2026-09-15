@@ -49,6 +49,8 @@ python scripts/preview_jelly_life.py
 python scripts/preview_jelly_v3.py
 python scripts/preview_jelly_update.py
 python scripts/preview_coffee.py
+python scripts/preview_world.py
+python scripts/preview_world_art.py
 ```
 
 The v3 showcase generator also requires ffmpeg with H.264 encoding support. Some preview helpers save a QA still under /tmp and assume that directory exists; they were authored on Linux. The hero and galleries are renderer demonstrations. Keep the original YouTube hardware link in the README and media index; regenerating a GIF is not a replacement for that walkthrough. Preserve valid media filenames so incoming links continue working.
