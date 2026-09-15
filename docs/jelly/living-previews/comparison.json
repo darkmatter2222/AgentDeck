@@ -1,0 +1,59 @@
+{
+  "method": "600 frames at 24Hz simulated time; first 60 excluded from warm statistics; seed 6; all keys free; same scene, different activity poses; CPU offline composition only. First frame is not isolated-process cold-cache measurement.",
+  "results": [
+    {
+      "size": 72,
+      "keys": 6,
+      "living_world": false,
+      "first_frame_ms": 72.45266199970501,
+      "median_ms": 0.3207855006621685,
+      "mean_ms": 0.3890889315664902,
+      "p95_ms": 0.6853160011814907
+    },
+    {
+      "size": 72,
+      "keys": 6,
+      "living_world": true,
+      "first_frame_ms": 0.7642439995834138,
+      "median_ms": 0.46686649875482544,
+      "mean_ms": 0.6084385834414947,
+      "p95_ms": 1.4038789995538536
+    },
+    {
+      "size": 80,
+      "keys": 15,
+      "living_world": false,
+      "first_frame_ms": 0.6436449984903447,
+      "median_ms": 0.6524760010506725,
+      "mean_ms": 0.7696983851053153,
+      "p95_ms": 1.5529709999100305
+    },
+    {
+      "size": 80,
+      "keys": 15,
+      "living_world": true,
+      "first_frame_ms": 0.733656001102645,
+      "median_ms": 0.9669825012679212,
+      "mean_ms": 1.1480096833245759,
+      "p95_ms": 2.0418390013219323
+    },
+    {
+      "size": 96,
+      "keys": 32,
+      "living_world": false,
+      "first_frame_ms": 2.8384489996824414,
+      "median_ms": 1.2564284988911822,
+      "mean_ms": 1.444233772269433,
+      "p95_ms": 2.4419580004177988
+    },
+    {
+      "size": 96,
+      "keys": 32,
+      "living_world": true,
+      "first_frame_ms": 4.765243000292685,
+      "median_ms": 2.6305174997105496,
+      "mean_ms": 2.862741009273493,
+      "p95_ms": 4.433849000633927
+    }
+  ]
+}

@@ -32,6 +32,10 @@ Interactions are enabled by default. `interaction_seconds` (12–300, default 24
 
 The director checks free keys every frame, uses Jelly's existing adjacent-key hops and never reserves a session button. A single free key gets a compact shared scene. A tap, hold/help, menu, agent attention, update, coffee break, scene change or reclaimed key cancels object use. Existing agent and physical-button actions retain priority. Outcomes remain on their original key until cancellation, scene change or the next activity.
 
+## Living-world development preview
+
+The unfinished new object director is opt-in: `ocdeck world configure --living-world`; use `--no-living-world` to return to the shipped behavior. `living_world=false` is the default. [Implementation status, known gaps and reproducible previews](living-world-development.md). Restart after changing settings.
+
 ## Quick start
 
 World scenes are enabled with Jelly by default. Automatic location uses approximate IP geolocation; weather refreshes every 15 minutes. No account or API key is needed for the bundled personal-use services.

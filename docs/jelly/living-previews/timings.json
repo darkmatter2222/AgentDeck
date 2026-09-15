@@ -1,0 +1,580 @@
+[
+  {
+    "name": "autumn_rake-72",
+    "stage_timeline": [
+      {
+        "time": 0.0,
+        "stage": "ordinary",
+        "actor": 0,
+        "target": null
+      },
+      {
+        "time": 0.6666666666666666,
+        "stage": "notice",
+        "actor": 0,
+        "target": 5
+      },
+      {
+        "time": 1.5,
+        "stage": "approach",
+        "actor": 0,
+        "target": 5
+      },
+      {
+        "time": 7.083333333333333,
+        "stage": "position",
+        "actor": 5,
+        "target": 5
+      },
+      {
+        "time": 7.75,
+        "stage": "reach",
+        "actor": 5,
+        "target": 5
+      },
+      {
+        "time": 8.583333333333334,
+        "stage": "carry",
+        "actor": 5,
+        "target": 5
+      },
+      {
+        "time": 10.5,
+        "stage": "work_position",
+        "actor": 2,
+        "target": 2
+      },
+      {
+        "time": 11.166666666666666,
+        "stage": "use",
+        "actor": 2,
+        "target": 2
+      },
+      {
+        "time": 17.166666666666668,
+        "stage": "return",
+        "actor": 2,
+        "target": 2
+      },
+      {
+        "time": 19.083333333333332,
+        "stage": "return_position",
+        "actor": 5,
+        "target": 5
+      },
+      {
+        "time": 19.75,
+        "stage": "putdown",
+        "actor": 5,
+        "target": 5
+      },
+      {
+        "time": 20.583333333333332,
+        "stage": "admire",
+        "actor": 5,
+        "target": 5
+      },
+      {
+        "time": 22.583333333333332,
+        "stage": "rest",
+        "actor": 5,
+        "target": 5
+      }
+    ],
+    "frames": 309,
+    "mean_ms": 1.5542439935542605,
+    "max_ms": 119.3431440005952
+  },
+  {
+    "name": "autumn_rake-80",
+    "stage_timeline": [
+      {
+        "time": 0.0,
+        "stage": "ordinary",
+        "actor": 0,
+        "target": null
+      },
+      {
+        "time": 0.6666666666666666,
+        "stage": "notice",
+        "actor": 0,
+        "target": 12
+      },
+      {
+        "time": 1.5,
+        "stage": "approach",
+        "actor": 0,
+        "target": 12
+      },
+      {
+        "time": 8.916666666666666,
+        "stage": "position",
+        "actor": 12,
+        "target": 12
+      },
+      {
+        "time": 9.583333333333334,
+        "stage": "reach",
+        "actor": 12,
+        "target": 12
+      },
+      {
+        "time": 10.416666666666666,
+        "stage": "carry",
+        "actor": 12,
+        "target": 12
+      },
+      {
+        "time": 12.333333333333334,
+        "stage": "work_position",
+        "actor": 7,
+        "target": 7
+      },
+      {
+        "time": 13.0,
+        "stage": "use",
+        "actor": 7,
+        "target": 7
+      },
+      {
+        "time": 19.0,
+        "stage": "return",
+        "actor": 7,
+        "target": 7
+      },
+      {
+        "time": 20.916666666666668,
+        "stage": "return_position",
+        "actor": 12,
+        "target": 12
+      },
+      {
+        "time": 21.583333333333332,
+        "stage": "putdown",
+        "actor": 12,
+        "target": 12
+      },
+      {
+        "time": 22.416666666666668,
+        "stage": "admire",
+        "actor": 12,
+        "target": 12
+      },
+      {
+        "time": 24.416666666666668,
+        "stage": "rest",
+        "actor": 12,
+        "target": 12
+      }
+    ],
+    "frames": 331,
+    "mean_ms": 1.6935804260658485,
+    "max_ms": 6.9654210019507445
+  },
+  {
+    "name": "autumn_rake-96",
+    "stage_timeline": [
+      {
+        "time": 0.0,
+        "stage": "ordinary",
+        "actor": 0,
+        "target": null
+      },
+      {
+        "time": 0.6666666666666666,
+        "stage": "notice",
+        "actor": 0,
+        "target": 26
+      },
+      {
+        "time": 1.5,
+        "stage": "approach",
+        "actor": 0,
+        "target": 26
+      },
+      {
+        "time": 10.75,
+        "stage": "position",
+        "actor": 26,
+        "target": 26
+      },
+      {
+        "time": 11.416666666666666,
+        "stage": "reach",
+        "actor": 26,
+        "target": 26
+      },
+      {
+        "time": 12.25,
+        "stage": "carry",
+        "actor": 26,
+        "target": 26
+      },
+      {
+        "time": 17.833333333333332,
+        "stage": "work_position",
+        "actor": 16,
+        "target": 16
+      },
+      {
+        "time": 18.5,
+        "stage": "use",
+        "actor": 16,
+        "target": 16
+      },
+      {
+        "time": 24.5,
+        "stage": "return",
+        "actor": 16,
+        "target": 16
+      },
+      {
+        "time": 30.083333333333332,
+        "stage": "return_position",
+        "actor": 26,
+        "target": 26
+      },
+      {
+        "time": 30.75,
+        "stage": "putdown",
+        "actor": 26,
+        "target": 26
+      },
+      {
+        "time": 31.583333333333332,
+        "stage": "admire",
+        "actor": 26,
+        "target": 26
+      },
+      {
+        "time": 33.583333333333336,
+        "stage": "rest",
+        "actor": 26,
+        "target": 26
+      }
+    ],
+    "frames": 441,
+    "mean_ms": 5.115174517042612,
+    "max_ms": 90.9880899998825
+  },
+  {
+    "name": "autumn_cocoa-72",
+    "stage_timeline": [
+      {
+        "time": 0.0,
+        "stage": "ordinary",
+        "actor": 0,
+        "target": null
+      },
+      {
+        "time": 0.6666666666666666,
+        "stage": "notice",
+        "actor": 0,
+        "target": 5
+      },
+      {
+        "time": 1.5,
+        "stage": "approach",
+        "actor": 0,
+        "target": 5
+      },
+      {
+        "time": 7.083333333333333,
+        "stage": "position",
+        "actor": 5,
+        "target": 5
+      },
+      {
+        "time": 7.75,
+        "stage": "reach",
+        "actor": 5,
+        "target": 5
+      },
+      {
+        "time": 8.583333333333334,
+        "stage": "use",
+        "actor": 5,
+        "target": 5
+      },
+      {
+        "time": 14.583333333333334,
+        "stage": "putdown",
+        "actor": 5,
+        "target": 5
+      },
+      {
+        "time": 15.416666666666666,
+        "stage": "admire",
+        "actor": 5,
+        "target": 5
+      },
+      {
+        "time": 17.416666666666668,
+        "stage": "rest",
+        "actor": 5,
+        "target": 5
+      }
+    ],
+    "frames": 247,
+    "mean_ms": 0.5361116639281168,
+    "max_ms": 3.1058429995027836
+  },
+  {
+    "name": "autumn_cocoa-80",
+    "stage_timeline": [
+      {
+        "time": 0.0,
+        "stage": "ordinary",
+        "actor": 0,
+        "target": null
+      },
+      {
+        "time": 0.6666666666666666,
+        "stage": "notice",
+        "actor": 0,
+        "target": 12
+      },
+      {
+        "time": 1.5,
+        "stage": "approach",
+        "actor": 0,
+        "target": 12
+      },
+      {
+        "time": 8.916666666666666,
+        "stage": "position",
+        "actor": 12,
+        "target": 12
+      },
+      {
+        "time": 9.583333333333334,
+        "stage": "reach",
+        "actor": 12,
+        "target": 12
+      },
+      {
+        "time": 10.416666666666666,
+        "stage": "use",
+        "actor": 12,
+        "target": 12
+      },
+      {
+        "time": 16.416666666666668,
+        "stage": "putdown",
+        "actor": 12,
+        "target": 12
+      },
+      {
+        "time": 17.25,
+        "stage": "admire",
+        "actor": 12,
+        "target": 12
+      },
+      {
+        "time": 19.25,
+        "stage": "rest",
+        "actor": 12,
+        "target": 12
+      }
+    ],
+    "frames": 269,
+    "mean_ms": 1.3155047582555692,
+    "max_ms": 7.035880000330508
+  },
+  {
+    "name": "autumn_cocoa-96",
+    "stage_timeline": [
+      {
+        "time": 0.0,
+        "stage": "ordinary",
+        "actor": 0,
+        "target": null
+      },
+      {
+        "time": 0.6666666666666666,
+        "stage": "notice",
+        "actor": 0,
+        "target": 26
+      },
+      {
+        "time": 1.5,
+        "stage": "approach",
+        "actor": 0,
+        "target": 26
+      },
+      {
+        "time": 10.75,
+        "stage": "position",
+        "actor": 26,
+        "target": 26
+      },
+      {
+        "time": 11.416666666666666,
+        "stage": "reach",
+        "actor": 26,
+        "target": 26
+      },
+      {
+        "time": 12.25,
+        "stage": "use",
+        "actor": 26,
+        "target": 26
+      },
+      {
+        "time": 18.25,
+        "stage": "putdown",
+        "actor": 26,
+        "target": 26
+      },
+      {
+        "time": 19.083333333333332,
+        "stage": "admire",
+        "actor": 26,
+        "target": 26
+      },
+      {
+        "time": 21.083333333333332,
+        "stage": "rest",
+        "actor": 26,
+        "target": 26
+      }
+    ],
+    "frames": 291,
+    "mean_ms": 3.3073786529512352,
+    "max_ms": 8.75837100102217
+  },
+  {
+    "name": "autumn_rake-72-takeover",
+    "stage_timeline": [
+      {
+        "time": 0.0,
+        "stage": "ordinary",
+        "actor": 0,
+        "target": null
+      },
+      {
+        "time": 0.6666666666666666,
+        "stage": "notice",
+        "actor": 0,
+        "target": 5
+      },
+      {
+        "time": 1.5,
+        "stage": "approach",
+        "actor": 0,
+        "target": 5
+      },
+      {
+        "time": 7.083333333333333,
+        "stage": "position",
+        "actor": 5,
+        "target": 5
+      },
+      {
+        "time": 7.75,
+        "stage": "reach",
+        "actor": 5,
+        "target": 5
+      },
+      {
+        "time": 8.583333333333334,
+        "stage": "carry",
+        "actor": 5,
+        "target": 5
+      },
+      {
+        "time": 10.5,
+        "stage": "work_position",
+        "actor": 2,
+        "target": 2
+      },
+      {
+        "time": 11.166666666666666,
+        "stage": "use",
+        "actor": 2,
+        "target": 2
+      },
+      {
+        "time": 12.083333333333334,
+        "stage": "ordinary",
+        "actor": 2,
+        "target": null
+      },
+      {
+        "time": 15.083333333333334,
+        "stage": "notice",
+        "actor": 2,
+        "target": 4
+      },
+      {
+        "time": 15.916666666666666,
+        "stage": "approach",
+        "actor": 2,
+        "target": 4
+      },
+      {
+        "time": 19.666666666666668,
+        "stage": "position",
+        "actor": 4,
+        "target": 4
+      },
+      {
+        "time": 20.333333333333332,
+        "stage": "reach",
+        "actor": 4,
+        "target": 4
+      },
+      {
+        "time": 21.166666666666668,
+        "stage": "carry",
+        "actor": 4,
+        "target": 4
+      },
+      {
+        "time": 24.916666666666668,
+        "stage": "work_position",
+        "actor": 0,
+        "target": 0
+      },
+      {
+        "time": 25.583333333333332,
+        "stage": "use",
+        "actor": 0,
+        "target": 0
+      },
+      {
+        "time": 30.75,
+        "stage": "return",
+        "actor": 0,
+        "target": 0
+      },
+      {
+        "time": 34.5,
+        "stage": "return_position",
+        "actor": 4,
+        "target": 4
+      },
+      {
+        "time": 35.166666666666664,
+        "stage": "putdown",
+        "actor": 4,
+        "target": 4
+      },
+      {
+        "time": 36.0,
+        "stage": "admire",
+        "actor": 4,
+        "target": 4
+      },
+      {
+        "time": 38.0,
+        "stage": "rest",
+        "actor": 4,
+        "target": 4
+      }
+    ],
+    "frames": 480,
+    "mean_ms": 0.6485075771176222,
+    "max_ms": 4.685795996920206
+  }
+]

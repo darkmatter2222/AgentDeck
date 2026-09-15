@@ -438,6 +438,7 @@ Configure holiday, weather and seasonal scenes in `jelly.ini`. Restart the broke
 | `costumes` | `true` | `--costumes` / `--no-costumes` |
 | `particles` | `true` | `--particles` / `--no-particles` |
 | `props` | `true` | `--props` / `--no-props` |
+| `living_world` | `false` | `--living-world` / `--no-living-world` (unfinished development director; restart required) |
 | `interactions` | `true` | `--interactions` / `--no-interactions` |
 | `interaction_seconds` | `24` | `--interaction-seconds` (12–300) |
 | `captions` | `true` | `--captions` / `--no-captions` |
