@@ -9,7 +9,7 @@ from ocdeck.world import World
 from ocdeck.world_settings import settings, read_ini
 from ocdeck.world_weather import WeatherService
 from ocdeck.world_catalog import SCENES
-from ocdeck.world_interactions import RECIPES
+from ocdeck.world_legacy_interactions import RECIPES
 from ocdeck.world_cli import add_parser, save
 
 

@@ -1,0 +1,1037 @@
+{
+  "schema_version": 1,
+  "baseline": "e8c88471797cbf70b01112e00bf24d0ae65ad12b",
+  "props": {
+    "acorn": {
+      "action": "plant",
+      "support": "soil",
+      "intended": {
+        "name": "Acorn",
+        "placement": "On soil or in a little collection tray",
+        "interaction": "Hop over, lift, turn to examine, then plant or collect",
+        "outcome": "Acorn enters soil or tray; later sprout or collection persists"
+      },
+      "review": "pending"
+    },
+    "balloon": {
+      "action": "retie",
+      "support": "post",
+      "intended": {
+        "name": "Balloon",
+        "placement": "Tied to a low post with visible string",
+        "interaction": "Untie, hold string, walk/hop with buoyant balloon, retie",
+        "outcome": "String stays attached; balloon trails and settles at new support"
+      },
+      "review": "pending"
+    },
+    "beachball": {
+      "action": "chase",
+      "support": "floor",
+      "intended": {
+        "name": "Beachball",
+        "placement": "Resting on sand/ground",
+        "interaction": "Approach, nudge, chase, stop it with a second contact",
+        "outcome": "Ball rolls, slows, and rests; play has a clear endpoint"
+      },
+      "review": "pending"
+    },
+    "broom": {
+      "action": "sweep",
+      "support": "rack",
+      "intended": {
+        "name": "Broom",
+        "placement": "Leaning against rack, bristles grounded",
+        "interaction": "Fetch and sweep visible debris",
+        "outcome": "Debris collects; broom returns to support"
+      },
+      "review": "pending"
+    },
+    "cake": {
+      "action": "candles",
+      "support": "plate",
+      "intended": {
+        "name": "Cake",
+        "placement": "On a small plate or stand",
+        "interaction": "Approach, blow candles, take a small serving",
+        "outcome": "Flames extinguish; serving visibly changes; plate is cleared"
+      },
+      "review": "pending"
+    },
+    "candy": {
+      "action": "unwrap_eat",
+      "support": "tray",
+      "intended": {
+        "name": "Candy",
+        "placement": "Wrapped on a tray",
+        "interaction": "Pick up, unwrap, taste, collect wrapper",
+        "outcome": "Wrapper and candy states differ; litter is removed"
+      },
+      "review": "pending"
+    },
+    "canister": {
+      "action": "smoke_show",
+      "support": "floor",
+      "intended": {
+        "name": "Canister",
+        "placement": "Upright on floor/shelf",
+        "interaction": "Open and use contents appropriate to its actual identity",
+        "outcome": "Lid and contents change; close and store; first verify what current art represents"
+      },
+      "review": "pending"
+    },
+    "clock": {
+      "action": "wind_clock",
+      "support": "stand",
+      "intended": {
+        "name": "Clock",
+        "placement": "Mounted or on a stable stand",
+        "interaction": "Approach and wind or adjust it; respond when it rings",
+        "outcome": "Hands/bell react; Jelly begins a related routine"
+      },
+      "review": "pending"
+    },
+    "cloud": {
+      "action": "shelter",
+      "support": "sky",
+      "intended": {
+        "name": "Cloud",
+        "placement": "In sky, clearly distinct from a solid toy",
+        "interaction": "Visit a viewing spot; follow drift and respond to its shadow or drizzle",
+        "outcome": "Shadow or rain changes ground; Jelly seeks cover or enjoys the clearing"
+      },
+      "review": "pending"
+    },
+    "clover": {
+      "action": "water",
+      "support": "soil",
+      "intended": {
+        "name": "Clover",
+        "placement": "Rooted in a small soil patch",
+        "interaction": "Tend, gently inspect leaves, water",
+        "outcome": "Leaves lift or growth state improves; plant stays rooted"
+      },
+      "review": "pending"
+    },
+    "cocoa": {
+      "action": "drink",
+      "support": "coaster",
+      "intended": {
+        "name": "Cocoa",
+        "placement": "On a coaster or low table",
+        "interaction": "Lift, blow steam, sip, return",
+        "outcome": "Steam and liquid diminish; cup returns to coaster"
+      },
+      "review": "Initial native stage contact sheets inspected: cup travels to grip and liquid drains; sip pose and mouth contact refinement pending."
+    },
+    "crescent": {
+      "action": "moonwatch",
+      "support": "sky",
+      "intended": {
+        "name": "Crescent",
+        "placement": "Celestial, not a loose floor object",
+        "interaction": "Visit telescope or viewing spot and track moon",
+        "outcome": "Telescope aims; reflection or moonlight scene responds; bedtime follows"
+      },
+      "review": "pending"
+    },
+    "diya": {
+      "action": "tend_wick",
+      "support": "tray",
+      "intended": {
+        "name": "Diya",
+        "placement": "Stable tray with clear base",
+        "interaction": "Carry/set tray, carefully tend wick, admire light",
+        "outcome": "Flame and local glow change; tray remains supported"
+      },
+      "review": "pending"
+    },
+    "dreidel": {
+      "action": "spin",
+      "support": "floor",
+      "intended": {
+        "name": "Dreidel",
+        "placement": "On a clear play surface",
+        "interaction": "Pick up, set, spin, follow wobble",
+        "outcome": "Spin slows, tips, and rests; Jelly retrieves it"
+      },
+      "review": "pending"
+    },
+    "eggs": {
+      "action": "decorate_egg",
+      "support": "basket",
+      "intended": {
+        "name": "Eggs",
+        "placement": "In nest or decorated basket",
+        "interaction": "Lift/turn one and decorate or arrange",
+        "outcome": "Egg pattern/arrangement changes; egg returns to basket"
+      },
+      "review": "pending"
+    },
+    "fan": {
+      "action": "switch_fan",
+      "support": "stand",
+      "intended": {
+        "name": "Fan",
+        "placement": "On stand or held with a proper grip",
+        "interaction": "Switch on/adjust or use hand fan according to design",
+        "outcome": "Blades/folds move; nearby ribbon and Jelly react to airflow"
+      },
+      "review": "pending"
+    },
+    "feast": {
+      "action": "picnic",
+      "support": "plate",
+      "intended": {
+        "name": "Feast",
+        "placement": "Small picnic setting",
+        "interaction": "Arrange a place, sit, take a portion, tidy",
+        "outcome": "Portions change and setting is packed away"
+      },
+      "review": "pending"
+    },
+    "flower": {
+      "action": "water",
+      "support": "soil",
+      "intended": {
+        "name": "Flower",
+        "placement": "Rooted or in a supported pot",
+        "interaction": "Water, smell with visible lean, remove a fallen petal",
+        "outcome": "Bloom/leaf state changes; petal is collected"
+      },
+      "review": "pending"
+    },
+    "fountain": {
+      "action": "fill_water",
+      "support": "basin",
+      "intended": {
+        "name": "Fountain",
+        "placement": "Basin on ground",
+        "interaction": "Approach edge, dip/fill a small container, water a plant",
+        "outcome": "Ripples and container water connect fountain to another task"
+      },
+      "review": "pending"
+    },
+    "gift": {
+      "action": "unwrap",
+      "support": "floor",
+      "intended": {
+        "name": "Gift",
+        "placement": "Grounded box with ribbon",
+        "interaction": "Carry to open space, untie, open",
+        "outcome": "Revealed usable item joins play; wrapping is folded away"
+      },
+      "review": "pending"
+    },
+    "globe": {
+      "action": "spin_globe",
+      "support": "stand",
+      "intended": {
+        "name": "Globe",
+        "placement": "On a small stand",
+        "interaction": "Approach, spin with contact, stop and examine a point",
+        "outcome": "Globe rotates and slows; chosen location becomes a short thought/memory"
+      },
+      "review": "pending"
+    },
+    "grass": {
+      "action": "trim",
+      "support": "soil",
+      "intended": {
+        "name": "Grass",
+        "placement": "Rooted turf",
+        "interaction": "Tend or trim a patch using an appropriate tool",
+        "outcome": "Patch height changes; clippings collect"
+      },
+      "review": "pending"
+    },
+    "heart": {
+      "action": "hug",
+      "support": "tray",
+      "intended": {
+        "name": "Heart",
+        "placement": "Explicit tangible token/cushion, or explicit effect",
+        "interaction": "Carry token to a keepsake place or hug a cushion",
+        "outcome": "Token is stored or cushion compresses; avoid unexplained floating solid heart"
+      },
+      "review": "pending"
+    },
+    "icicles": {
+      "action": "catch_drips",
+      "support": "ledge",
+      "intended": {
+        "name": "Icicles",
+        "placement": "Attached beneath a ledge",
+        "interaction": "Notice drip, place a bowl beneath, return later",
+        "outcome": "Drops accumulate; icicle slowly shortens; no floating ice sticks"
+      },
+      "review": "pending"
+    },
+    "kite": {
+      "action": "fly",
+      "support": "rack",
+      "intended": {
+        "name": "Kite",
+        "placement": "Folded on ground or stored on rack",
+        "interaction": "Fetch, unfold, run/hop to launch, hold spool, reel in",
+        "outcome": "Kite responds to wind; string remains connected; folds for storage"
+      },
+      "review": "pending"
+    },
+    "lamp": {
+      "action": "read_light",
+      "support": "stand",
+      "intended": {
+        "name": "Lamp",
+        "placement": "Stable base on floor/table",
+        "interaction": "Approach switch, turn on, settle nearby for quiet activity",
+        "outcome": "Light changes and supports reading/rest; switch off afterward"
+      },
+      "review": "pending"
+    },
+    "lantern": {
+      "action": "hang",
+      "support": "hook",
+      "intended": {
+        "name": "Lantern",
+        "placement": "Hook, stand, or grounded base",
+        "interaction": "Carry by handle and hang at a destination",
+        "outcome": "Swing settles from attachment; local lighting changes"
+      },
+      "review": "pending"
+    },
+    "leaf": {
+      "action": "press_leaf",
+      "support": "floor",
+      "intended": {
+        "name": "Leaf",
+        "placement": "On ground after a visible fall",
+        "interaction": "Catch or collect; add to pile or press in a keepsake",
+        "outcome": "Leaf moves through contact and ends in a deliberate location"
+      },
+      "review": "pending"
+    },
+    "lemonade": {
+      "action": "drink",
+      "support": "coaster",
+      "intended": {
+        "name": "Lemonade",
+        "placement": "Glass on coaster/tray",
+        "interaction": "Pick up and sip, then return",
+        "outcome": "Liquid level falls; glass stays upright and returns to support"
+      },
+      "review": "pending"
+    },
+    "letter": {
+      "action": "read_letter",
+      "support": "mat",
+      "intended": {
+        "name": "Letter",
+        "placement": "On mat or in a small mailbox",
+        "interaction": "Collect, open, unfold, read, fold and store",
+        "outcome": "Envelope/paper states and keepsake storage are visible"
+      },
+      "review": "pending"
+    },
+    "menorah": {
+      "action": "light_candles",
+      "support": "stand",
+      "intended": {
+        "name": "Menorah",
+        "placement": "Stable shelf/table",
+        "interaction": "Approach and tend/display lights with an appropriate gesture",
+        "outcome": "Correct modeled lights and subtle illumination; verify cultural depiction"
+      },
+      "review": "pending"
+    },
+    "mittens": {
+      "action": "wear",
+      "support": "rack",
+      "intended": {
+        "name": "Mittens",
+        "placement": "On a rack or folded pair",
+        "interaction": "Fetch, put on before cold play, remove afterward",
+        "outcome": "Wearable attachments follow Jelly; mittens return as a pair"
+      },
+      "review": "pending"
+    },
+    "music": {
+      "action": "lullaby",
+      "support": "effect",
+      "intended": {
+        "name": "Music",
+        "placement": "Define source: instrument or music box; notes are effects",
+        "interaction": "Operate the source, play a short rhythm, dance to it",
+        "outcome": "Source movement produces timed notes; stop and close/store source"
+      },
+      "review": "pending"
+    },
+    "pie": {
+      "action": "serve",
+      "support": "plate",
+      "intended": {
+        "name": "Pie",
+        "placement": "On a plate/cooling sill",
+        "interaction": "Approach, smell steam, take a slice/portion",
+        "outcome": "Pie visibly changes; plate and crumbs are cleared"
+      },
+      "review": "pending"
+    },
+    "pinwheel": {
+      "action": "blow",
+      "support": "stand",
+      "intended": {
+        "name": "Pinwheel",
+        "placement": "Stem planted or handle stored",
+        "interaction": "Pick up, blow, then hold in breeze",
+        "outcome": "Spin rate follows blowing/wind and decays; return stem to holder"
+      },
+      "review": "pending"
+    },
+    "popsicle": {
+      "action": "lick",
+      "support": "tray",
+      "intended": {
+        "name": "Popsicle",
+        "placement": "Holder or freshly obtained treat",
+        "interaction": "Lift and taste while holding stick",
+        "outcome": "Treat shrinks slightly; drip and stick are handled"
+      },
+      "review": "pending"
+    },
+    "pot": {
+      "action": "count_coins",
+      "support": "floor",
+      "intended": {
+        "name": "Pot",
+        "placement": "Supported pot with identity clarified from art",
+        "interaction": "Plant into a planter, or stir a cooking pot if that is its identity",
+        "outcome": "Soil/plant or contents change; do not mix incompatible meanings"
+      },
+      "review": "pending"
+    },
+    "powder": {
+      "action": "pour_pattern",
+      "support": "tray",
+      "intended": {
+        "name": "Powder",
+        "placement": "Small pile/container, with material identified",
+        "interaction": "Scoop/sprinkle or brush into a pattern",
+        "outcome": "Material transfers and leaves a shaped result; avoid generic mystery pixels"
+      },
+      "review": "pending"
+    },
+    "puddle": {
+      "action": "splash",
+      "support": "water",
+      "intended": {
+        "name": "Puddle",
+        "placement": "Flat on ground with reflection",
+        "interaction": "Approach, test with a toe, hop through, shake droplets",
+        "outcome": "Contact produces ripples/splash; puddle gradually dries"
+      },
+      "review": "pending"
+    },
+    "pumpkin": {
+      "action": "tend_pumpkin",
+      "support": "floor",
+      "intended": {
+        "name": "Pumpkin",
+        "placement": "Grounded on patch or low stand",
+        "interaction": "Roll into place, clean, decorate",
+        "outcome": "Face/pattern changes; pumpkin remains supported"
+      },
+      "review": "pending"
+    },
+    "rake": {
+      "action": "rake",
+      "support": "rack",
+      "intended": {
+        "name": "Rake",
+        "placement": "Head grounded, handle against visible support",
+        "interaction": "Fetch, carry, rake contacting leaves, return",
+        "outcome": "Leaves form pile; tool rests against support again"
+      },
+      "review": "Initial native stage contact sheets inspected: travel and tool support visible; contact, return and pile-play refinement pending."
+    },
+    "rangoli": {
+      "action": "finish_pattern",
+      "support": "floor",
+      "intended": {
+        "name": "Rangoli",
+        "placement": "Ground-level pattern with material bowl",
+        "interaction": "Carry colors and place successive strokes/dots",
+        "outcome": "Pattern visibly develops; excess material is tidied respectfully"
+      },
+      "review": "pending"
+    },
+    "rocket": {
+      "action": "launch",
+      "support": "stand",
+      "intended": {
+        "name": "Rocket",
+        "placement": "Clearly a toy on a launch base",
+        "interaction": "Position toy, trigger launch, watch, retrieve landed toy",
+        "outcome": "Authored launch arc and landing; no unexplained perpetual hover"
+      },
+      "review": "pending"
+    },
+    "sandcastle": {
+      "action": "build_sand",
+      "support": "soil",
+      "intended": {
+        "name": "Sandcastle",
+        "placement": "On sand patch with small bucket",
+        "interaction": "Fetch sand, pack/invert bucket, pat towers",
+        "outcome": "Castle grows through discrete stages; tools are stored"
+      },
+      "review": "pending"
+    },
+    "scythe": {
+      "action": "harvest",
+      "support": "rack",
+      "intended": {
+        "name": "Scythe",
+        "placement": "Blade grounded/covered on tool rack",
+        "interaction": "Carry with controlled pose and harvest a grass patch",
+        "outcome": "Grass becomes gathered cuttings; tool returns safely to rack"
+      },
+      "review": "pending"
+    },
+    "seedling": {
+      "action": "water",
+      "support": "soil",
+      "intended": {
+        "name": "Seedling",
+        "placement": "Rooted in soil/planter",
+        "interaction": "Fetch water, pour at roots, inspect",
+        "outcome": "Moisture and growth state change over later visits"
+      },
+      "review": "pending"
+    },
+    "sled": {
+      "action": "ride",
+      "support": "floor",
+      "intended": {
+        "name": "Sled",
+        "placement": "Runners resting on snow",
+        "interaction": "Pull by rope to start, sit, slide, step off, retrieve",
+        "outcome": "Sled travels along a valid local slope/path and comes to rest"
+      },
+      "review": "pending"
+    },
+    "snowangel": {
+      "action": "snow_angel",
+      "support": "snow",
+      "intended": {
+        "name": "Snowangel",
+        "placement": "Result drawn into snow, not a floating item",
+        "interaction": "Hop to fresh snow, lie back, sweep limbs/body, rise",
+        "outcome": "Matching imprint remains; Jelly looks back at its work"
+      },
+      "review": "pending"
+    },
+    "snowball": {
+      "action": "roll_snow",
+      "support": "snow",
+      "intended": {
+        "name": "Snowball",
+        "placement": "Resting in snow",
+        "interaction": "Roll to grow, lift or push toward snowman/play target",
+        "outcome": "Size/position changes; ball is incorporated or breaks into snow"
+      },
+      "review": "pending"
+    },
+    "snowflake": {
+      "action": "catch_flake",
+      "support": "sky",
+      "intended": {
+        "name": "Snowflake",
+        "placement": "Falling particle or caught crystal",
+        "interaction": "Move to catch it and hold still to inspect",
+        "outcome": "Flake lands at contact point and melts to a droplet"
+      },
+      "review": "pending"
+    },
+    "snowman": {
+      "action": "build_snow",
+      "support": "snow",
+      "intended": {
+        "name": "Snowman",
+        "placement": "Grounded snow structure",
+        "interaction": "Roll and stack balls, add recognizable details",
+        "outcome": "Build stages persist; Jelly revisits or repairs later"
+      },
+      "review": "pending"
+    },
+    "sweets": {
+      "action": "serve",
+      "support": "plate",
+      "intended": {
+        "name": "Sweets",
+        "placement": "Small tray/bowl",
+        "interaction": "Select a piece, taste, offer/arrange remaining pieces",
+        "outcome": "Count/arrangement changes; bowl remains supported"
+      },
+      "review": "pending"
+    },
+    "telescope": {
+      "action": "aim",
+      "support": "tripod",
+      "intended": {
+        "name": "Telescope",
+        "placement": "Grounded tripod at viewing spot",
+        "interaction": "Hop over, approach eyepiece, adjust aim, observe",
+        "outcome": "Tube tracks an actual sky target; Jelly withdraws coherently"
+      },
+      "review": "pending"
+    },
+    "train": {
+      "action": "drive",
+      "support": "track",
+      "intended": {
+        "name": "Train",
+        "placement": "Wheels on short track or flat floor",
+        "interaction": "Set on track, push, follow, stop and return",
+        "outcome": "Wheels and translation agree; train rests at a small station"
+      },
+      "review": "pending"
+    },
+    "tree": {
+      "action": "decorate_tree",
+      "support": "soil",
+      "intended": {
+        "name": "Tree",
+        "placement": "Trunk rooted in ground/planter",
+        "interaction": "Water roots, collect fallen material, hang a small keepsake",
+        "outcome": "Tree condition or decoration changes and remains visible"
+      },
+      "review": "pending"
+    },
+    "window": {
+      "action": "close_window",
+      "support": "wall",
+      "intended": {
+        "name": "Window",
+        "placement": "Mounted in an implied wall",
+        "interaction": "Approach latch, open/close, look out, wipe condensation",
+        "outcome": "Pane state controls breeze/rain entry and view; no free-floating frame"
+      },
+      "review": "pending"
+    },
+    "windsock": {
+      "action": "check_wind",
+      "support": "post",
+      "intended": {
+        "name": "Windsock",
+        "placement": "Attached to a grounded pole",
+        "interaction": "Approach, raise or adjust it, observe before flying kite",
+        "outcome": "Fabric responds to wind and informs Jelly\u2019s next activity"
+      },
+      "review": "pending"
+    }
+  },
+  "atmospheres": {
+    "balloons": {
+      "opportunity": "balloon",
+      "review": "pending"
+    },
+    "butterflies": {
+      "opportunity": "flower",
+      "review": "pending"
+    },
+    "clouds": {
+      "opportunity": "cloud",
+      "review": "pending"
+    },
+    "confetti": {
+      "opportunity": "broom",
+      "review": "pending"
+    },
+    "fireflies": {
+      "opportunity": "grass",
+      "review": "pending"
+    },
+    "fireworks": {
+      "opportunity": "rocket",
+      "review": "pending"
+    },
+    "fog": {
+      "opportunity": "lamp",
+      "review": "pending"
+    },
+    "fountain": {
+      "opportunity": "fountain",
+      "review": "pending"
+    },
+    "hearts": {
+      "opportunity": "heart",
+      "review": "pending"
+    },
+    "hurricane": {
+      "opportunity": "window",
+      "review": "pending"
+    },
+    "icicles": {
+      "opportunity": "icicles",
+      "review": "pending"
+    },
+    "lanterns": {
+      "opportunity": "lantern",
+      "review": "pending"
+    },
+    "leaves": {
+      "opportunity": "rake",
+      "review": "pending"
+    },
+    "lights": {
+      "opportunity": "tree",
+      "review": "pending"
+    },
+    "meteor": {
+      "opportunity": "telescope",
+      "review": "pending"
+    },
+    "petals": {
+      "opportunity": "leaf",
+      "review": "pending"
+    },
+    "rain": {
+      "opportunity": "window",
+      "review": "pending"
+    },
+    "rainbow": {
+      "opportunity": "puddle",
+      "review": "pending"
+    },
+    "smoke": {
+      "opportunity": "canister",
+      "review": "pending"
+    },
+    "snow": {
+      "opportunity": "snowman",
+      "review": "pending"
+    },
+    "stars": {
+      "opportunity": "telescope",
+      "review": "pending"
+    },
+    "sun": {
+      "opportunity": "lemonade",
+      "review": "pending"
+    },
+    "sunrise": {
+      "opportunity": "window",
+      "review": "pending"
+    },
+    "tornado": {
+      "opportunity": "window",
+      "review": "pending"
+    },
+    "wind": {
+      "opportunity": "kite",
+      "review": "pending"
+    }
+  },
+  "scenes": {
+    "sky_fireworks": {
+      "prop": "rocket",
+      "atmosphere": "fireworks"
+    },
+    "ground_fountain": {
+      "prop": "fountain",
+      "atmosphere": "fountain"
+    },
+    "smoke_bombs": {
+      "prop": "canister",
+      "atmosphere": "smoke"
+    },
+    "thanksgiving_table": {
+      "prop": "feast",
+      "atmosphere": ""
+    },
+    "thanksgiving_bite": {
+      "prop": "pie",
+      "atmosphere": ""
+    },
+    "christmas_lights": {
+      "prop": "tree",
+      "atmosphere": "lights"
+    },
+    "christmas_santa": {
+      "prop": "gift",
+      "atmosphere": "snow"
+    },
+    "christmas_elf": {
+      "prop": "gift",
+      "atmosphere": "lights"
+    },
+    "christmas_snow": {
+      "prop": "snowman",
+      "atmosphere": "snow"
+    },
+    "holi_colors": {
+      "prop": "powder",
+      "atmosphere": "confetti"
+    },
+    "easter_hunt": {
+      "prop": "eggs",
+      "atmosphere": ""
+    },
+    "ghost_hover": {
+      "prop": "pumpkin",
+      "atmosphere": "stars"
+    },
+    "skeleton_dance": {
+      "prop": "pumpkin",
+      "atmosphere": ""
+    },
+    "reaper_stroll": {
+      "prop": "scythe",
+      "atmosphere": "fog"
+    },
+    "masked_jelly": {
+      "prop": "candy",
+      "atmosphere": ""
+    },
+    "rain": {
+      "prop": "puddle",
+      "atmosphere": "rain"
+    },
+    "snow": {
+      "prop": "snowman",
+      "atmosphere": "snow"
+    },
+    "hot": {
+      "prop": "fan",
+      "atmosphere": "sun"
+    },
+    "cloudy": {
+      "prop": "",
+      "atmosphere": "clouds"
+    },
+    "wind": {
+      "prop": "windsock",
+      "atmosphere": "wind"
+    },
+    "storm": {
+      "prop": "cloud",
+      "atmosphere": "rain"
+    },
+    "fog": {
+      "prop": "lamp",
+      "atmosphere": "fog"
+    },
+    "tornado": {
+      "prop": "windsock",
+      "atmosphere": "tornado"
+    },
+    "hurricane": {
+      "prop": "cloud",
+      "atmosphere": "hurricane"
+    },
+    "straight_line_wind": {
+      "prop": "leaf",
+      "atmosphere": "wind"
+    },
+    "new_year_countdown": {
+      "prop": "clock",
+      "atmosphere": "stars"
+    },
+    "new_year_confetti": {
+      "prop": "balloon",
+      "atmosphere": "confetti"
+    },
+    "valentine_hearts": {
+      "prop": "heart",
+      "atmosphere": "hearts"
+    },
+    "valentine_letter": {
+      "prop": "letter",
+      "atmosphere": "hearts"
+    },
+    "lunar_lanterns": {
+      "prop": "lantern",
+      "atmosphere": "lanterns"
+    },
+    "lunar_envelope": {
+      "prop": "letter",
+      "atmosphere": "stars"
+    },
+    "diwali_diyas": {
+      "prop": "diya",
+      "atmosphere": "stars"
+    },
+    "diwali_rangoli": {
+      "prop": "rangoli",
+      "atmosphere": "confetti"
+    },
+    "eid_crescent": {
+      "prop": "crescent",
+      "atmosphere": "stars"
+    },
+    "eid_sweets": {
+      "prop": "sweets",
+      "atmosphere": "lanterns"
+    },
+    "hanukkah_lights": {
+      "prop": "menorah",
+      "atmosphere": "stars"
+    },
+    "hanukkah_dreidel": {
+      "prop": "dreidel",
+      "atmosphere": ""
+    },
+    "st_patrick_clover": {
+      "prop": "clover",
+      "atmosphere": ""
+    },
+    "st_patrick_rainbow": {
+      "prop": "pot",
+      "atmosphere": "rainbow"
+    },
+    "earth_day_seed": {
+      "prop": "seedling",
+      "atmosphere": ""
+    },
+    "earth_day_globe": {
+      "prop": "globe",
+      "atmosphere": "stars"
+    },
+    "birthday_cake": {
+      "prop": "cake",
+      "atmosphere": "confetti"
+    },
+    "birthday_balloons": {
+      "prop": "gift",
+      "atmosphere": "balloons"
+    },
+    "spring_blossoms": {
+      "prop": "flower",
+      "atmosphere": "petals"
+    },
+    "spring_butterfly": {
+      "prop": "flower",
+      "atmosphere": "butterflies"
+    },
+    "spring_seedling": {
+      "prop": "seedling",
+      "atmosphere": ""
+    },
+    "spring_kite": {
+      "prop": "kite",
+      "atmosphere": "clouds"
+    },
+    "summer_lemonade": {
+      "prop": "lemonade",
+      "atmosphere": "sun"
+    },
+    "summer_sandcastle": {
+      "prop": "sandcastle",
+      "atmosphere": "sun"
+    },
+    "summer_beachball": {
+      "prop": "beachball",
+      "atmosphere": "clouds"
+    },
+    "summer_fireflies": {
+      "prop": "grass",
+      "atmosphere": "fireflies"
+    },
+    "autumn_leaves": {
+      "prop": "leaf",
+      "atmosphere": "leaves"
+    },
+    "autumn_rake": {
+      "prop": "rake",
+      "atmosphere": "leaves"
+    },
+    "autumn_acorn": {
+      "prop": "acorn",
+      "atmosphere": ""
+    },
+    "autumn_cocoa": {
+      "prop": "cocoa",
+      "atmosphere": "smoke"
+    },
+    "winter_snowangel": {
+      "prop": "snowangel",
+      "atmosphere": "snow"
+    },
+    "winter_snowball": {
+      "prop": "snowball",
+      "atmosphere": "snow"
+    },
+    "winter_icicles": {
+      "prop": "snowman",
+      "atmosphere": "icicles"
+    },
+    "winter_mittens": {
+      "prop": "mittens",
+      "atmosphere": "snow"
+    },
+    "rain_puddle_jump": {
+      "prop": "puddle",
+      "atmosphere": "rain"
+    },
+    "rain_umbrella": {
+      "prop": "flower",
+      "atmosphere": "rain"
+    },
+    "rain_window": {
+      "prop": "window",
+      "atmosphere": "rain"
+    },
+    "rain_rainbow": {
+      "prop": "puddle",
+      "atmosphere": "rainbow"
+    },
+    "snow_catch": {
+      "prop": "snowflake",
+      "atmosphere": "snow"
+    },
+    "snow_sled": {
+      "prop": "sled",
+      "atmosphere": "snow"
+    },
+    "hot_popsicle": {
+      "prop": "popsicle",
+      "atmosphere": "sun"
+    },
+    "hot_fan": {
+      "prop": "fan",
+      "atmosphere": "wind"
+    },
+    "wind_pinwheel": {
+      "prop": "pinwheel",
+      "atmosphere": "wind"
+    },
+    "wind_scarf": {
+      "prop": "windsock",
+      "atmosphere": "leaves"
+    },
+    "night_stargazing": {
+      "prop": "telescope",
+      "atmosphere": "stars"
+    },
+    "night_meteor": {
+      "prop": "crescent",
+      "atmosphere": "meteor"
+    },
+    "night_lullaby": {
+      "prop": "music",
+      "atmosphere": "stars"
+    },
+    "morning_sunrise": {
+      "prop": "flower",
+      "atmosphere": "sunrise"
+    },
+    "halloween_witch": {
+      "prop": "broom",
+      "atmosphere": "stars"
+    },
+    "christmas_train": {
+      "prop": "train",
+      "atmosphere": "lights"
+    }
+  }
+}
