@@ -6,6 +6,32 @@ Jelly celebrates holidays, wears costumes, watches the weather and enjoys small 
 
 [Scene catalog](world-catalog.md) · [Design contract](../development/DESIGN_SYSTEM.md) · [Jelly settings](../reference/JELLY.md) · [CLI](../CLI.md#world)
 
+## Readable scenery and quieter motion
+
+Objects share Jelly's pixel scale: an acorn is smaller than a mug, and a tree is taller than either. Contact shadows ground solid props. Steam, flickering candles, rotating fan blades, fluttering ribbons and rippling water give each scene its own movement. Stars twinkle in place; balloons rise; leaves have lobes and veins. Clouds have lit tops and shaded undersides.
+
+Props prefer an unused neighbor and avoid every key touched by a hop. With one free key, a small corner detail sits behind Jelly. Singular sky landmarks such as the sun stay on an available key. Cloud watching deliberately uses drifting scenery without an extra foreground prop. No scene needs a large object on every button.
+
+[Inspect every object and atmosphere effect](artwork.md). The existing `--no-props`, `--no-particles`, `--no-costumes`, `--max-keys` and `--reduced-motion` controls apply to the new artwork; the interaction controls below add short object-use sequences. Reduced motion freezes decorative animation. Restart after changing settings.
+
+## Jelly can use its props
+
+Jelly can approach a rake, pick it up, gather leaves, put it down and admire the pile. Other sequences include sipping cocoa, opening a gift or letter, watering a plant, bouncing a ball, spinning a dreidel, pushing a train, looking through a telescope, blowing a pinwheel, tasting a treat, building snowmen or sandcastles, and blowing out birthday candles.
+
+![Jelly rakes fallen leaves and leaves the finished pile behind](world-raking.gif)
+
+[Interaction gallery and review of every prop](prop-review.md). Props have separate resting, held, in-use and outcome sprites. Clouds, the moon and other scenery remain environmental.
+
+```console
+ocdeck world configure --interactions --interaction-seconds 24
+ocdeck world configure --no-interactions
+ocdeck world preview autumn_rake --output raking.gif
+```
+
+Interactions are enabled by default. `interaction_seconds` (12–300, default 24) is the quiet interval after a completed sequence before another can start; scene changes may introduce a different activity. Short scenes can end before a whole sequence finishes. `--no-interactions` keeps the ambient props and atmosphere. `--no-props` and reduced motion also disable object use. Restart the broker to apply settings.
+
+The director checks free keys every frame, uses Jelly's existing adjacent-key hops and never reserves a session button. A single free key gets a compact shared scene. A tap, hold/help, menu, agent attention, update, coffee break, scene change or reclaimed key cancels object use. Existing agent and physical-button actions retain priority. Outcomes remain on their original key until cancellation, scene change or the next activity.
+
 ## Quick start
 
 World scenes are enabled with Jelly by default. Automatic location uses approximate IP geolocation; weather refreshes every 15 minutes. No account or API key is needed for the bundled personal-use services.
@@ -137,6 +163,8 @@ The table below is generated from the same defaults as the CLI. All fields accep
 | `costumes` | `true` | `--costumes` / `--no-costumes` |
 | `particles` | `true` | `--particles` / `--no-particles` |
 | `props` | `true` | `--props` / `--no-props` |
+| `interactions` | `true` | `--interactions` / `--no-interactions` |
+| `interaction_seconds` | `24` | `--interaction-seconds` (12–300) |
 | `captions` | `true` | `--captions` / `--no-captions` |
 | `help` | `true` | `--hold-help` / `--no-hold-help` |
 | `auto_location` | `true` | `--auto-location` / `--no-auto-location` |
