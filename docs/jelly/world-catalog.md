@@ -8,6 +8,8 @@ Every entry is implemented in the production renderer. Use `ocdeck world preview
 
 [Animated object inventory and atmosphere gallery](artwork.md) show the shared artwork behind all 75 recipes. Each prop has a material animation or subtle light detail; stationary objects stay grounded. Cloud watching is intentionally scenery-only.
 
+[Jelly–prop interaction gallery and individual prop assessments](prop-review.md) explain which objects are used and which remain scenery. The `prop` column below selects the interaction recipe automatically when object use is enabled.
+
 ## Requested holiday and weather scenes
 
 | ID | Experience | Context | Sky / prop / costume |

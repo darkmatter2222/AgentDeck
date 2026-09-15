@@ -62,10 +62,10 @@ def preview(scene, output, count=6):
     jelly = Jelly(g, seed=1, options={"thoughts": "off", "needs": False, "travel": "rare"})
     jelly.settle(cols, 0)
     images = []
-    for frame in range(72):
+    for frame in range(168):
         now = frame / 12
         jelly.update(now, set(range(count)))
-        world.tick(now, jelly)
+        world.tick(now, jelly, set(range(count)))
         crops = world.decorate(now, jelly, jelly.crops(set(range(count))), set(range(count)))
         im = Image.new("RGB", g.size, "#09111b")
         for key in range(count):

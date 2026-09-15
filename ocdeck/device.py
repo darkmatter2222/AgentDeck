@@ -325,10 +325,18 @@ class DeviceLoop:
                 # A visible Jelly stays under a held finger until release.
                 if self.world_down and self.jelly.current in self.world_down:
                     self.jelly.settle(self.jelly.current, now)
-                self.world.tick(now, self.jelly)
+                self.world.tick(
+                    now,
+                    self.jelly,
+                    available,
+                    blocked=bool(self.world_down)
+                    or bool(self.controls and self.controls.enabled and self.controls.page),
+                )
                 self.status["jelly_world"] = self.world.status
             else:
                 self.jelly.world_costume = ""
+                if self.world:
+                    self.world.interaction.cancel(now, self.jelly)
             frames = self.jelly.crops(available - {coffee_key})
             self.overlay_actions = {k: {"_action": "tap"} for k in frames}
             if self.coffee:

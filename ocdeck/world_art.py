@@ -97,10 +97,10 @@ def costume(image, name, phase, head):
         d.line((13, y + 7, 15, y + 7), fill="#91b6c8")
         d.line((23, y + 7, 25, y + 7), fill="#91b6c8")
     elif name == "scarf":
-        d.line((10, 28, 30, 28), fill=PINK, width=3)
-        d.line((28, 28, 30 + sway, 33), fill=PINK, width=2)
-        d.line((12, 27, 27, 27), fill="#ffc1cb")
-        d.point((30 + sway, 34), fill=GOLD)
+        d.line((10, 32, 30, 32), fill=PINK, width=2)
+        d.line((28, 32, 30 + sway, 35), fill=PINK, width=2)
+        d.line((12, 31, 27, 31), fill="#ffc1cb")
+        d.point((30 + sway, 36), fill=GOLD)
     elif name == "bow":
         d.polygon([(12, y), (18, y + 3), (12, y + 6), (24, y), (18, y + 3), (24, y + 6)], fill=PINK, outline="#a55c79")
         d.rectangle((17, y + 2, 19, y + 4), fill="#ffc1cb")

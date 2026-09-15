@@ -33,7 +33,7 @@ Props and Jelly share the same logical pixel scale. Solid objects meet a common 
 
 The renderer chooses a free neighbor that is not part of a current Jelly crop, then another available key. A single free key gets a compact corner vignette behind the character, so some fine detail is intentionally sacrificed there. No free keys means no decorations. The sun, rainbow and toy wind funnels are placed on available keys rather than hidden behind session buttons. Other atmosphere continues across the shared deck coordinates.
 
-Existing CLI controls govern props, particles, costumes, reduced motion and maximum keys; see [configuration](world.md#configuration). There are no new settings to migrate.
+Existing CLI controls govern props, particles, costumes, reduced motion and maximum keys. `interactions` enables object use and `interaction_seconds` controls the interval between activities; see [Jelly using its props](world.md#jelly-can-use-its-props). Existing configuration files receive the new defaults.
 
 ## Audit scope
 
@@ -44,6 +44,8 @@ The refactor covers every prop and sky renderer, plus all world costume overlays
 **Objects (57):** `acorn`, `balloon`, `beachball`, `broom`, `cake`, `candy`, `canister`, `clock`, `cloud`, `clover`, `cocoa`, `crescent`, `diya`, `dreidel`, `eggs`, `fan`, `feast`, `flower`, `fountain`, `gift`, `globe`, `grass`, `heart`, `icicles`, `kite`, `lamp`, `lantern`, `leaf`, `lemonade`, `letter`, `menorah`, `mittens`, `music`, `pie`, `pinwheel`, `popsicle`, `pot`, `powder`, `puddle`, `pumpkin`, `rake`, `rangoli`, `rocket`, `sandcastle`, `scythe`, `seedling`, `sled`, `snowangel`, `snowball`, `snowflake`, `snowman`, `sweets`, `telescope`, `train`, `tree`, `window`, `windsock`.
 
 **Atmosphere (25):** `balloons`, `butterflies`, `clouds`, `confetti`, `fireflies`, `fireworks`, `fog`, `fountain`, `hearts`, `hurricane`, `icicles`, `lanterns`, `leaves`, `lights`, `meteor`, `petals`, `rain`, `rainbow`, `smoke`, `snow`, `stars`, `sun`, `sunrise`, `tornado`, `wind`.
+
+[The second art review](prop-review.md) records an individual assessment of all 57 props and shows the implemented manipulation sequences.
 
 ## Reproduce and verify
 

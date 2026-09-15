@@ -11,6 +11,7 @@ from .world_weather import local_country
 from .world_art import prop, sky
 from .world_props import AIRBORNE
 from .jelly_catalog import ACTIONS
+from .world_interactions import Interaction
 
 HELP_URL = "https://github.com/darkmatter2222/AgentStreamDeck/blob/main/docs/jelly/world.md#configuration"
 
@@ -47,6 +48,7 @@ class World:
         self.status = {}
         self.last_date_key = None
         self.holiday = None
+        self.interaction = Interaction()
 
     def hold(self, now):
         if now < self.help_until:
@@ -55,7 +57,7 @@ class World:
         self.help_until = now + 20
         return False
 
-    def tick(self, now, jelly):
+    def tick(self, now, jelly, available=None, blocked=False):
         o = self.options
         location, weather, error = self.service.snapshot()
         country = o["country"] if o["country"] != "auto" else (location.country if location else "") or local_country()
@@ -73,6 +75,7 @@ class World:
         jelly.world_phase = 0
         jelly.hop_style = jelly.options["hop_style"]
         if not self.active:
+            self.interaction.cancel(now, jelly)
             self.scene_id = ""
             self.status = {"state": "inactive"}
             return
@@ -144,6 +147,15 @@ class World:
                 jelly.y = jelly.geometry.anchor(jelly.current)[1] - (
                     4 if o["reduced_motion"] else 6 + 2 * math.sin(now * 2)
                 )
+        if available is not None:
+            keys = sorted(available)
+            if jelly.current in keys:
+                keys.remove(jelly.current)
+                keys.insert(0, jelly.current)
+            self.interaction.tick(
+                now, jelly, set(keys[: o["max_keys"]]), scene_id, scene, o, blocked=blocked or now < self.help_until
+            )
+            self.status["interaction"] = self.interaction.stage or "ambient"
         if o["captions"] and jelly.current is not None:
             text = ""
             if o["help"] and o["weather"] and not location and not o["weather_override"] and now >= self.next_hint:
@@ -209,7 +221,12 @@ class World:
                     ground.rectangle((x, g.height - 2 - (x + k) % 3, x + 6, g.height), fill="#dbfff1")
             if bg.getbbox():
                 result[k] = bg
-        if scene and scene.prop and o["props"]:
+        play = self.interaction.frame
+        play_layers = self.interaction.layers(jelly) if play and play.key in keys else None
+        if play_layers and play:
+            bg = result.setdefault(play.key, Image.new("RGBA", (g.width, g.height)))
+            bg.alpha_composite(play_layers[0])
+        if scene and scene.prop and o["props"] and not play_layers:
             # Keep props out of the full set of keys touched by a hopping sprite.
             neighbors = (
                 [k for k in g.adjacent(jelly.current) if k in keys and k not in frames]
@@ -253,6 +270,8 @@ class World:
             if k in frames:
                 bg = result.setdefault(k, Image.new("RGBA", (g.width, g.height)))
                 bg.alpha_composite(frames[k])
+        if play_layers and play and play.key in result:
+            result[play.key].alpha_composite(play_layers[1])
         if jelly.current in result and jelly.state != "hop":
             if now < self.help_until:
                 tile = Image.new("RGBA", (g.width, g.height), "#09111b")

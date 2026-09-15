@@ -27,25 +27,14 @@ def wave(phase):
 
 def leaf(d, x, y, color, tilt=0):
     """Lobed maple silhouette, lit edge, central vein and a separate stem."""
+    # Hand-authored face/edge/back poses, without arbitrary image rotation.
+    span = 0.55 if tilt else 1.0
+    points = [(0, -5), (2, -2), (4, -3), (3, 0), (5, 0), (2, 3), (0, 4), (-3, 2), (-5, -1), (-2, -1), (-2, -3)]
     d.polygon(
-        [
-            (x, y - 5),
-            (x + 2, y - 2),
-            (x + 4, y - 3),
-            (x + 3, y),
-            (x + 5, y),
-            (x + 2, y + 3),
-            (x, y + 4),
-            (x - 3, y + 2),
-            (x - 5, y - 1),
-            (x - 2, y - 1),
-            (x - 2, y - 3),
-        ],
-        fill=color,
-        outline="#9b5837",
+        [(x + round(dx * span), y + dy) for dx, dy in points], fill="#d7a566" if tilt > 0 else color, outline="#9b5837"
     )
-    d.line([(x + tilt, y - 3), (x, y + 2), (x - 1, y + 6)], fill=GOLD)
-    d.line((x - 2, y, x, y + 2, x + 2, y), fill="#f4b665")
+    d.line([(x + tilt, y - 3), (x, y + 2), (x - 1 - tilt, y + 6)], fill=GOLD)
+    d.line((x - round(2 * span), y, x, y + 2, x + round(2 * span), y), fill="#f4b665")
 
 
 def cloud(d, x, y, storm=False):
