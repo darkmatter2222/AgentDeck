@@ -43,7 +43,7 @@ Jelly is original procedural pixel art inspired by the readable, squash-and-stre
 
 ## Animation and layout
 
-Maintain elapsed-time positioning independently from discrete pose holds. Existing local art uses approximately 12 pose holds per second; the broker defaults to 24 FPS and caps at 30. The world layer uses an elapsed 8 Hz atmosphere clock without a forced global reset, 4 Hz held prop poses, and bounded motif caches. Do not increase USB writes for unchanged images.
+Maintain elapsed-time positioning independently from discrete pose holds. Existing local art uses approximately 12 pose holds per second; the broker defaults to 24 FPS and caps at 30. Natural particles sample elapsed seconds on every frame, with independent lifetimes, stable per-key seeds and local ground contact. Stars and supported decorative motifs retain an 8 Hz pose clock; held props use 4 Hz poses and bounded caches. Do not increase USB writes for unchanged images.
 
 Jelly travels only between orthogonally adjacent free keys. Shared deck coordinates include virtual gaps, so effects line up across keys. A scene can occupy disconnected empty viewports, but Jelly cannot cross an occupied key. Recalculate availability every frame; never retain an ownership claim to a key.
 
@@ -90,6 +90,7 @@ Automatic location is approximate IP geolocation, not GPS. A manual coordinate p
 | [jelly_art.py](../../ocdeck/jelly_art.py) | Original body, expressions and palette |
 | [world_catalog.py](../../ocdeck/world_catalog.py) | Immutable scene recipes |
 | [world_art.py](../../ocdeck/world_art.py) | Costume overlays and sparse atmosphere |
+| [world_particles.py](../../ocdeck/world_particles.py) | Deterministic particle lifetimes, local floors, impacts and fading |
 | [world_props.py](../../ocdeck/world_props.py) | Sized object silhouettes, materials and held animation poses |
 | [world_interactions.py](../../ocdeck/world_interactions.py) | Interruptible object-use timeline, grip overlays and persistent outcomes |
 | [world_calendar.py](../../ocdeck/world_calendar.py) | Cached calendar dates and priority |
